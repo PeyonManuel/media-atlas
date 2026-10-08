@@ -145,12 +145,14 @@ for it in range(120):
     step = np.zeros((N, 2))
     for a in range(N):
         for b in range(a + 1, N):
-            if cont[a] != cont[b]: continue
+            # islands never run into each other, of their own continent or a neighbouring one (an island
+            # drawn toward another continent stops at its shore instead of sliding in among its islands)
+            g = gap(a, b)
             v = cen[b] - cen[a]; dc = math.hypot(*v)
-            if dc > rad[a] + rad[b] + ISL: continue
+            if dc > rad[a] + rad[b] + g: continue
             d = nearest(a, b)
-            if d < ISL:
-                u = v / (dc or 1e-6); push = (ISL - d) * 0.5 + 0.3
+            if d < g:
+                u = v / (dc or 1e-6); push = (g - d) * 0.5 + 0.3
                 fa = size[b] / (size[a] + size[b])
                 step[a] -= u * push * fa; step[b] += u * push * (1 - fa)
     for (a, b), w in aff.items():

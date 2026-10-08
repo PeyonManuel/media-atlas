@@ -55,4 +55,6 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   keeps to its own part of the island. Paused works in colour. Lengths rounded, detail on hover.
 - Clicking an island selects it and glides there; sub-islands show in the sidebar only when clicked.
   On phones the sidebar starts closed and portal taps don't open it. Key/footer only when zoomed out.
-- Never write "it belongs here too": use a portal.
+- Never write "it belongs here too": use a portal. Portals show only for the selected island (or work) and
+  once zoomed in close (`PORTAL_K`), never all over the overview.
+- Land height is how much he loved it: the local average score (6 = flat, 10 = highest ground).

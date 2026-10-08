@@ -443,8 +443,8 @@ const PHRASES = new Map(Object.entries({
   'Bigger: your 9s and 4★ books (1.35×), 10s and 5★ books (1.7×); longer works are bigger too': 'Más grandes: tus 9 y libros de 4★ (1,35×), tus 10 y libros de 5★ (1,7×); y lo más largo, más grande',
   'The panel follows the map. Pan or zoom and it shows what you are looking at.': 'El panel sigue al mapa. Muévete o haz zoom y muestra lo que estás mirando.',
   'Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026': 'Datos de Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, octubre de 2026',
-  'Each symbol is one work, shaped by its medium and sized by your rating. Continents group things by sensibility, so Berserk, Dark Souls and The First Law share the Grimlands. The land rises where you have gone deep and loved it, and the dashed rings offshore are landmarks you have not reached yet. Zoom in and the symbols turn into records, game cases, books and posters.':
-    'Cada símbolo es una obra: su forma indica el medio y su tamaño, tu nota. Los continentes agrupan por sensibilidad, así que Berserk, Dark Souls y La Primera Ley comparten las Tierras Sombrías. El terreno se eleva donde más has profundizado y disfrutado, y los anillos punteados junto a la costa son hitos que aún no has alcanzado. Al acercarte, los símbolos se convierten en discos, cajas de juegos, libros y pósters.',
+  'Each symbol is one work, shaped by its medium and sized by your rating and its length. Continents group things by sensibility, so Berserk, Dark Souls and The First Law share the Grimlands. The land rises where you loved what you found: the higher the ground, the higher your scores there, and the dashed rings offshore are landmarks you have not reached yet. Zoom in and the symbols turn into records, game cases, books and posters.':
+    'Cada símbolo es una obra: su forma indica el medio y su tamaño, tu nota y su duración. Los continentes agrupan por sensibilidad, así que Berserk, Dark Souls y La Primera Ley comparten las Tierras Sombrías. El terreno se eleva donde más te gustó lo que encontraste: cuanto más alto, mejores tus notas, y los anillos punteados junto a la costa son hitos que aún no has alcanzado. Al acercarte, los símbolos se convierten en discos, cajas de juegos, libros y pósters.',
   'Curated threads that cross regions and media. Pick one to trace it across the map.': 'Hilos que cruzan regiones y medios. Elige uno para seguirlo por el mapa.',
   'Crowd scores come from Goodreads and AniList.': 'Las notas del público vienen de Goodreads y AniList.',
   'Not enough dated works to draw a timeline.': 'No hay suficientes obras con fecha para dibujar una línea temporal.',
@@ -709,11 +709,14 @@ function footprint(i) {
 function liftFootprints(grid, works, level, margin, x0, y0, nx, ny) {
   for (const w of works) {
     const [bx0, by0, bx1, by1] = footprint(w);
-    const ix0 = Math.max(0, Math.floor((bx0 - margin - x0) / CELL)), ix1 = Math.min(nx - 1, Math.ceil((bx1 + margin - x0) / CELL));
-    const iy0 = Math.max(0, Math.floor((by0 - margin - y0) / CELL)), iy1 = Math.min(ny - 1, Math.ceil((by1 + margin - y0) / CELL));
+    const ex = (bx1 - bx0) * 0.25 + margin, ey = (by1 - by0) * 0.25 + margin;
+    const ix0 = Math.max(0, Math.floor((bx0 - ex - x0) / CELL)), ix1 = Math.min(nx - 1, Math.ceil((bx1 + ex - x0) / CELL));
+    const iy0 = Math.max(0, Math.floor((by0 - ey - y0) / CELL)), iy1 = Math.min(ny - 1, Math.ceil((by1 + ey - y0) / CELL));
+    // an ellipse around the footprint (it just covers the corners), so the ground stays rounded
+    const cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2, ax = (bx1 - bx0) * 0.71, ay = (by1 - by0) * 0.71, am = Math.min(ax, ay);
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) {
       const X = x0 + ix * CELL, Y = y0 + iy * CELL;
-      const dx = Math.max(bx0 - X, 0, X - bx1), dy = Math.max(by0 - Y, 0, Y - by1), d = Math.hypot(dx, dy);
+      const d = Math.max(0, Math.hypot((X - cx) / ax, (Y - cy) / ay) - 1) * am;
       if (d >= margin) continue;
       const t = 1 - d / margin, v = level * (0.75 + 0.5 * t * t * (3 - 2 * t));
       const j = iy * nx + ix;
@@ -733,8 +736,15 @@ function buildGeometry() {
     const nx = Math.ceil((x1 - x0) / CELL), ny = Math.ceil((y1 - y0) / CELL);
     const coastGrid = densityGrid([...pts.map(p => [p.px, p.py, 1]), ...ghosts.map(g => [g.px, g.py, 0.4])], SIG_COAST, x0, y0, nx, ny);
     liftFootprints(coastGrid, pts.filter(w => !w.dl), COAST_LEVELS[COAST], SIG_COAST * 0.6, x0, y0, nx, ny);
-    // Hills rise with how much you liked things, not only how many there are.
-    const hillGrid = densityGrid(pts.map(p => [p.px, p.py, p.r > 0 ? 0.5 + 0.075 * p.r : 0.75]), SIG_HILL, x0, y0, nx, ny);
+    // Height is how much you loved it: the local average of your scores (out of 10 for every medium),
+    // from nothing at 6 to the highest ground at 10, faded down where works thin out toward the coast.
+    const rated = pts.filter(p => p.r > 0 && !p.dl);
+    const sumR = densityGrid(rated.map(p => [p.px, p.py, p.r]), SIG_HILL, x0, y0, nx, ny);
+    const hillGrid = densityGrid(rated.map(p => [p.px, p.py, 1]), SIG_HILL, x0, y0, nx, ny);
+    for (let j = 0; j < hillGrid.length; j++) {
+      const n = hillGrid[j];
+      hillGrid[j] = n > 1e-3 ? Math.max(0, (sumR[j] / n - 6) / 4) * 7.2 * Math.min(1, n / 0.9) : 0;
+    }
     const contours = [
       ...d3.contours().size([nx, ny]).thresholds(COAST_LEVELS)(coastGrid),
       ...d3.contours().size([nx, ny]).thresholds(HILL_LEVELS)(hillGrid),
@@ -1368,15 +1378,25 @@ function draw() {
 }
 
 // ---------- portals ----------
+// Portals stay out of the way: they show for the island (or work) you've selected, and for everything
+// once you're zoomed in close among the works.
+const PORTAL_K = 2.2;
+function portalShown(pt, k = transform.k) {
+  if (k >= PORTAL_K || state.hover === pt) return true;
+  const sel = state.selProv || (state.selItem && itemById.get(state.selItem).p);
+  if (!sel) return false;
+  const sp = provById.get(sel), top = sp.parent ? provById.get(sp.parent) : sp;
+  return top.family.some(q => q.id === pt.from);
+}
 function drawPortals(k, px) {
-  if (k < 0.55 || !PORTALS.length) return;
+  if (!PORTALS.length) return;
   const R = Math.max(4.5, Math.min(9, 2.9 * Math.sqrt(k))) * px;
   const [vx0, vy0] = transform.invert([-20, -20]), [vx1, vy1] = transform.invert([Wpx + 20, Hpx + 20]);
   // a portal shared by several works is tied to each of them by a fine line, so you can see they belong together
   if (k > 1.1) {
     ctx.save(); ctx.strokeStyle = T.accent; ctx.lineWidth = px * 1.1; ctx.setLineDash([px * 2, px * 2.5]);
     for (const pt of PORTALS) {
-      if (!pt.viaW || pt.viaW.length < 2) continue;
+      if (!pt.viaW || pt.viaW.length < 2 || !portalShown(pt, k)) continue;
       if (pt.px < vx0 || pt.px > vx1 || pt.py < vy0 || pt.py > vy1) continue;
       const on = state.hover === pt || (state.selProv && provById.get(state.selProv).family.some(q => q.id === pt.from));
       ctx.globalAlpha = on ? 0.85 : 0.35;
@@ -1387,7 +1407,7 @@ function drawPortals(k, px) {
     ctx.restore(); ctx.globalAlpha = 1;
   }
   for (const pt of PORTALS) {
-    if (pt.px < vx0 || pt.px > vx1 || pt.py < vy0 || pt.py > vy1) continue;
+    if (pt.px < vx0 || pt.px > vx1 || pt.py < vy0 || pt.py > vy1 || !portalShown(pt, k)) continue;
     const dim = (state.selCont && pt.fromP.c !== state.selCont) || !inSelProv(pt.from) ? 0.35 : 1;
     const hov = state.hover === pt;
     ctx.globalAlpha = dim;
@@ -1441,7 +1461,7 @@ function drawLabels() {
   // portal reasons: always for the selected island and the hovered portal; for everything once zoomed in
   // far enough that there's room (labels never overlap; the selected island's go first)
   const selFam = state.selProv ? provById.get(state.selProv).family.map(q => q.id) : [];
-  const labelled = PORTALS.filter(pt => state.hover === pt || selFam.includes(pt.from) || k > 2.2)
+  const labelled = PORTALS.filter(pt => portalShown(pt, k) && (state.hover === pt || selFam.includes(pt.from) || k > PORTAL_K))
     .sort((a, b) => (selFam.includes(b.from) - selFam.includes(a.from)));
   if (k > 0.9 && labelled.length) {
     ctx.font = 'italic 500 11px Archivo, Arial, sans-serif'; ctx.textAlign = 'left';
@@ -1838,7 +1858,8 @@ const qGhosts = d3.quadtree(GHOSTS, d => d.px, d => d.py);
 function pick(mx, my) {
   const [x, y] = transform.invert([mx, my]);
   const k = transform.k;
-  if (k >= 0.55) for (const pt of PORTALS) {
+  for (const pt of PORTALS) {
+    if (!portalShown(pt, k)) continue;
     const [sx, sy] = transform.apply([pt.px, pt.py]);
     if (Math.hypot(sx - mx, sy - my) < 12) return pt;
   }
@@ -2708,7 +2729,7 @@ function renderLedger() {
   show(
     h('div', { class: 'section' },
       h('h2', null, 'Survey Ledger'),
-      h('p', { class: 'lede' }, 'Each symbol is one work, shaped by its medium and sized by your rating. Continents group things by sensibility, so Berserk, Dark Souls and The First Law share the Grimlands. The land rises where you have gone deep and loved it, and the dashed rings offshore are landmarks you have not reached yet. Zoom in and the symbols turn into records, game cases, books and posters.')),
+      h('p', { class: 'lede' }, 'Each symbol is one work, shaped by its medium and sized by your rating and its length. Continents group things by sensibility, so Berserk, Dark Souls and The First Law share the Grimlands. The land rises where you loved what you found: the higher the ground, the higher your scores there, and the dashed rings offshore are landmarks you have not reached yet. Zoom in and the symbols turn into records, game cases, books and posters.')),
     h('div', { class: 'figures' },
       h('div', { class: 'figure' }, h('b', null, nf(consumed.length)), h('span', null, 'works charted')),
       h('div', { class: 'figure' }, h('b', null, charted_.length), h('span', null, `regions on ${W.continents.length} continents`)),

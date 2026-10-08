@@ -27,7 +27,7 @@ async def main():
         await pg.mouse.click(*pts[1]); await pg.wait_for_timeout(1100)
         print('click land  ->', await pg.evaluate("() => [state.selProv && provById.get(state.selProv).name, state.selItem]"))
         # film / music / tv cards: any 'null' or 'undefined' in the panel?
-        for q in ("i.m==='film'","i.m==='music'","i.m==='tv' && i.mins","i.m==='tv' && !i.mins","i.m==='books' && i.len>100"):
+        for q in ("i.m==='film'","i.m==='music'","i.m==='tv' && i.mins","i.m==='tv' && i.was!=='anime'","i.m==='books' && i.len>100"):
             txt = await pg.evaluate(f"() => {{ const i = W.items.find(i => {q} && i.r); selectItem(i.id, {{fly:false}}); const t = document.getElementById('panel-inner').innerText; return [i.t, /null|undefined|NaN/.test(t), (t.match(/Length\\n[^\\n]*/)||[''])[0].replace('\\n',': '), (t.match(/Your rating\\n[^\\n]*/)||[''])[0].replace('\\n',': ')]; }}")
             print(q, '->', txt)
         tip = await pg.evaluate("() => { const i = W.items.find(i => i.m==='film'); buildTip(i); return tip.innerText; }")

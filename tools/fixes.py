@@ -114,6 +114,34 @@ new_island('halo', 'Halo', 'action', 'Campaign Shooters', realm=True)
 for i in list(W['items']):
     if re.match(r'Halo\b', i['t']) and i['m'] == 'game': move_item(i['id'], 'Halo')
 
+# How long a show really is: Serializd gives episodes only, so each show gets its typical episode length
+# (minutes), and `mins` = episodes x that. Anime already carries its AniList runtime.
+EP_MIN = {
+    ('The Sopranos', 1999): 55, ('The Beatles: Get Back', 2021): 155, ('A Knight of the Seven Kingdoms', 2026): 35,
+    ('Planet Earth III', 2023): 50, ('The Simpsons', 1989): 22, ('Planet Earth', 2006): 50, ('Fallout', 2024): 60,
+    ('Samurai Jack', 2001): 22, ('Gravity Falls', 2012): 22, ('Severance', 2022): 50, ('Stranger Things', 2016): 62,
+    ('The Offer', 2022): 55, ('MINDHUNTER', 2017): 55, ('Fleabag', 2016): 26, ('BoJack Horseman', 2014): 25,
+    ('The Bear', 2022): 32, ('The Walking Dead', 2010): 43, ('The Office', 2005): 22, ('Succession', 2018): 60,
+    ('Batman: The Animated Series', 1992): 22, ('House of the Dragon', 2022): 62, ('Mr. Robot', 2015): 48,
+    ('Scavengers Reign', 2023): 25, ("X-Men '97", 2024): 32, ('Shōgun', 2024): 60, ('Wednesday', 2022): 50,
+    ('The Last of Us', 2023): 55, ('Arcane', 2021): 40, ('The Owl House', 2020): 22, ('1899', 2022): 57,
+    ('Primal', 2019): 22, ("The Queen's Gambit", 2020): 60, ('Chernobyl', 2019): 65, ('Andor', 2022): 45,
+    ('The Mandalorian', 2019): 38, ('Avatar: The Last Airbender', 2024): 55, ('The Boys', 2019): 60,
+    ('The Witcher', 2019): 60, ('Battlestar Galactica', 2003): 90, ('Anne with an E', 2017): 45, ('Dark', 2017): 55,
+    ('Planet Earth II', 2016): 50, ("Marvel's The Punisher", 2017): 53, ('13 Reasons Why', 2017): 55, ('Narcos', 2015): 50,
+    ("Marvel's Daredevil", 2015): 53, ('Over the Garden Wall', 2014): 11, ('Rick and Morty', 2013): 22, ('Fargo', 2014): 53,
+    ('Peaky Blinders', 2013): 57, ('Better Call Saul', 2015): 47, ('True Detective', 2014): 58, ('Black Mirror', 2011): 60,
+    ('Lonesome Dove', 1989): 95, ('Hannibal', 2013): 43, ('Shōgun', 1980): 108, ('Parks and Recreation', 2009): 22,
+    ('Band of Brothers', 2001): 60, ('Star Wars: Clone Wars', 2003): 6, ("It's Always Sunny in Philadelphia", 2005): 22,
+    ('Robotech', 1985): 22, ('Twin Peaks', 1990): 48, ('The Wire', 2002): 58, ('Seinfeld', 1989): 22,
+    ('Game of Thrones', 2011): 57, ('Breaking Bad', 2008): 47, ('Spider-Man', 1994): 22, ('Avatar: The Last Airbender', 2005): 23,
+}
+for i in W['items']:
+    if i['m'] == 'tv' and not i.get('mins') and i.get('len'):
+        ep = EP_MIN.get((i['t'], i.get('y')))
+        if ep: i['mins'] = i['len'] * ep
+        else: print(f"no episode length for {i['t']} ({i.get('y')})")
+
 MOVES = {'The Elephant Man': 'Twin Peaks & Lynch'}
 for t, dest in MOVES.items():
     for i in W['items']:

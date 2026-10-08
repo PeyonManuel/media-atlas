@@ -35,6 +35,9 @@ for o in W.get('portals', []):
     # the anchor: the island's spot furthest toward the destination; the group takes it and its nearest spots
     anchor = max(spots, key=lambda w: (w['px'] - cx) * ux + (w['py'] - cy) * uy)
     free_ = [w for w in spots if w['id'] not in locked or w['id'] in via]
+    # a group of one medium stays within that medium's part of the island (see media.py)
+    same = [w for w in free_ if w['m'] == ws[0]['m']]
+    if all(w['m'] == ws[0]['m'] for w in ws) and len(same) >= len(ws): free_ = same
     anchor = max(free_, key=lambda w: (w['px'] - cx) * ux + (w['py'] - cy) * uy)
     target = sorted(free_, key=lambda w: math.hypot(w['px'] - anchor['px'], w['py'] - anchor['py']))[:len(ws)]
     tpos = [(t['px'], t['py']) for t in target]

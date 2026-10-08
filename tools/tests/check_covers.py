@@ -15,9 +15,7 @@ async def main():
         await pg.goto('http://127.0.0.1:8779/index.html'); await pg.wait_for_timeout(1300)
         r = await pg.evaluate("""() => {
           // each work's object box (cover plus its case), expansions included in their game's box
-          const box = i => { const fr = frameOf(i), M = objMargins(i, fr.w, fr.h);
-            let x0 = fr.cx - fr.w/2 - M.l, x1 = fr.cx + fr.w/2 + M.r, y0 = fr.cy - fr.h/2 - M.t, y1 = fr.cy + fr.h/2 + M.b;
-            for (const k of (KIDS.get(i.id) || [])) { const f = frameOf(k); x1 = Math.max(x1, f.cx + f.w * 0.6); y0 = Math.min(y0, f.cy - f.h * 0.6); }
+          const box = i => { const [x0, y0, x1, y1] = footprint(i);
             return [x0, y0, x1, y1]; };
           const ws = W.items.filter(i => !i.dl && i.sp).map(i => [i, box(i)]);
           const q = d3.quadtree(ws, d => d[0].px, d => d[0].py);

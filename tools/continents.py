@@ -103,10 +103,12 @@ for it in range(500):
             if d < gap:
                 push = (gap - d) * 0.6
                 off[A] -= v * push * wa; off[B] += v * push * wb; moved += 1
-            elif linked and d > gap * 1.15:
-                pull = min(40.0, (d - gap * 1.05) * 0.08)
+            elif linked and d > gap * 1.15 and it < 380:
+                # pulls fade out over the rounds, so the last rounds only part what still overlaps
+                pull = min(40.0, (d - gap * 1.05) * 0.08) * (1 - it / 380)
                 off[A] += v * pull * wa; off[B] -= v * pull * wb; moved += 1
     if not moved and it > 30: break
+    if it >= 380 and not moved: break
 
 for c in conts:
     dx, dy = float(off[c][0]), float(off[c][1])

@@ -57,7 +57,7 @@ const PHRASES = new Map(Object.entries({
   'works charted': 'obras en el mapa', 'regions that cross media': 'regiones entre medios', 'works': 'obras', 'regions': 'regiones', 'charted': 'explorado',
   'Planned': 'Pendiente', 'Unexplored landmark': 'Hito sin explorar',
   'Colour and shape show the medium. Click one to hide it from the map.': 'El color y la forma indican el medio. Pulsa uno para ocultarlo del mapa.',
-  'Bigger: your 9s and 4★ books (1.25×), 10s and 5★ books (1.5×); games also grow with length': 'Más grandes: tus 9 y libros de 4★ (1,25×), tus 10 y libros de 5★ (1,5×); los juegos también crecen con su duración',
+  'Bigger: your 9s and 4★ books (1.35×), 10s and 5★ books (1.7×); longer works are bigger too': 'Más grandes: tus 9 y libros de 4★ (1,35×), tus 10 y libros de 5★ (1,7×); y lo más largo, más grande',
   'The panel follows the map. Pan or zoom and it shows what you are looking at.': 'El panel sigue al mapa. Muévete o haz zoom y muestra lo que estás mirando.',
   'Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026': 'Datos de Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, octubre de 2026',
   'Each symbol is one work, shaped by its medium and sized by your rating. Continents group things by sensibility, so Berserk, Dark Souls and The First Law share the Grimlands. The land rises where you have gone deep and loved it, and the dashed rings offshore are landmarks you have not reached yet. Zoom in and the symbols turn into records, game cases, books and posters.':

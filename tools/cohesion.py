@@ -17,6 +17,8 @@ from pathlib import Path
 import numpy as np
 
 SITE = Path(sys.argv[1])
+# `cohesion.py SITE settle`: only the collision part, as a last pass once everything else has moved
+SETTLE_ONLY = len(sys.argv) > 2 and sys.argv[2] == 'settle'
 html = (SITE / 'index.html').read_text()
 m = re.search(r'(<script type="application/json" id="world">)(.*?)(</script>)', html, re.S)
 W = json.loads(m.group(2))
@@ -106,43 +108,45 @@ for a_, cs in border.items():
         v = np.array(SKETCH[c]) - np.array(SKETCH[cont[a_]]); n_ = math.hypot(*v)
         if n_: pull_dir[a_] += v / n_ * 1.3
 R = rad + SP_ * 0.5 if 'SP_' in globals() else rad + 6
-pos = cen0.copy()
-for c in set(cont):
-    ids = [a_ for a_ in range(N) if cont[a_] == c]
-    if len(ids) < 2: continue
-    mid = cmid0[c]
-    order = [max(ids, key=lambda a_: size[a_])]
-    placed = {order[0]: np.zeros(2)}
-    rest = set(ids) - set(order)
-    while rest:
-        # next: the island most tied to what is placed, then the biggest
-        nxt = max(rest, key=lambda a_: (sum(w for b_, w in nbr[a_] if b_ in placed), size[a_]))
-        best, bc = None, 1e18
-        span = math.sqrt(sum(size[b_] for b_ in placed))
-        for b_, pb in placed.items():
-            for k in range(24):
-                ang = 2 * math.pi * k / 24
-                d = R[b_] + R[nxt] + ISL * 0.75
-                cand = pb + d * np.array([math.cos(ang), math.sin(ang)])
-                if any(math.hypot(*(cand - q)) < R[o] + R[nxt] + ISL * 0.7 for o, q in placed.items()): continue
-                cost = sum(w * math.hypot(*(cand - placed[o])) for o, w in nbr[nxt] if o in placed)
-                cost += 0.35 * math.hypot(*cand)                                   # compact
-                pd = pull_dir[nxt]
-                if pd.any(): cost -= (cand @ pd) * 0.5                             # toward related continents
-                if cost < bc: bc, best = cost, cand
-        placed[nxt] = best; rest.discard(nxt)
-    # the grown continent keeps its weighted middle where the arrangement put it
-    wsum = sum(size[a_] for a_ in ids)
-    shift = mid - sum(placed[a_] * size[a_] for a_ in ids) / wsum
-    for a_ in ids: pos[a_] = placed[a_] + shift
-off += pos - cen0
-print('continents regrown', end='; ')
+if not SETTLE_ONLY:
+    pos = cen0.copy()
+    for c in set(cont):
+        ids = [a_ for a_ in range(N) if cont[a_] == c]
+        if len(ids) < 2: continue
+        mid = cmid0[c]
+        order = [max(ids, key=lambda a_: size[a_])]
+        placed = {order[0]: np.zeros(2)}
+        rest = set(ids) - set(order)
+        while rest:
+            # next: the island most tied to what is placed, then the biggest
+            nxt = max(rest, key=lambda a_: (sum(w for b_, w in nbr[a_] if b_ in placed), size[a_]))
+            best, bc = None, 1e18
+            span = math.sqrt(sum(size[b_] for b_ in placed))
+            for b_, pb in placed.items():
+                for k in range(24):
+                    ang = 2 * math.pi * k / 24
+                    d = R[b_] + R[nxt] + ISL * 0.75
+                    cand = pb + d * np.array([math.cos(ang), math.sin(ang)])
+                    if any(math.hypot(*(cand - q)) < R[o] + R[nxt] + ISL * 0.7 for o, q in placed.items()): continue
+                    cost = sum(w * math.hypot(*(cand - placed[o])) for o, w in nbr[nxt] if o in placed)
+                    cost += 0.35 * math.hypot(*cand)                                   # compact
+                    pd = pull_dir[nxt]
+                    if pd.any(): cost -= (cand @ pd) * 0.5                             # toward related continents
+                    if cost < bc: bc, best = cost, cand
+            placed[nxt] = best; rest.discard(nxt)
+        # the grown continent keeps its weighted middle where the arrangement put it
+        wsum = sum(size[a_] for a_ in ids)
+        shift = mid - sum(placed[a_] * size[a_] for a_ in ids) / wsum
+        for a_ in ids: pos[a_] = placed[a_] + shift
+    off += pos - cen0
+    print('continents regrown', end='; ')
 
 # Settle: the real works must keep an island gap; related islands in a continent ease together a little.
 before = {k: nearest(*k) for k in aff}
-for it in range(120):
+for it in range(400 if SETTLE_ONLY else 120):
     cen = cen0 + off
     step = np.zeros((N, 2))
+    hits = 0
     for a in range(N):
         for b in range(a + 1, N):
             # islands never run into each other, of their own continent or a neighbouring one (an island
@@ -152,9 +156,13 @@ for it in range(120):
             if dc > rad[a] + rad[b] + g: continue
             d = nearest(a, b)
             if d < g:
+                hits += 1
                 u = v / (dc or 1e-6); push = (g - d) * 0.5 + 0.3
                 fa = size[b] / (size[a] + size[b])
                 step[a] -= u * push * fa; step[b] += u * push * (1 - fa)
+    if SETTLE_ONLY:
+        if not hits: break
+        off += np.clip(step, -6, 6); continue
     for (a, b), w in aff.items():
         if cont[a] != cont[b]: continue
         d = nearest(a, b)
@@ -171,7 +179,7 @@ for it in range(120):
 
 # report: how much closer related islands got
 closer = sum(1 for k, w in aff.items() if before[k] is not None and nearest(*k) < before[k] - 1)
-print(f'{len(aff)} relations, {closer} drawn closer; {N} islands')
+print(f'settled after {it + 1} rounds, {hits} islands still touching' if SETTLE_ONLY else f'{len(aff)} relations, {closer} drawn closer; {N} islands')
 
 for a, p in enumerate(tops):
     dx, dy = float(off[a][0]), float(off[a][1])

@@ -1,0 +1,934 @@
+{
+ "fromsoft": [
+  "Brutal, beautiful worlds where every boss is a wall and every shortcut a gift.",
+  "Mundos brutales y bellos donde cada jefe es un muro y cada atajo un regalo."
+ ],
+ "metroidvania": [
+  "Interconnected caverns that open up as you earn new powers and learn their secrets.",
+  "Cavernas interconectadas que se abren a medida que ganas poderes y descubres sus secretos."
+ ],
+ "owrpg": [
+  "Vast open kingdoms to wander, where your choices and your sword shape the story.",
+  "Grandes reinos abiertos para recorrer, donde tus decisiones y tu espada moldean la historia."
+ ],
+ "extreme": [
+  "The heaviest end of metal and hardcore: death, black and chaotic noise.",
+  "El extremo más pesado del metal y el hardcore: death, black y ruido caótico."
+ ],
+ "grimdark": [
+  "Fantasy without heroes: politics, betrayal and morally grey people doing terrible things.",
+  "Fantasía sin héroes: política, traición y gente moralmente gris haciendo cosas terribles."
+ ],
+ "seinendark": [
+  "Dark adult manga and anime about survival, monsters and what makes us human.",
+  "Manga y anime adultos y oscuros sobre supervivencia, monstruos y lo que nos hace humanos."
+ ],
+ "witcher": [
+  "Geralt of Rivia's world, from Sapkowski's books to the Wild Hunt.",
+  "El mundo de Geralt de Rivia, de los libros de Sapkowski a la Cacería Salvaje."
+ ],
+ "westeros": [
+  "George R. R. Martin's Seven Kingdoms, on the page and on screen.",
+  "Los Siete Reinos de George R. R. Martin, en papel y en pantalla."
+ ],
+ "berserk": [
+  "Kentaro Miura's Berserk: Guts, the Band of the Hawk and the Eclipse.",
+  "Berserk de Kentaro Miura: Guts, la Banda del Halcón y el Eclipse."
+ ],
+ "paradis": [
+  "Attack on Titan, behind the walls and beyond the sea.",
+  "Ataque a los Titanes, tras los muros y más allá del mar."
+ ],
+ "castlevania": [
+  "The Belmonts against Dracula's castle, from the 16-bit era to the night symphony.",
+  "Los Belmont contra el castillo de Drácula, de los 16 bits a la sinfonía nocturna."
+ ],
+ "amblin": [
+  "Bikes, suburbs and wonder: the Spielberg-era adventures of growing up.",
+  "Bicis, suburbios y asombro: las aventuras de crecer de la época de Spielberg."
+ ],
+ "middleearth": [
+  "Tolkien's legendarium, from the First Age to the War of the Ring.",
+  "El legendarium de Tolkien, de la Primera Edad a la Guerra del Anillo."
+ ],
+ "wizarding": [
+  "Hogwarts and the Harry Potter books and films.",
+  "Hogwarts y los libros y películas de Harry Potter."
+ ],
+ "swords": [
+  "Classic sword-and-sorcery and mythic fantasy films.",
+  "Películas clásicas de espada y brujería y fantasía mítica."
+ ],
+ "crpg": [
+  "Deep computer role-playing games of dice, dialogue and consequence.",
+  "RPG de ordenador profundos, de dados, diálogo y consecuencias."
+ ],
+ "jrpg": [
+  "Japanese role-playing epics with turn-based battles, big casts and bigger stakes.",
+  "Épicas de rol japonesas con combates por turnos, grandes repartos y aún más en juego."
+ ],
+ "hyrule": [
+  "The Legend of Zelda across the generations.",
+  "The Legend of Zelda a lo largo de las generaciones."
+ ],
+ "epicfantasy": [
+  "Doorstopper fantasy series with magic systems, prophecies and long journeys.",
+  "Grandes sagas de fantasía con sistemas de magia, profecías y largos viajes."
+ ],
+ "isekai": [
+  "Other worlds, leveling up and system screens: isekai and progression fantasy.",
+  "Otros mundos, subir de nivel y pantallas de estado: isekai y fantasía de progresión."
+ ],
+ "fantasymanga": [
+  "Fantasy manga and anime about quests, alchemy and what comes after the adventure.",
+  "Manga y anime de fantasía sobre misiones, alquimia y lo que viene tras la aventura."
+ ],
+ "fournations": [
+  "Avatar: The Last Airbender, its four nations and four elements.",
+  "Avatar: La leyenda de Aang, sus cuatro naciones y cuatro elementos."
+ ],
+ "runeterra": [
+  "Riot's world of League of Legends, Arcane and its card and auto-battler spin-offs.",
+  "El mundo de League of Legends de Riot, Arcane y sus derivados de cartas y autobattler."
+ ],
+ "finalfantasy": [
+  "Final Fantasy, from the 8-bit original to its modern remakes.",
+  "Final Fantasy, del original de 8 bits a sus remakes modernos."
+ ],
+ "sub-the-lord-of-the-rings": [
+  "The Fellowship's journey to Mordor, in book and film.",
+  "El viaje de la Comunidad a Mordor, en libro y en película."
+ ],
+ "sub-the-hobbit": [
+  "Bilbo's journey there and back again.",
+  "El viaje de ida y vuelta de Bilbo."
+ ],
+ "sub-the-wheel-of-time": [
+  "Robert Jordan's Wheel of Time and the Dragon Reborn.",
+  "La Rueda del Tiempo de Robert Jordan y el Dragón Renacido."
+ ],
+ "sub-the-dresden-files": [
+  "Harry Dresden, Chicago's only wizard detective.",
+  "Harry Dresden, el único mago detective de Chicago."
+ ],
+ "sub-the-stormlight-archive": [
+  "Brandon Sanderson's Stormlight Archive and the Knights Radiant of Roshar.",
+  "El Archivo de las Tormentas de Brandon Sanderson y los Caballeros Radiantes de Roshar."
+ ],
+ "cameron": [
+  "James Cameron's machines, oceans and aliens.",
+  "Las máquinas, océanos y alienígenas de James Cameron."
+ ],
+ "nolan": [
+  "Christopher Nolan's puzzles of time, memory and scale.",
+  "Los rompecabezas de Christopher Nolan sobre el tiempo, la memoria y la escala."
+ ],
+ "villeneuve": [
+  "Denis Villeneuve's vast, quiet science fiction.",
+  "La ciencia ficción vasta y silenciosa de Denis Villeneuve."
+ ],
+ "scifi": [
+  "Science-fiction films of space, survival and first contact.",
+  "Películas de ciencia ficción sobre el espacio, la supervivencia y el primer contacto."
+ ],
+ "valve": [
+  "Valve's worlds: Half-Life, Portal and Left 4 Dead.",
+  "Los mundos de Valve: Half-Life, Portal y Left 4 Dead."
+ ],
+ "immersive": [
+  "Immersive sims where every system talks to every other and any plan can work.",
+  "Immersive sims donde todos los sistemas interactúan y cualquier plan puede funcionar."
+ ],
+ "electronic": [
+  "Electronic music and sample collage, from ambient to French house.",
+  "Música electrónica y collage de samples, del ambient al house francés."
+ ],
+ "spaceopera": [
+  "Galaxy-spanning novels of empires, fleets and the far future.",
+  "Novelas que abarcan galaxias, con imperios, flotas y el futuro lejano."
+ ],
+ "literarysf": [
+  "Science fiction of big ideas, from the Dying Earth to the Three-Body Problem.",
+  "Ciencia ficción de grandes ideas, de la Tierra moribunda al Problema de los tres cuerpos."
+ ],
+ "cyber": [
+  "Neon cities, cyborgs and surveillance: cyberpunk anime and manga.",
+  "Ciudades de neón, cíborgs y vigilancia: anime y manga cyberpunk."
+ ],
+ "mecha": [
+  "Giant robots and starship battles in anime.",
+  "Robots gigantes y batallas de naves en el anime."
+ ],
+ "scifithriller": [
+  "Time loops, conspiracies and escapes: science-fiction thrillers.",
+  "Bucles temporales, conspiraciones y fugas: thrillers de ciencia ficción."
+ ],
+ "scifitv": [
+  "Prestige science-fiction television.",
+  "Series de ciencia ficción de prestigio."
+ ],
+ "starwars": [
+  "A galaxy far, far away: the saga, the Clone Wars, the Old Republic and the Expanded Universe.",
+  "Una galaxia muy, muy lejana: la saga, las Guerras Clon, la Antigua República y el Universo Expandido."
+ ],
+ "dune": [
+  "Frank Herbert's desert planet, in the novels and Villeneuve's films.",
+  "El planeta desierto de Frank Herbert, en las novelas y en las películas de Villeneuve."
+ ],
+ "logh": [
+  "Legend of the Galactic Heroes: Reinhard and Yang across the stars.",
+  "La leyenda de los héroes galácticos: Reinhard y Yang entre las estrellas."
+ ],
+ "wasteland": [
+  "Fallout's post-nuclear wasteland, on screen and in the game.",
+  "El yermo post-nuclear de Fallout, en pantalla y en el juego."
+ ],
+ "nightcity": [
+  "Cyberpunk 2077's Night City and its edgerunners.",
+  "Night City de Cyberpunk 2077 y sus mercenarios."
+ ],
+ "robotech": [
+  "Macross and Robotech: transforming fighters and pop-star diplomacy.",
+  "Macross y Robotech: cazas transformables y diplomacia a golpe de canción."
+ ],
+ "sub-half-life": [
+  "Gordon Freeman, Black Mesa and City 17.",
+  "Gordon Freeman, Black Mesa y City 17."
+ ],
+ "sub-red-rising-saga": [
+  "Pierce Brown's Red Rising: Darrow's rebellion against the Golds.",
+  "Amanecer Rojo de Pierce Brown: la rebelión de Darrow contra los Dorados."
+ ],
+ "sub-the-sun-eater": [
+  "Christopher Ruocco's Sun Eater: Hadrian Marlowe's long confession.",
+  "El Devorador de Soles de Christopher Ruocco: la larga confesión de Hadrian Marlowe."
+ ],
+ "noir": [
+  "Shadows, femmes fatales and doomed schemes of classic film noir.",
+  "Sombras, mujeres fatales y planes condenados del cine negro clásico."
+ ],
+ "hitchcock": [
+  "Alfred Hitchcock's suspense machines.",
+  "Las máquinas de suspense de Alfred Hitchcock."
+ ],
+ "korea": [
+  "Korean cinema's sharp, genre-bending wave.",
+  "La afilada ola del cine coreano que mezcla géneros."
+ ],
+ "seventies": [
+  "New Hollywood: the gritty, personal films of the 1970s.",
+  "El Nuevo Hollywood: el cine crudo y personal de los años setenta."
+ ],
+ "scorsese": [
+  "Martin Scorsese's mean streets, wiseguys and Wall Street wolves.",
+  "Las calles peligrosas de Scorsese, sus mafiosos y sus lobos de Wall Street."
+ ],
+ "tarantino": [
+  "Quentin Tarantino's talkative, violent pulp.",
+  "El pulp charlatán y violento de Quentin Tarantino."
+ ],
+ "gangland": [
+  "Gangsters, hitmen and heists gone wrong.",
+  "Gánsteres, sicarios y golpes que salen mal."
+ ],
+ "psych": [
+  "Thrillers that live inside unreliable, obsessive minds.",
+  "Thrillers que viven dentro de mentes obsesivas y poco fiables."
+ ],
+ "sandbox": [
+  "Open cities and frontiers to cause trouble in: GTA, Red Dead, Yakuza.",
+  "Ciudades y fronteras abiertas para liarla: GTA, Red Dead, Yakuza."
+ ],
+ "goldenage": [
+  "Hip hop's golden age: boom bap, jazz samples and East Coast lyricism.",
+  "La edad de oro del hip hop: boom bap, samples de jazz y lírica de la Costa Este."
+ ],
+ "south": [
+  "Southern and Memphis rap, from Three 6 Mafia's tapes to Clipse.",
+  "Rap sureño y de Memphis, de las cintas de Three 6 Mafia a Clipse."
+ ],
+ "underground": [
+  "Abrasive, experimental hip hop: Death Grips, Danny Brown, MF DOOM.",
+  "Hip hop abrasivo y experimental: Death Grips, Danny Brown, MF DOOM."
+ ],
+ "modernrap": [
+  "The era Kanye West and Kendrick Lamar defined.",
+  "La era que definieron Kanye West y Kendrick Lamar."
+ ],
+ "thrillers": [
+  "Mysteries and thrillers on the page, from Christie to modern spy stories.",
+  "Misterios y thrillers en papel, de Christie a las historias de espías modernas."
+ ],
+ "gunsmoke": [
+  "Crime, guns and gangsters in manga and anime.",
+  "Crimen, armas y gánsteres en manga y anime."
+ ],
+ "crimetv": [
+  "Prestige crime television, from the Sopranos to the Wire.",
+  "Series de crimen de prestigio, de Los Soprano a The Wire."
+ ],
+ "corleone": [
+  "The Godfather saga and the Corleone family.",
+  "La saga de El Padrino y la familia Corleone."
+ ],
+ "albuquerque": [
+  "Breaking Bad and Better Call Saul's Albuquerque.",
+  "El Albuquerque de Breaking Bad y Better Call Saul."
+ ],
+ "deathnote": [
+  "Death Note: Light, L and the notebook.",
+  "Death Note: Light, L y el cuaderno."
+ ],
+ "urasawa": [
+  "Naoki Urasawa's slow-burning mysteries.",
+  "Los misterios a fuego lento de Naoki Urasawa."
+ ],
+ "fargo": [
+  "Fargo's snowbound crimes, on film and television.",
+  "Los crímenes nevados de Fargo, en cine y en televisión."
+ ],
+ "zombie": [
+  "The dead walk: zombie films from Romero onward.",
+  "Los muertos caminan: películas de zombis desde Romero."
+ ],
+ "classichorror": [
+  "Classic horror and splatter, from The Thing to Evil Dead.",
+  "Terror clásico y gore, de La cosa a Posesión infernal."
+ ],
+ "haunted": [
+  "Ghosts, possessions and haunted houses.",
+  "Fantasmas, posesiones y casas encantadas."
+ ],
+ "elevated": [
+  "Slow, uneasy modern horror in the A24 mould.",
+  "Terror moderno, lento e inquietante, al estilo A24."
+ ],
+ "survivalhorror": [
+  "Survival horror games: scarce ammo, locked doors and things in the dark.",
+  "Survival horror: munición escasa, puertas cerradas y cosas en la oscuridad."
+ ],
+ "dread": [
+  "First-person horror where you can only run and hide.",
+  "Terror en primera persona donde solo puedes huir y esconderte."
+ ],
+ "doom": [
+  "Doom, sludge and drone: slow, heavy and loud.",
+  "Doom, sludge y drone: lento, pesado y ruidoso."
+ ],
+ "horrorfic": [
+  "Horror on the page, from Lovecraft and King to Blackwater.",
+  "Terror en papel, de Lovecraft y King a Blackwater."
+ ],
+ "mangahorror": [
+  "Horror manga and anime.",
+  "Manga y anime de terror."
+ ],
+ "raccoon": [
+  "Resident Evil: Raccoon City, Umbrella and every outbreak since.",
+  "Resident Evil: Raccoon City, Umbrella y cada brote desde entonces."
+ ],
+ "silenthill": [
+  "Silent Hill's fog, guilt and Akira Yamaoka's sound.",
+  "La niebla, la culpa y el sonido de Akira Yamaoka en Silent Hill."
+ ],
+ "tlou": [
+  "The Last of Us: Joel, Ellie and the cordyceps world, in games and on TV.",
+  "The Last of Us: Joel, Ellie y el mundo del cordyceps, en juegos y en televisión."
+ ],
+ "walkingdead": [
+  "The Walking Dead, from Kirkman's comics to the screen.",
+  "The Walking Dead, de los cómics de Kirkman a la pantalla."
+ ],
+ "junjiito": [
+  "Junji Ito's spirals, Tomie and cosmic dread.",
+  "Las espirales de Junji Ito, Tomie y el horror cósmico."
+ ],
+ "stephenking": [
+  "Stephen King country.",
+  "El territorio de Stephen King."
+ ],
+ "lovecraft": [
+  "H. P. Lovecraft's Cthulhu and the sunken city.",
+  "Cthulhu de H. P. Lovecraft y la ciudad hundida."
+ ],
+ "gotham": [
+  "Batman's city: the comics, films, animated series and Arkham games.",
+  "La ciudad de Batman: cómics, películas, series animadas y los juegos de Arkham."
+ ],
+ "dc": [
+  "The DC Universe: Superman, the Justice League and friends.",
+  "El Universo DC: Superman, la Liga de la Justicia y compañía."
+ ],
+ "indiecapes": [
+  "Superheroes outside the big two: The Boys and Invincible.",
+  "Superhéroes fuera de las dos grandes: The Boys e Invencible."
+ ],
+ "shonen": [
+  "Battle shōnen: training arcs, rivals and power-ups.",
+  "Shōnen de combate: entrenamientos, rivales y nuevos poderes."
+ ],
+ "web": [
+  "Spider-Man in comics, films and games.",
+  "Spider-Man en cómics, películas y juegos."
+ ],
+ "marvel": [
+  "The Marvel Universe on page and screen.",
+  "El Universo Marvel en papel y en pantalla."
+ ],
+ "dragonball": [
+  "Dragon Ball: Goku, the Saiyans and the seven dragon balls.",
+  "Dragon Ball: Goku, los saiyajin y las siete bolas de dragón."
+ ],
+ "onepiece": [
+  "One Piece: Luffy's crew sailing the Grand Line.",
+  "One Piece: la tripulación de Luffy navegando por el Grand Line."
+ ],
+ "naruto": [
+  "Naruto and the Hidden Leaf Village.",
+  "Naruto y la Aldea Oculta de la Hoja."
+ ],
+ "sub-sanctuary": [
+  "Saint Seiya: the Bronze Saints and Athena's Sanctuary.",
+  "Los Caballeros del Zodiaco: los caballeros de bronce y el Santuario de Atenea."
+ ],
+ "sub-deadpool": [
+  "Deadpool, the merc with a mouth.",
+  "Deadpool, el mercenario bocazas."
+ ],
+ "sub-avengers-tower": [
+  "The Avengers assemble.",
+  "Los Vengadores, reunidos."
+ ],
+ "sub-xavier-s-school": [
+  "The X-Men and Xavier's School for Gifted Youngsters.",
+  "Los X-Men y la Escuela Xavier para Jóvenes Talentos."
+ ],
+ "kurosawa": [
+  "Akira Kurosawa's samurai epics and human dramas.",
+  "Las épicas de samuráis y los dramas humanos de Akira Kurosawa."
+ ],
+ "hkaction": [
+  "Hong Kong and kung fu cinema: wuxia, Shaw Brothers and heroic bloodshed.",
+  "Cine de Hong Kong y kung fu: wuxia, Shaw Brothers y acción heroica."
+ ],
+ "samuraimanga": [
+  "Samurai and swordsmen in manga and anime.",
+  "Samuráis y espadachines en manga y anime."
+ ],
+ "clavell": [
+  "James Clavell's Asia: Shōgun and Tai-Pan.",
+  "El Asia de James Clavell: Shōgun y Tai-Pan."
+ ],
+ "modernwar": [
+  "The world wars and Vietnam on film.",
+  "Las guerras mundiales y Vietnam en el cine."
+ ],
+ "epichistory": [
+  "Historical epics, from Rome to the frontier.",
+  "Épicas históricas, de Roma a la frontera."
+ ],
+ "military": [
+  "Military shooters with campaigns and multiplayer, from Call of Duty and Battlefield to milsims.",
+  "Shooters militares con campaña y multijugador, de Call of Duty y Battlefield a los simuladores tácticos."
+ ],
+ "stealth": [
+  "Metal Gear Solid and Hideo Kojima's tactical espionage.",
+  "Metal Gear Solid y el espionaje táctico de Hideo Kojima."
+ ],
+ "historical": [
+  "Historical novels and myth, from cathedrals to Rome.",
+  "Novelas históricas y mitos, de las catedrales a Roma."
+ ],
+ "historicalmanga": [
+  "Historical manga, from warring Chinese states to the French court.",
+  "Manga histórico, de los reinos combatientes chinos a la corte francesa."
+ ],
+ "historytv": [
+  "History told on television.",
+  "La historia contada en televisión."
+ ],
+ "vinland": [
+  "Vinland Saga: Thorfinn's road from vengeance to peace.",
+  "Vinland Saga: el camino de Thorfinn de la venganza a la paz."
+ ],
+ "sub-battlefield": [
+  "Battlefield's all-out wars.",
+  "Las guerras totales de Battlefield."
+ ],
+ "classicwestern": [
+  "Classic Hollywood westerns: John Ford, John Wayne and the frontier myth.",
+  "Westerns clásicos de Hollywood: John Ford, John Wayne y el mito de la frontera."
+ ],
+ "spaghetti": [
+  "Sergio Leone, Morricone and the spaghetti western.",
+  "Sergio Leone, Morricone y el spaghetti western."
+ ],
+ "revisionist": [
+  "Westerns that question the myth: Eastwood, Peckinpah and their heirs.",
+  "Westerns que cuestionan el mito: Eastwood, Peckinpah y sus herederos."
+ ],
+ "spacewestern": [
+  "Bounty hunters and gunslingers in space.",
+  "Cazarrecompensas y pistoleros en el espacio."
+ ],
+ "lonesomedove": [
+  "Larry McMurtry's Lonesome Dove and Cormac McCarthy's West.",
+  "Lonesome Dove de Larry McMurtry y el Oeste de Cormac McCarthy."
+ ],
+ "jcontemporary": [
+  "Contemporary Japanese live-action cinema.",
+  "Cine japonés contemporáneo de imagen real."
+ ],
+ "iberia": [
+  "Spanish and Nordic cinema.",
+  "Cine español y nórdico."
+ ],
+ "sinoart": [
+  "Hong Kong, Taiwanese and Chinese art cinema: Wong Kar-wai, Edward Yang and more.",
+  "Cine de autor de Hong Kong, Taiwán y China: Wong Kar-wai, Edward Yang y más."
+ ],
+ "southasia": [
+  "Cinema from Iran, India and beyond.",
+  "Cine de Irán, la India y más allá."
+ ],
+ "latam": [
+  "Latin American cinema.",
+  "Cine latinoamericano."
+ ],
+ "pixar": [
+  "Pixar's toys, monsters, robots and feelings.",
+  "Los juguetes, monstruos, robots y emociones de Pixar."
+ ],
+ "prestige": [
+  "Award-season dramas and much-loved crowd-pleasers.",
+  "Dramas de temporada de premios y favoritos del público."
+ ],
+ "auteurs": [
+  "Today's auteurs: Paul Thomas Anderson, Damien Chazelle and company.",
+  "Los autores de hoy: Paul Thomas Anderson, Damien Chazelle y compañía."
+ ],
+ "romance": [
+  "Love stories, from the Before trilogy to Austen.",
+  "Historias de amor, de la trilogía Antes del... a Austen."
+ ],
+ "story": [
+  "Narrative games driven by choices, cases and conversation.",
+  "Juegos narrativos movidos por decisiones, casos y conversaciones."
+ ],
+ "indie": [
+  "Indie rock and lo-fi.",
+  "Indie rock y lo-fi."
+ ],
+ "songwriters": [
+  "Singer-songwriters and art pop.",
+  "Cantautores y art pop."
+ ],
+ "grunge": [
+  "Grunge and stoner rock.",
+  "Grunge y stoner rock."
+ ],
+ "rocknacional": [
+  "Argentine rock nacional: Spinetta, Charly García, Cerati and the Redondos.",
+  "Rock nacional argentino: Spinetta, Charly García, Cerati y los Redondos."
+ ],
+ "brazil": [
+  "MPB, tropicália and Brazilian rap.",
+  "MPB, tropicália y rap brasileño."
+ ],
+ "cumbia": [
+  "Cumbia villera from Buenos Aires.",
+  "Cumbia villera de Buenos Aires."
+ ],
+ "soul": [
+  "Soul, funk and reggae.",
+  "Soul, funk y reggae."
+ ],
+ "teenhearts": [
+  "Teenage love and heartbreak in anime and manga.",
+  "Amor adolescente y desamor en anime y manga."
+ ],
+ "joseidrama": [
+  "Josei and shōjo drama: grown-up love, careers and ambition.",
+  "Drama josei y shōjo: amor adulto, carreras y ambición."
+ ],
+ "sliceoflife": [
+  "Gentle slice-of-life and iyashikei stories.",
+  "Historias tranquilas de recuentos de la vida e iyashikei."
+ ],
+ "dramatv": [
+  "Prestige drama and dramedy on television.",
+  "Drama y dramedia de prestigio en televisión."
+ ],
+ "naturedocs": [
+  "Nature documentaries.",
+  "Documentales de naturaleza."
+ ],
+ "ghibli": [
+  "Studio Ghibli's films and music.",
+  "Las películas y la música del Studio Ghibli."
+ ],
+ "sub-toy-story": [
+  "Woody, Buzz and the toys of Toy Story.",
+  "Woody, Buzz y los juguetes de Toy Story."
+ ],
+ "jnewwave": [
+  "Japanese New Wave and cult cinema.",
+  "Nueva ola japonesa y cine de culto."
+ ],
+ "eastern": [
+  "Soviet and Eastern European cinema, from Tarkovsky to Kieślowski.",
+  "Cine soviético y de Europa del Este, de Tarkovski a Kieślowski."
+ ],
+ "kubrick": [
+  "Stanley Kubrick's films.",
+  "Las películas de Stanley Kubrick."
+ ],
+ "dreamers": [
+  "Surreal, dreamlike and reality-bending films.",
+  "Películas surrealistas, oníricas y que doblan la realidad."
+ ],
+ "atmos": [
+  "Games of mood and wonder: exploration, quiet puzzles and vast spaces.",
+  "Juegos de atmósfera y asombro: exploración, puzles tranquilos y grandes espacios."
+ ],
+ "prog": [
+  "Progressive rock: long songs, odd meters and concept albums.",
+  "Rock progresivo: canciones largas, compases raros y discos conceptuales."
+ ],
+ "shoegaze": [
+  "Shoegaze and dream pop: walls of guitar and blurred voices.",
+  "Shoegaze y dream pop: muros de guitarras y voces difuminadas."
+ ],
+ "postrock": [
+  "Post-rock and experimental music.",
+  "Post-rock y música experimental."
+ ],
+ "artrock": [
+  "Radiohead and art rock.",
+  "Radiohead y art rock."
+ ],
+ "japanese": [
+  "Japanese underground and alternative music.",
+  "Música underground y alternativa japonesa."
+ ],
+ "novels": [
+  "Light novels and visual novels.",
+  "Novelas ligeras y novelas visuales."
+ ],
+ "vertigo": [
+  "Vertigo and mature comics: Watchmen, Sandman, Saga.",
+  "Vertigo y cómics adultos: Watchmen, Sandman, Saga."
+ ],
+ "fujimoto": [
+  "Tatsuki Fujimoto's Chainsaw Man, Look Back and more.",
+  "Chainsaw Man, Look Back y más de Tatsuki Fujimoto."
+ ],
+ "psychseinen": [
+  "Psychological seinen: Punpun, Flowers of Evil and other uneasy minds.",
+  "Seinen psicológico: Punpun, Las flores del mal y otras mentes inquietas."
+ ],
+ "auteuranime": [
+  "Auteur anime: Satoshi Kon, Oshii, Madoka and other visions.",
+  "Anime de autor: Satoshi Kon, Oshii, Madoka y otras visiones."
+ ],
+ "twinpeaks": [
+  "David Lynch's dreams and nightmares, from Twin Peaks to Mulholland Drive.",
+  "Los sueños y pesadillas de David Lynch, de Twin Peaks a Mulholland Drive."
+ ],
+ "jojo": [
+  "JoJo's Bizarre Adventure, part by part.",
+  "JoJo's Bizarre Adventure, parte a parte."
+ ],
+ "eva": [
+  "Neon Genesis Evangelion and the Rebuilds.",
+  "Neon Genesis Evangelion y los Rebuild."
+ ],
+ "umineko": [
+  "Umineko: When They Cry and the island of Rokkenjima.",
+  "Umineko no Naku Koro ni y la isla de Rokkenjima."
+ ],
+ "undertale": [
+  "Toby Fox's Undertale and Deltarune, games and soundtracks.",
+  "Undertale y Deltarune de Toby Fox, juegos y bandas sonoras."
+ ],
+ "disney": [
+  "Walt Disney Animation's classics and modern hits.",
+  "Los clásicos y éxitos modernos de Walt Disney Animation."
+ ],
+ "dreamworks": [
+  "DreamWorks Animation's dragons, pandas and ogres.",
+  "Los dragones, pandas y ogros de DreamWorks Animation."
+ ],
+ "studiosprawl": [
+  "Animated films from the other big studios.",
+  "Películas animadas de los otros grandes estudios."
+ ],
+ "handmade": [
+  "Stop-motion, hand-drawn and indie animation.",
+  "Animación stop-motion, dibujada a mano e independiente."
+ ],
+ "comedy": [
+  "Comedy films, from Monty Python to Barbie.",
+  "Películas de comedia, de Monty Python a Barbie."
+ ],
+ "family": [
+  "Family films and musicals to watch with everyone.",
+  "Películas familiares y musicales para ver con todos."
+ ],
+ "arenas": [
+  "Competitive online shooters and arenas.",
+  "Shooters y arenas competitivas online."
+ ],
+ "mushroom": [
+  "Mario, Donkey Kong and Nintendo's platformers.",
+  "Mario, Donkey Kong y los plataformas de Nintendo."
+ ],
+ "mascots": [
+  "3D mascot platformers and co-op adventures.",
+  "Plataformas 3D de mascotas y aventuras cooperativas."
+ ],
+ "sonic": [
+  "Sonic the Hedgehog, gotta go fast.",
+  "Sonic the Hedgehog, a toda velocidad."
+ ],
+ "retro": [
+  "8- and 16-bit action and arcade classics.",
+  "Clásicos de acción y arcade de 8 y 16 bits."
+ ],
+ "precision": [
+  "Precision indie platformers: tight jumps and hard-won screens.",
+  "Plataformas indie de precisión: saltos exactos y pantallas ganadas a pulso."
+ ],
+ "roguelike": [
+  "Roguelikes: die, learn, try again.",
+  "Roguelikes: muere, aprende, vuelve a intentarlo."
+ ],
+ "party": [
+  "Party games and co-op chaos with friends.",
+  "Juegos de fiesta y caos cooperativo con amigos."
+ ],
+ "fighting": [
+  "Fighting games.",
+  "Juegos de lucha."
+ ],
+ "speed": [
+  "Racing and flight games.",
+  "Juegos de carreras y de vuelo."
+ ],
+ "cards": [
+  "Digital card games.",
+  "Juegos de cartas digitales."
+ ],
+ "mobile": [
+  "Mobile games for the pocket.",
+  "Juegos de móvil para el bolsillo."
+ ],
+ "poppunk": [
+  "Pop punk and emo.",
+  "Pop punk y emo."
+ ],
+ "comicfantasy": [
+  "Comic fantasy and science fiction: Discworld and the Hitchhiker's Guide.",
+  "Fantasía y ciencia ficción cómicas: Mundodisco y la Guía del autoestopista."
+ ],
+ "animecomedy": [
+  "Comedy anime, from Gintama to Grand Blue.",
+  "Anime de comedia, de Gintama a Grand Blue."
+ ],
+ "sitcoms": [
+  "Sitcoms and adult animation.",
+  "Sitcoms y animación para adultos."
+ ],
+ "cartoons": [
+  "Western cartoons with heart: Samurai Jack, Gravity Falls and more.",
+  "Dibujos occidentales con corazón: Samurai Jack, Gravity Falls y más."
+ ],
+ "sub-shrek": [
+  "Shrek's swamp and Far Far Away.",
+  "La ciénaga de Shrek y Muy Muy Lejano."
+ ],
+ "actionheroes": [
+  "Action heroes and blockbusters, from Die Hard to Fury Road.",
+  "Héroes de acción y superproducciones, de Jungla de cristal a Furia en la carretera."
+ ],
+ "franchises": [
+  "Blockbuster franchises: pirates, spies and fast cars.",
+  "Franquicias taquilleras: piratas, espías y coches rápidos."
+ ],
+ "spectacle": [
+  "Big-screen spectacle and visual blockbusters.",
+  "Espectáculo de pantalla grande y superproducciones visuales."
+ ],
+ "boomer": [
+  "Boomer shooters: fast, loud and full of demons.",
+  "Boomer shooters: rápidos, ruidosos y llenos de demonios."
+ ],
+ "campaign": [
+  "Shooters played for the campaign: Metro, Titanfall 2, Far Cry, and the boomer shooters at its heart.",
+  "Shooters que se juegan por su campaña: Metro, Titanfall 2, Far Cry, y los boomer shooters en el centro."
+ ],
+ "charaction": [
+  "Character action games: combos, style meters and big bosses.",
+  "Juegos de acción de personaje: combos, medidores de estilo y grandes jefes."
+ ],
+ "cinematic": [
+  "Cinematic action-adventures: treasure hunts, tombs and wide open lands.",
+  "Aventuras de acción cinematográficas: búsquedas de tesoros, tumbas y grandes paisajes."
+ ],
+ "punk": [
+  "Punk, post-punk and new wave.",
+  "Punk, post-punk y new wave."
+ ],
+ "altmetal": [
+  "Alternative metal and industrial.",
+  "Metal alternativo e industrial."
+ ],
+ "thrash": [
+  "Heavy metal and thrash.",
+  "Heavy metal y thrash."
+ ],
+ "sub-mission-impossible": [
+  "Ethan Hunt's impossible missions.",
+  "Las misiones imposibles de Ethan Hunt."
+ ],
+ "sub-the-hunger-games": [
+  "Panem and the Hunger Games.",
+  "Panem y Los juegos del hambre."
+ ],
+ "sub-ninja-gaiden": [
+  "Ryu Hayabusa's Ninja Gaiden.",
+  "Ninja Gaiden de Ryu Hayabusa."
+ ],
+ "sub-god-of-war": [
+  "Kratos's wars, from Olympus to Midgard.",
+  "Las guerras de Kratos, del Olimpo a Midgard."
+ ],
+ "automation": [
+  "Sandbox, crafting and automation: build, mine and optimise.",
+  "Sandbox, crafteo y automatización: construye, mina y optimiza."
+ ],
+ "strategy": [
+  "Strategy games, from Age of Empires to Civilization.",
+  "Juegos de estrategia, de Age of Empires a Civilization."
+ ],
+ "tycoon": [
+  "Tycoon and management sims.",
+  "Simuladores de gestión y magnates."
+ ],
+ "ideas": [
+  "Non-fiction about habits, history and how the world works.",
+  "No ficción sobre hábitos, historia y cómo funciona el mundo."
+ ],
+ "silent": [
+  "The silent era, from Metropolis to Chaplin.",
+  "La era muda, de Metrópolis a Chaplin."
+ ],
+ "golden": [
+  "Golden Age Hollywood classics.",
+  "Clásicos de la edad de oro de Hollywood."
+ ],
+ "british": [
+  "British classics, from David Lean to Powell and Pressburger.",
+  "Clásicos británicos, de David Lean a Powell y Pressburger."
+ ],
+ "jgolden": [
+  "Japan's golden age masters: Kobayashi, Mizoguchi and more.",
+  "Los maestros de la edad de oro japonesa: Kobayashi, Mizoguchi y más."
+ ],
+ "neorealism": [
+  "Italian neorealism.",
+  "Neorrealismo italiano."
+ ],
+ "italian": [
+  "Italy's golden age: Fellini, Antonioni and Pontecorvo.",
+  "La edad de oro italiana: Fellini, Antonioni y Pontecorvo."
+ ],
+ "bergman": [
+  "Ingmar Bergman's films.",
+  "Las películas de Ingmar Bergman."
+ ],
+ "french": [
+  "French cinema.",
+  "Cine francés."
+ ],
+ "nouvellevague": [
+  "The French New Wave.",
+  "La Nouvelle Vague francesa."
+ ],
+ "german": [
+  "German cinema, and Wim Wenders on both sides of the ocean.",
+  "Cine alemán, y Wim Wenders a ambos lados del océano."
+ ],
+ "sixties": [
+  "Sixties rock: the Velvet Underground, the Doors and Dylan.",
+  "Rock de los sesenta: Velvet Underground, The Doors y Dylan."
+ ],
+ "glam": [
+  "Glam, pop and new wave: Bowie, Fleetwood Mac, Prince.",
+  "Glam, pop y new wave: Bowie, Fleetwood Mac, Prince."
+ ],
+ "jazz": [
+  "Jazz, from Coltrane to Mingus.",
+  "Jazz, de Coltrane a Mingus."
+ ],
+ "filmost": [
+  "Film and television scores.",
+  "Bandas sonoras de cine y televisión."
+ ],
+ "litclassics": [
+  "Literary classics.",
+  "Clásicos de la literatura."
+ ],
+ "beatles": [
+  "The Beatles, album by album.",
+  "The Beatles, disco a disco."
+ ],
+ "sports": [
+  "Sports manga and anime: basketball, boxing and volleyball.",
+  "Manga y anime deportivo: baloncesto, boxeo y voleibol."
+ ],
+ "ippo": [
+  "Hajime no Ippo and the Kamogawa Boxing Gym.",
+  "Hajime no Ippo y el gimnasio de boxeo Kamogawa."
+ ],
+ "joe": [
+  "Ashita no Joe: Joe Yabuki, burning to white ash.",
+  "Ashita no Joe: Joe Yabuki, ardiendo hasta quedar en cenizas."
+ ],
+ "indy": [
+  "Indiana Jones, from Raiders of the Lost Ark to the Great Circle.",
+  "Indiana Jones, de En busca del arca perdida al Gran Círculo."
+ ],
+ "jidaigeki": [
+  "Samurai cinema beyond Kurosawa: honour, duty and the cost of both.",
+  "Cine de samuráis más allá de Kurosawa: honor, deber y lo que cuestan."
+ ],
+ "sub-the-cosmere": [
+  "Brandon Sanderson's Cosmere: Mistborn, Stormlight and the worlds between.",
+  "El Cosmere de Brandon Sanderson: Nacidos de la bruma, el Archivo de las Tormentas y los mundos entre ellos."
+ ],
+ "sub-realm-of-the-elderlings": [
+  "Robin Hobb's Realm of the Elderlings: Fitz, the Fool and the liveships.",
+  "El Reino de los Elderlings de Robin Hobb: Fitz, el Bufón y los barcos vivos."
+ ],
+ "sub-the-first-law": [
+  "Joe Abercrombie's First Law world: Logen, Glokta and the Union.",
+  "El mundo de La Primera Ley de Joe Abercrombie: Logen, Glokta y la Unión."
+ ],
+ "sub-malazan": [
+  "Steven Erikson's Malazan Book of the Fallen.",
+  "Malaz: El Libro de los Caídos, de Steven Erikson."
+ ],
+ "sub-the-expanse": [
+  "The Expanse: the Rocinante's crew between Earth, Mars and the Belt.",
+  "The Expanse: la tripulación del Rocinante entre la Tierra, Marte y el Cinturón."
+ ],
+ "sub-hyperion-cantos": [
+  "Dan Simmons's Hyperion Cantos: pilgrims, the Shrike and the Time Tombs.",
+  "Los Cantos de Hyperion de Dan Simmons: peregrinos, el Alcaudón y las Tumbas del Tiempo."
+ ],
+ "halo": [
+  "Halo: the Master Chief, the Covenant and the rings.",
+  "Halo: el Jefe Maestro, el Covenant y los anillos."
+ ]
+}

@@ -1027,7 +1027,8 @@ function coverBitmap(i, im, devW) {
   if (n < 0) n = COVER_SIZES.length - 1;
   const hit = objBitmap(i, im, COVER_SIZES[n], true);
   if (hit) return hit;
-  if (!im || performance.now() > coverBudget) {
+  // while zooming, any nearby size already made stands in; the exact one is made once the zoom rests
+  if (!im || performance.now() > coverBudget || zoomingNow()) {
     for (const d of [1, -1, 2, -2, 3, -3]) {
       const alt = COVER_SIZES[n + d] && objBitmap(i, im, COVER_SIZES[n + d], true);
       if (alt) { coverPending = true; return alt; }
@@ -1039,6 +1040,10 @@ function coverBitmap(i, im, devW) {
 }
 
 let keyAway = null;
+// When the scale last changed. While zooming, the overview's shared symbol paths are rebuilt in coarser
+// steps (a size error of a few percent is invisible in motion) and refined once the zoom comes to rest.
+let zoomT = 0, refineT = 0;
+const zoomingNow = () => performance.now() - zoomT < 220;
 function draw() {
   dirty = false;
   const k = transform.k;
@@ -1046,7 +1051,7 @@ function draw() {
   const away = k > KEY_MAX_K;
   if (away !== keyAway) { keyAway = away; document.getElementById('key').classList.toggle('away', away); }
   const moving = stepMotion();
-  coverBudget = performance.now() + 8; coverPending = false;
+  coverBudget = performance.now() + (zoomingNow() ? 3 : 8); coverPending = false;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = T.sea; ctx.fillRect(0, 0, Wpx, Hpx);
   // A soft vignette so the open sea recedes toward the edges.
@@ -1189,10 +1194,12 @@ function draw() {
   // opacity, fill or outline). Building those paths is the expensive part, so they are built once per
   // zoom step and selection and reused while panning; only the handful of symbols the cursor is
   // swelling (or the hovered one) are drawn again on top, live.
-  const batchMode = k <= 1.4 && coverT === 0;
+  const batchMode = coverT === 0;
   let batch = null, overlayOnly = false;
   if (batchMode) {
-    const kq = Math.pow(2, Math.round(Math.log2(k) * 16) / 16);
+    const steps = zoomingNow() ? 5 : 16;
+    if (steps < 16) { clearTimeout(refineT); refineT = setTimeout(requestDraw, 240); }
+    const kq = Math.pow(2, Math.round(Math.log2(k) * steps) / steps), edged = kq > 1.4;
     const key = `${kq}|${state.selProv}|${state.selCont}|${state.selCreator}|${state.selRoute}|${state.soft}|${[...state.hidden].join()}|${T.dark}`;
     if (GLYPHS.key !== key) {
       GLYPHS.key = key; GLYPHS.batch = new Map();
@@ -1203,6 +1210,7 @@ function draw() {
         const rr = rq * s * (i.st === 'planned' ? 0.85 : 1), layers = lengthLayers(i);
         const tier = [i.r >= 7 ? 1 : 0, 2, 3][peakLevel(i)], fa = Math.round(fade * 40) / 40;
         for (let j = layers; j >= 1; j--) addGlyph(batchPath(GLYPHS.batch, tier, col, Math.round(fade * (0.5 - j * 0.08) * 40) / 40, 'fill'), i.m, i.px + rr * 0.42 * j, i.py - rr * 0.42 * j, rr);
+        if (edged && i.st !== 'planned') addGlyph(batchPath(GLYPHS.batch, tier - 0.5, edge, fa, 'edge'), i.m, i.px, i.py, rr);
         addGlyph(batchPath(GLYPHS.batch, tier, col, fa, i.st === 'planned' ? 'line' : 'fill'), i.m, i.px, i.py, rr);
         if (i.st === 'paused') { const rp = batchPath(GLYPHS.batch, 4, PAUSED(), fa, 'ring'); rp.moveTo(i.px + rr * 1.75, i.py); rp.arc(i.px, i.py, rr * 1.75, 0, Math.PI * 2); }
       }
@@ -1211,7 +1219,7 @@ function draw() {
     for (const b of GLYPHS.list) {
       ctx.globalAlpha = b.alpha;
       if (b.kind === 'fill') { ctx.fillStyle = b.col; ctx.fill(b.path); }
-      else { ctx.strokeStyle = b.col; ctx.lineWidth = px * (b.kind === 'ring' ? 1.5 : 1.2); ctx.stroke(b.path); }
+      else { ctx.strokeStyle = b.col; ctx.lineWidth = px * (b.kind === 'ring' ? 1.5 : b.kind === 'edge' ? 1.4 : 1.2); ctx.stroke(b.path); }
     }
     ctx.globalAlpha = 1;
     overlayOnly = true;
@@ -1404,7 +1412,8 @@ function drawLabels() {
     const sr = (p.famCount ? Math.sqrt(p.famCount) * SPACE : 26 * SCL) * k;
     const show = p.id === state.selProv || sr > 30 || (k > 1.1 && sr > 20);
     if (!show) continue;
-    const size = Math.max(10.5, Math.min(15, 9 + sr / 18));
+    // sizes in half-pixel steps: every new font size costs the browser a fresh set of glyphs
+    const size = Math.round(Math.max(10.5, Math.min(15, 9 + sr / 18)) * 2) / 2;
     ctx.font = `600 ${size}px "Spectral SC", Spectral, Georgia, serif`;
     // a series not finished yet says how far along it is
     const label = !p.works.length ? p.name + (ES ? ' (sin explorar)' : ' (uncharted)') : p.run && p.have < p.run ? `${p.name} · ${p.have}/${p.run}` : p.name;
@@ -1412,25 +1421,15 @@ function drawLabels() {
     const mix = MEDIA.filter(m => p.media[m]).sort((a, b) => p.media[b] - p.media[a]);
     const pipR = 3.4, pipGap = 11;
     const pipsW = mix.length ? mix.length * pipGap - (pipGap - pipR * 2) : 0;
-    const w = Math.max(ctx.measureText(label).width, pipsW);
+    const w = Math.max(textW(label), pipsW);
     const y = p.subs.length ? sy : p.works.length ? sy - Math.min(sr * 0.15, 10) - (mix.length ? 5 : 0) : sy;
     const boxH = size + 4 + (mix.length ? 13 : 0);
     if (!free(sx - w / 2 - 4, y - size / 2 - 2, w + 8, boxH)) continue;
     ctx.globalAlpha = inSelProv(p.id) ? 1 : 0.45;
-    ctx.strokeStyle = halo; ctx.lineWidth = 3.5; ctx.textAlign = 'center';
-    ctx.strokeText(label, sx, y);
-    ctx.fillStyle = p.works.length ? T.ink : T.ghost; ctx.fillText(label, sx, y);
-    if (mix.length) {
-      const py0 = y + size / 2 + 7;
-      ctx.fillStyle = halo;
-      ctx.fill(roundRectPath(sx - pipsW / 2 - 4, py0 - pipR - 3, pipsW + 8, pipR * 2 + 6, pipR + 3));
-      mix.forEach((m, j) => {
-        const gx = sx - pipsW / 2 + pipR + j * pipGap;
-        const share = p.media[m] / p.works.length;
-        ctx.fillStyle = T.media[m];
-        ctx.fill(glyphPath(m, gx, py0, pipR * (0.75 + 0.35 * Math.sqrt(share))), 'evenodd');
-      });
-    }
+    // lettered once per name, size and theme into a small bitmap, then copied each frame
+    const bmp = provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo), f = size / bmp.size;
+    const bx = Math.round((sx - bmp.ox * f) * dpr) / dpr, by = Math.round((y - bmp.oy * f) * dpr) / dpr;
+    ctx.drawImage(bmp.c, bx, by, bmp.w * f, bmp.h * f);
   }
   ctx.globalAlpha = 1;
 
@@ -1474,6 +1473,43 @@ function drawLabels() {
 
 // A title cut to fit maxW in the current font, with its width. Cached, since measuring text is slow
 // and the same few hundred titles are fitted every frame while panning.
+const PLB = new Map();
+function provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo) {
+  const base = `${p.id}|${label}|${halo}|${T.ink}|${T.dark}|${dpr}`, key = base + '|' + size;
+  let b = PLB.get(key);
+  if (b) return b;
+  // mid-zoom, the last size lettered stands in (scaled); the exact size is lettered once the zoom rests
+  const last = PLB.get(base);
+  if (last && zoomingNow()) { clearTimeout(refineT); refineT = setTimeout(requestDraw, 240); return last; }
+  const pad = 3, bw = Math.ceil(w + pad * 2 + 8), top = size / 2 + pad + 2, bh = Math.ceil(top + size / 2 + pad + 2 + (mix.length ? 15 : 0));
+  const c = document.createElement('canvas'); c.width = Math.ceil(bw * dpr); c.height = Math.ceil(bh * dpr);
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cx = bw / 2, y = top;
+  g.font = ctx.font; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.textAlign = 'center';
+  g.strokeStyle = halo; g.lineWidth = 3.5; g.strokeText(label, cx, y);
+  g.fillStyle = p.works.length ? T.ink : T.ghost; g.fillText(label, cx, y);
+  if (mix.length) {
+    const py0 = y + size / 2 + 7;
+    g.fillStyle = halo;
+    g.fill(roundRectPath(cx - pipsW / 2 - 4, py0 - pipR - 3, pipsW + 8, pipR * 2 + 6, pipR + 3));
+    mix.forEach((m, j) => {
+      const gx = cx - pipsW / 2 + pipR + j * pipGap, share = p.media[m] / p.works.length;
+      g.fillStyle = T.media[m];
+      g.fill(glyphPath(m, gx, py0, pipR * (0.75 + 0.35 * Math.sqrt(share))), 'evenodd');
+    });
+  }
+  b = { c, w: bw, h: bh, ox: cx, oy: top, size };
+  if (PLB.size > 3000) PLB.clear();
+  PLB.set(key, b); PLB.set(base, b);
+  return b;
+}
+const TW = new Map();
+function textW(t) {
+  const key = ctx.font + '|' + t;
+  let w = TW.get(key);
+  if (w === undefined) { w = ctx.measureText(t).width; if (TW.size > 8000) TW.clear(); TW.set(key, w); }
+  return w;
+}
 const FIT = new Map();
 function fitTitle(full, font, maxW) {
   const key = `${font}|${Math.round(maxW / 4)}|${full}`;
@@ -1487,12 +1523,17 @@ function fitTitle(full, font, maxW) {
   FIT.set(key, r);
   return r;
 }
-const LABELS = new Map();
+const LABELS = new Map(), CLAY = new Map();
+const LABEL_REF = 20;   // continent names are lettered once at this size and scaled when drawn
 function labelBitmap(lines, size, spacing, w, lh, hgt, halo) {
-  const key = `${lines.join('/')}|${size}|${halo}|${T.ink}|${dpr}`;
+  const key = `${lines.join('/')}|${halo}|${T.ink}|${dpr}`;
   let b = LABELS.get(key);
   if (b) return b;
-  const pad = 4, c = document.createElement('canvas');
+  const f = LABEL_REF / size, font = ctx.font;
+  ctx.font = font.replace(/[\d.]+px/, LABEL_REF + 'px');
+  spacing *= f; lh *= f; hgt *= f;
+  w = Math.max(...lines.map(ln => [...ln].reduce((a, ch) => a + charW(ch), 0) + spacing * (ln.length - 1)));
+  const pad = 4 * f, c = document.createElement('canvas');
   const bw = Math.ceil(w + pad * 2), bh = Math.ceil(hgt + pad * 2);
   c.width = Math.ceil(bw * dpr); c.height = Math.ceil(bh * dpr);
   const g = c.getContext('2d');
@@ -1500,10 +1541,11 @@ function labelBitmap(lines, size, spacing, w, lh, hgt, halo) {
   g.font = ctx.font; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.textAlign = 'left';
   lines.forEach((ln, j) => {
     const ly = pad + lh * (j + 0.5);
-    g.strokeStyle = halo; g.lineWidth = 4; spacedText(ln, bw / 2, ly, spacing, 'stroke', g);
+    g.strokeStyle = halo; g.lineWidth = 5.5; spacedText(ln, bw / 2, ly, spacing, 'stroke', g);
     g.fillStyle = T.ink; spacedText(ln, bw / 2, ly, spacing, 'fill', g);
   });
-  b = { c, w: bw, h: bh };
+  ctx.font = font;
+  b = { c, w: bw, h: bh, ref: LABEL_REF };
   if (LABELS.size > 400) LABELS.clear();
   LABELS.set(key, b);
   return b;
@@ -1517,24 +1559,28 @@ function drawContinentLabels(free, halo) {
   for (const c of [...W.continents].sort((a, b) => b.r - a.r)) {
     const span = c.r * k * 1.9;
     const size = Math.round(Math.max(10, Math.min(19, span / 11)) * 2) / 2;
-    ctx.font = `500 ${size}px "Spectral SC", Spectral, Georgia, serif`;
-    const spacing = size * 0.16;
-    const name = c.name.toUpperCase();
-    const width = s => [...s].reduce((a, ch) => a + charW(ch), 0) + spacing * (s.length - 1);
-    let lines = [name];
-    if (width(name) > span && name.includes(' ')) {
-      const words = name.split(' ');
-      let best = null;
-      for (let j = 1; j < words.length; j++) {
-        const a = words.slice(0, j).join(' '), b = words.slice(j).join(' ');
-        const m = Math.max(width(a), width(b));
-        if (!best || m < best[0]) best = [m, [a, b]];
+    // the name's layout (one or two lines): measured once at the reference size, then scaled
+    let ref = CLAY.get(c.id);
+    if (!ref) {
+      const font = ctx.font;
+      ctx.font = `500 ${LABEL_REF}px "Spectral SC", Spectral, Georgia, serif`;
+      const sp = LABEL_REF * 0.16, name = c.name.toUpperCase();
+      const width = s => [...s].reduce((a, ch) => a + charW(ch), 0) + sp * (s.length - 1);
+      let split = null;
+      if (name.includes(' ')) {
+        const words = name.split(' ');
+        for (let j = 1; j < words.length; j++) {
+          const a = words.slice(0, j).join(' '), b = words.slice(j).join(' '), m = Math.max(width(a), width(b));
+          if (!split || m < split[0]) split = [m, [a, b]];
+        }
       }
-      lines = best[1];
+      ref = { one: [[name], width(name)], two: split && [split[1], split[0]] };
+      ctx.font = font; CLAY.set(c.id, ref);
     }
-    const w = Math.max(...lines.map(width)), lh = size * 1.15, hgt = lh * lines.length + 2;
-    // Sit the name just above the landmass rather than over its works.
-    // Continents touch now, so the name sits over the middle of its own land, not above it.
+    const fs = size / LABEL_REF;
+    const [lines, refW] = ref.two && ref.one[1] * fs > span ? ref.two : ref.one;
+    const spacing = size * 0.16, w = refW * fs, lh = size * 1.15, hgt = lh * lines.length + 2;
+    // Continents touch, so the name sits over the middle of its own land.
     // If a neighbour's name already sits there, try a little above or below the middle.
     // Only while the continent itself is in view: a name never slides along the screen edge after its land.
     const [lcx, lcy] = transform.apply([c.lx, c.ly]);
@@ -1549,8 +1595,10 @@ function drawContinentLabels(free, halo) {
     if (sy == null) continue;
     ctx.globalAlpha = ca * (state.selCont && state.selCont !== c.id ? 0.4 : 0.95);
     // Lettered once into a small bitmap per name, size and theme, then copied each frame.
-    const bmp = labelBitmap(lines, size, spacing, w, lh, hgt, halo);
-    ctx.drawImage(bmp.c, sx - bmp.w / 2, sy - bmp.h / 2, bmp.w, bmp.h);
+    let bmp = LABELS.get(`${lines.join('/')}|${halo}|${T.ink}|${dpr}`);
+    if (!bmp) { ctx.font = `500 ${size}px "Spectral SC", Spectral, Georgia, serif`; bmp = labelBitmap(lines, size, spacing, w, lh, hgt, halo); }
+    const sc = size / bmp.ref;
+    ctx.drawImage(bmp.c, Math.round((sx - bmp.w * sc / 2) * dpr) / dpr, Math.round((sy - bmp.h * sc / 2) * dpr) / dpr, bmp.w * sc, bmp.h * sc);
   }
   ctx.globalAlpha = 1;
 }
@@ -1564,7 +1612,7 @@ const MAX_K = hiCount ? Math.min(40, 75 / Math.max(1, window.devicePixelRatio ||
 const zoom = d3.zoom().scaleExtent([0.3, MAX_K])
   // the wheel is handled below, so it can glide instead of jumping
   .filter(e => (!e.ctrlKey || e.type === 'wheel') && !e.button && e.type !== 'wheel')
-  .on('zoom', e => { transform = e.transform; if (e.sourceEvent) userMoved = true; if (motion.on) notePan(e.transform); hideTip(); requestDraw(); })
+  .on('zoom', e => { if (e.transform.k !== transform.k) zoomT = performance.now(); transform = e.transform; if (e.sourceEvent) userMoved = true; if (motion.on) notePan(e.transform); hideTip(); requestDraw(); })
   .clickDistance(5)   // a click with a little jitter is still a click
   .on('start', () => { canvas.classList.add('dragging'); pressT = transform; })
   // The panel follows the map only after a real pan or zoom, not after a click.

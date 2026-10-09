@@ -2612,7 +2612,8 @@ function objBitmap(i, im, W, onlyCached) {
   const M = objMargins(i, w, h), pad = Math.ceil(w * 0.2) + 2;
   const c = document.createElement('canvas');
   // a linked full-size cover is drawn into a bitmap up to 460px wide, scaled down to its place on screen
-  const hiF = (i.img && wantHi(i) && LINK_ART.get(i.img)?.ready) ? Math.min(6, Math.max(1, 460 / w)) : 1;
+  // piles stay at the tile resolution: the stacked cards were drawn to match it (a linked full-size cover cut out of the pile)
+  const hiF = (i.img && !pileCount(i) && wantHi(i) && LINK_ART.get(i.img)?.ready) ? Math.min(6, Math.max(1, 460 / w)) : 1;
   c.width = Math.ceil((w + M.l + M.r + 2 * pad) * hiF); c.height = Math.ceil((h + M.t + M.b + 2 * pad) * hiF);
   const g = c.getContext('2d'), x = pad + M.l, y = pad + M.t; g.setTransform(hiF, 0, 0, hiF, 0, 0);
   g.__baseAlpha = 1; softShadow(g, i, x, y, w, h, '#000', w * 0.12, 0.45, w * 0.07); g.__baseAlpha = undefined;
@@ -2627,9 +2628,10 @@ function objBitmap(i, im, W, onlyCached) {
       // thrown down, not stacked: each card a little off in place and angle (the same every time)
       const r1 = pileRand(i.id, n, 1), r2 = pileRand(i.id, n, 2), r3 = pileRand(i.id, n, 3);
       tg.save(); tg.translate(x + w / 2 + r1 * w * 0.07, y + h / 2 + st * n + r2 * h * 0.015); tg.rotate(r3 * 0.07); tg.translate(-(x + w / 2), -(y + h / 2));
-      // the cards under the top one are plain dark card edges, not cover art (no cut-out pictures)
-      tg.fillStyle = `rgba(30,26,22,${0.85 - 0.05 * Math.min(n, 4)})`; tg.fillRect(x, y, w, h);
+      drawWork(tg, i, im, x, y, w, h, OBJ_PX, false);
       tg.restore();
+      tg.globalCompositeOperation = 'source-atop'; tg.fillStyle = `rgba(0,0,0,${0.12 + 0.05 * Math.min(n, 4)})`; tg.fillRect(0, 0, t.width, t.height);
+      tg.globalCompositeOperation = 'source-over';
       g.drawImage(t, 0, 0);
     }
   }

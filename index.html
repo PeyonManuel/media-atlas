@@ -1084,6 +1084,8 @@ function batchPath(batch, tier, col, alpha, kind) {
 // The key shows only while zoomed out this far (the world and its continents).
 const KEY_MAX_K = 0.9;
 // Covers fade in over this zoom range (one zoom step earlier than they first did).
+// The ledger's scroll is kept when a detail view replaces it, so Atlas (the crumb) comes back where you were.
+let panelLedger = false, ledgerScroll = null;
 const COVER_K0 = 1.65, COVER_K1 = 2.3, COVER_MID = (COVER_K0 + COVER_K1) / 2;
 const COVER_SIZES = [16, 23, 32, 45, 64, 90, 128, 181, 256, 362, 512];
 let coverBudget = 0, coverPending = false;
@@ -2776,7 +2778,12 @@ function extLink(i) {
 // ---------- panel ----------
 const panelInner = document.getElementById('panel-inner');
 const panelToggle = document.getElementById('panel-toggle');
-function show(...nodes) { panelInner.replaceChildren(...nodes.flat().filter(n => n != null && n !== false)); document.getElementById('panel').scrollTop = 0; }
+function show(...nodes) {
+  const el = document.getElementById('panel');
+  if (panelLedger) ledgerScroll = el.scrollTop;
+  panelLedger = false;
+  panelInner.replaceChildren(...nodes.flat().filter(n => n != null && n !== false)); el.scrollTop = 0;
+}
 function crumbs(parts) {
   const out = [];
   parts.forEach(([label, fn], k) => {
@@ -2839,15 +2846,8 @@ function renderLedger() {
       h('div', { class: 'rows' }, W.routes.map(r => h('button', { type: 'button', class: 'row', onclick: () => selectRoute(r.id) },
         h('span', { class: 'name' }, r.name), h('span', { class: 'meta' }, `${r.items.length} stops`),
         h('span', { class: 'sub' }, [...new Set(r.items.map(id => MEDIA_LABEL[itemById.get(id).m]))].join(' · ')))))) : null,
-    section('Blind spots',
-      h('div', { class: 'rows' }, blind.map(p =>
-        h('button', { type: 'button', class: 'row', onclick: () => selectProvince(p.id) },
-          h('span', { class: 'name' }, p.name), h('span', { class: 'meta' }, pctf(charted(p.consumed, p.unseen.length))),
-          h('span', { class: 'sub' }, `Unvisited: ${p.unseen.slice(0, 3).map(g => g.t).join(', ')}`))))),
-    section('Where you part ways with the crowd',
-      h('p', { class: 'lineage-cap' }, 'Crowd scores come from Goodreads and AniList.'),
-      h('div', { class: 'rows' }, ups.map(splitRow), downs.map(splitRow))),
   );
+  panelLedger = true;
 }
 
 function renderContinent(cid) {
@@ -2855,7 +2855,7 @@ function renderContinent(cid) {
   const cn = c.works.filter(isConsumed).length, un = d3.sum(c.provs, p => p.unseen.length);
   panelToggle.textContent = c.name;
   show(
-    crumbs([['Atlas', selectLedger], ['Continent']]),
+    crumbs([['Atlas', goLedger], ['Continent']]),
     h('div', { class: 'section' }, h('h2', null, c.name), h('p', { class: 'lede' }, c.blurb)),
     h('div', { class: 'figures' },
       h('div', { class: 'figure' }, h('b', null, nf(cn)), h('span', null, 'works')),
@@ -2983,7 +2983,7 @@ function renderProvince(pid) {
     h('span', { class: 'name' }, q.name), h('span', { class: 'meta' }, `${q.consumed}`),
     mixBar(countMedia(q.works)));
   show(
-    crumbs([['Atlas', selectLedger], [c.name, () => selectContinent(c.id)], ...(par ? [[par.name, () => selectProvince(par.id)]] : []), [par ? 'Sub-island' : 'Region']]),
+    crumbs([['Atlas', goLedger], [c.name, () => selectContinent(c.id)], ...(par ? [[par.name, () => selectProvince(par.id)]] : []), [par ? 'Sub-island' : 'Region']]),
     h('div', { class: 'section' },
       h('h2', null, p.name),
       p.blurb ? h('p', { class: 'lede' }, p.blurb) : null,
@@ -3030,7 +3030,7 @@ function renderItem(id) {
   panelToggle.textContent = i.t;
   const near = p.works.filter(w => w.id !== i.id).sort((a, b) => Math.abs((a.y || 0) - (i.y || 0)) - Math.abs((b.y || 0) - (i.y || 0))).slice(0, 6);
   show(
-    crumbs([['Atlas', selectLedger], [c.name, () => selectContinent(c.id)], [p.name, () => selectProvince(p.id)]]),
+    crumbs([['Atlas', goLedger], [c.name, () => selectContinent(c.id)], [p.name, () => selectProvince(p.id)]]),
     h('article', { class: 'card' },
       h('div', { class: 'band', style: `background:var(--m-${i.m})` }),
       h('div', { class: 'card-stage', onpointermove: tiltCover, onpointerleave: untiltCover }, coverEl(i, 140, 'big')),
@@ -3068,7 +3068,7 @@ function renderRoute(rid) {
   panelToggle.textContent = r.name;
   const conts = [...new Set(ws.map(w => contById.get(provById.get(w.p).c).name))];
   show(
-    crumbs([['Atlas', selectLedger], ['Route']]),
+    crumbs([['Atlas', goLedger], ['Route']]),
     h('div', { class: 'section' }, h('h2', null, r.name), h('p', { class: 'lede' }, r.blurb)),
     h('p', { class: 'lineage-cap' }, `${ws.length} stops across ${conts.join(', ')}. Routes are an experiment: curated links that cross regions.`),
     section('Stops', h('ol', { class: 'stops' }, ws.map((w, n) => h('li', null,
@@ -3092,7 +3092,7 @@ function renderCreator(name) {
   const works = [...ws].sort((a, b) => (a.y || 9999) - (b.y || 9999));
   const pk = peaks(ws, 12);
   show(
-    crumbs([['Atlas', selectLedger], ['Creator']]),
+    crumbs([['Atlas', goLedger], ['Creator']]),
     h('div', { class: 'section' }, h('h2', null, name),
       h('p', { class: 'lede' }, `${ws.length} works across ${regions.length} ${regions.length === 1 ? 'region' : 'regions'}. Everything else on the map is dimmed.`)),
     mediaChips(countMedia(ws)),
@@ -3140,7 +3140,12 @@ function selectCreator(name) {
   goTo(fitTransform([x0 - 30, y0 - 30, x1 + 30, y1 + 30], 0.08));
   requestDraw(); openSheet();
 }
-function selectLedger({ fly = true } = {}) { clearSel(); renderLedger(); if (fly) fitWorld(); requestDraw(); }
+function selectLedger({ fly = true, back = false } = {}) {
+  clearSel(); renderLedger();
+  if (back && ledgerScroll != null) document.getElementById('panel').scrollTop = ledgerScroll;
+  if (fly) fitWorld(); requestDraw();
+}
+const goLedger = () => selectLedger({ back: true });
 function selectContinent(cid, { fly = true } = {}) {
   clearSel(); state.selCont = cid; renderContinent(cid);
   const c = contById.get(cid); if (fly) fitCircle(c.x, c.y, c.r); requestDraw(); openSheet();

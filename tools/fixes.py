@@ -150,6 +150,11 @@ for i in W['items']:
     if n and i['m'] == 'tv': i['seasons'] = n
     elif n and i['m'] == 'manga': i['vols'] = n
 
+# Cover links: a work's verified image address (looked up page by page; see tools/images.json).
+IMAGES = json.loads((Path(__file__).parent / 'images.json').read_text())
+for i in W['items']:
+    if IMAGES.get(i['id']): i['img'] = IMAGES[i['id']]
+
 MOVES = {'The Elephant Man': 'Twin Peaks & Lynch'}
 for t, dest in MOVES.items():
     for i in W['items']:

@@ -175,7 +175,7 @@ for x in ('bfj', 'bfi', 'bfe', 'bff', 'bfd', 'bfh'):
 W['items'] = [i for i in W['items'] if i['id'] in items]
 for rt in W.get('routes', []): rt['items'] = [x for x in rt['items'] if x in items]
 
-MOVES = {'The Elephant Man': 'Twin Peaks & Lynch'}
+MOVES = {'The Elephant Man': 'Twin Peaks & Lynch', 'Blood Meridian, or, the Evening Redness in the West': 'Revisionist West'}
 for t, dest in MOVES.items():
     for i in W['items']:
         if i['t'] == t and i['p'] != byname[dest]['id']:

@@ -24,6 +24,7 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   sizes change in the page (rating tiers, length scaling, cases), then rebuild.
 - `cohesion.py` regrows each continent island by island so related islands touch; `pairs.py` seats works
   that share a portal together; `blurbs.json` EN/ES descriptions for every continent, island, sub-island.
+- `piles.json` (read by fixes.py): seasons per show (`seasons`, anime too) and volumes per manga (`vols`), looked up Oct 2026. The page stacks a card per season, or per ten volumes, under the work (`pileCount`); footprints include the pile, so re-export boxes after changing it. Film and album lengths were dropped on purpose (Manuel: they're all alike).
 - Spanish UI comes from the browser language (`ES` flag, phrase table; source in `tools/i18n.js`).
 - Covers are final sprite sheets in `tiles/` (108×160 cells); hi-res covers were dropped on purpose.
 
@@ -49,7 +50,7 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   only a slight halo on the selection.
 - Every visual feature should stand for a real feature. Size = rating tier × length, where length is the
   hours a work takes (`hoursOf` in the page: HowLongToBeat for games, episodes × episode length for shows,
-  pages for books/comics, chapters for manga; films and albums have no runtimes in the data yet).
+  pages for books/comics, chapters for manga; films and albums have no runtimes (on purpose)).
 - Nothing sits on top of anything else: covers never overlap (islands grow to make room), the land and
   plateaus wrap every cover, and islands of different continents keep a gap. On mixed islands each medium
   keeps to its own part of the island. Paused works in colour. Lengths rounded, detail on hover.

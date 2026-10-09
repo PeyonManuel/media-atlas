@@ -142,6 +142,14 @@ for i in W['items']:
         if ep: i['mins'] = i['len'] * ep
         else: print(f"no episode length for {i['t']} ({i.get('y')})")
 
+# Piles: how many seasons a show has aired, how many volumes a manga has (looked up page by page, October 2026).
+# The page stacks a card per season / per ten volumes under the work.
+PILES = json.loads((Path(__file__).parent / 'piles.json').read_text())
+for i in W['items']:
+    n = PILES.get(i['id'])
+    if n and i['m'] == 'tv': i['seasons'] = n
+    elif n and i['m'] == 'manga': i['vols'] = n
+
 MOVES = {'The Elephant Man': 'Twin Peaks & Lynch'}
 for t, dest in MOVES.items():
     for i in W['items']:

@@ -160,6 +160,21 @@ RATINGS = {'fpo': 8, 'm6j': 8}
 for i in W['items']:
     if i['id'] in RATINGS: i['r'] = RATINGS[i['id']]
 
+# Goodreads books and comics are scored out of 10 like everything else (Oct 2026). Manuel's stars stood for
+# 1★ ≤4, 2★ 4.5–6.5, 3★ 7–8, 4★ 8.5–9, 5★ 9.5–10; each book was placed on a whole number and he reviewed
+# the list (tools/book_scores.json, id -> title and score).
+BOOK_SCORES = json.loads((Path(__file__).parent / 'book_scores.json').read_text())
+for i in W['items']:
+    if i['src'] == 'goodreads':
+        i['r'] = BOOK_SCORES[i['id']]['r'] if i['id'] in BOOK_SCORES else 0
+
+# Blackwater was read as the one-volume Complete Saga: the six separate volumes go.
+for x in ('bfj', 'bfi', 'bfe', 'bff', 'bfd', 'bfh'):
+    if x in items:
+        provs[items[x]['p']]['items'].remove(x); items.pop(x)
+W['items'] = [i for i in W['items'] if i['id'] in items]
+for rt in W.get('routes', []): rt['items'] = [x for x in rt['items'] if x in items]
+
 MOVES = {'The Elephant Man': 'Twin Peaks & Lynch'}
 for t, dest in MOVES.items():
     for i in W['items']:

@@ -47,7 +47,8 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   Bull is not sports manga). Each says concisely why. Works sharing a portal sit together with the portal
   beside them and a visual link. A portal stands among the works it speaks for: inside its own island, on its
   plateau if a sub-island, and clear of sub-islands it doesn't belong to.
-- Scores: x/10 for everything, books x/5. 9s (and 4★ books) 1.35×, 10s (5★) 1.7×. No glow, no outlines,
+- Scores: x/10 for everything, books included (Goodreads stars converted by hand in `tools/book_scores.json`,
+  read by fixes.py; Blackwater counts once, as the Complete Saga). 9s 1.35×, 10s 1.7×. No glow, no outlines,
   only a slight halo on the selection.
 - Every visual feature should stand for a real feature. Size = rating tier × length, where length is the
   hours a work takes (`hoursOf` in the page: HowLongToBeat for games, episodes × episode length for shows,

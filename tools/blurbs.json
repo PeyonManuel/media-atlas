@@ -4,12 +4,12 @@
   "Mundos brutales y bellos donde cada jefe es un muro y cada atajo un regalo."
  ],
  "metroidvania": [
-  "Interconnected caverns that open up as you earn new powers and learn their secrets.",
-  "Cavernas interconectadas que se abren a medida que ganas poderes y descubres sus secretos."
+  "Interconnected caverns that open up as new powers are earned and their secrets learned.",
+  "Cavernas interconectadas que se abren a medida que se ganan poderes y se descubren sus secretos."
  ],
  "owrpg": [
-  "Vast open kingdoms to wander, where your choices and your sword shape the story.",
-  "Grandes reinos abiertos para recorrer, donde tus decisiones y tu espada moldean la historia."
+  "Vast open kingdoms to wander, where choices and the sword shape the story.",
+  "Grandes reinos abiertos para recorrer, donde las decisiones y la espada moldean la historia."
  ],
  "extreme": [
   "The heaviest end of metal and hardcore: death, black and chaotic noise.",
@@ -308,8 +308,8 @@
   "Survival horror: munición escasa, puertas cerradas y cosas en la oscuridad."
  ],
  "dread": [
-  "First-person horror where you can only run and hide.",
-  "Terror en primera persona donde solo puedes huir y esconderte."
+  "First-person horror where the only options are to run and hide.",
+  "Terror en primera persona donde solo queda huir y esconderse."
  ],
  "doom": [
   "Doom, sludge and drone: slow, heavy and loud.",

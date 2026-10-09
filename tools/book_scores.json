@@ -1,0 +1,738 @@
+{
+ "bgp": {
+  "t": "A Book of Five Rings: The Strategy of Musashi",
+  "r": 8
+ },
+ "bbo": {
+  "t": "A Little Hatred (The Age of Madness, #1)",
+  "r": 9
+ },
+ "bez": {
+  "t": "Alice's Adventures in Wonderland (Alice's Adventures in Wonderland, #1)",
+  "r": 8
+ },
+ "bbn": {
+  "t": "And Then There Were None",
+  "r": 7
+ },
+ "bdf": {
+  "t": "Ashes of Man (The Sun Eater, #5)",
+  "r": 4
+ },
+ "bd3": {
+  "t": "Assassin's Apprentice (Farseer Trilogy, #1)",
+  "r": 7
+ },
+ "bds": {
+  "t": "Assassin's Quest (Farseer Trilogy, #3)",
+  "r": 8
+ },
+ "bh0": {
+  "t": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones",
+  "r": 10
+ },
+ "cb5": {
+  "t": "Batman The Long Halloween: The Last Halloween (2024-) #1",
+  "r": 9
+ },
+ "ccx": {
+  "t": "Batman, Volume 3: Death of the Family",
+  "r": 8
+ },
+ "ccg": {
+  "t": "Batman, Volume 7: Endgame",
+  "r": 6
+ },
+ "chm": {
+  "t": "Batman: A Death in the Family",
+  "r": 7
+ },
+ "ccm": {
+  "t": "Batman: Arkham Asylum - A Serious House on Serious Earth",
+  "r": 5
+ },
+ "cca": {
+  "t": "Batman: Gotham by Gaslight (New Edition)",
+  "r": 5
+ },
+ "cc7": {
+  "t": "Batman: Hush",
+  "r": 6
+ },
+ "ccn": {
+  "t": "Batman: Knightfall, Vol. 1",
+  "r": 7
+ },
+ "cc9": {
+  "t": "Batman: The Black Mirror",
+  "r": 6
+ },
+ "ccj": {
+  "t": "Batman: The Court of Owls Saga",
+  "r": 6
+ },
+ "chn": {
+  "t": "Batman: The Dark Knight Returns",
+  "r": 9
+ },
+ "cf7": {
+  "t": "Batman: The Killing Joke",
+  "r": 9
+ },
+ "cd2": {
+  "t": "Batman: The Long Halloween",
+  "r": 9
+ },
+ "ccp": {
+  "t": "Batman: The Long Halloween - Haunted Knight",
+  "r": 7
+ },
+ "cci": {
+  "t": "Batman: The Man Who Laughs",
+  "r": 5
+ },
+ "cfx": {
+  "t": "Batman: Three Jokers",
+  "r": 8
+ },
+ "cgo": {
+  "t": "Batman: Venom",
+  "r": 8
+ },
+ "cgh": {
+  "t": "Batman: Year One",
+  "r": 9
+ },
+ "cc4": {
+  "t": "Batman: Zero Year",
+  "r": 4
+ },
+ "be4": {
+  "t": "Before They Are Hanged (The First Law, #2)",
+  "r": 8
+ },
+ "bdh": {
+  "t": "Best Served Cold",
+  "r": 7
+ },
+ "bdx": {
+  "t": "Beyond Good and Evil",
+  "r": 7
+ },
+ "bfg": {
+  "t": "Blackwater: The Complete Saga",
+  "r": 10
+ },
+ "bf0": {
+  "t": "Blood Meridian, or, the Evening Redness in the West",
+  "r": 9
+ },
+ "bar": {
+  "t": "Blood Rites (The Dresden Files, #6)",
+  "r": 8
+ },
+ "bd8": {
+  "t": "Choque de reyes (Canción de hielo y fuego, #2)",
+  "r": 9
+ },
+ "ccl": {
+  "t": "Civil War",
+  "r": 6
+ },
+ "bfl": {
+  "t": "Crime and Punishment",
+  "r": 8
+ },
+ "be7": {
+  "t": "Danza de dragones (Canción de Hielo y Fuego, #5)",
+  "r": 8
+ },
+ "bes": {
+  "t": "Dark Age (Red Rising Saga, #5)",
+  "r": 7
+ },
+ "baa": {
+  "t": "Darth Plagueis (Star Wars)",
+  "r": 7
+ },
+ "bau": {
+  "t": "Dawn (Legend of the Galactic Heroes, #1)",
+  "r": 8
+ },
+ "be6": {
+  "t": "Dawnshard (The Stormlight Archive, #3.5)",
+  "r": 6
+ },
+ "ccf": {
+  "t": "Deadpool Kills the Marvel Universe",
+  "r": 6
+ },
+ "cce": {
+  "t": "Deadpool Vs. Carnage",
+  "r": 5
+ },
+ "bb1": {
+  "t": "Death Masks (The Dresden Files, #5)",
+  "r": 7
+ },
+ "bey": {
+  "t": "Demon in White (The Sun Eater, #3)",
+  "r": 9
+ },
+ "bdd": {
+  "t": "Dracula",
+  "r": 6
+ },
+ "bap": {
+  "t": "Dune (Dune, #1)",
+  "r": 8
+ },
+ "bb7": {
+  "t": "Dungeon Crawler Carl (Dungeon Crawler Carl, #1)",
+  "r": 7
+ },
+ "ba2": {
+  "t": "Dynasty of Evil (Star Wars: Darth Bane, #3)",
+  "r": 7
+ },
+ "be5": {
+  "t": "Edgedancer (The Stormlight Archive, #2.5)",
+  "r": 5
+ },
+ "cgk": {
+  "t": "El Eternauta (Novela gráfica)",
+  "r": 4
+ },
+ "bgi": {
+  "t": "El Principito",
+  "r": 10
+ },
+ "bdu": {
+  "t": "Empire of Silence (The Sun Eater, #1)",
+  "r": 6
+ },
+ "bb9": {
+  "t": "Empire of the Vampire (Empire of the Vampire, #1)",
+  "r": 7
+ },
+ "ccw": {
+  "t": "Fables, Vol. 1: Legends in Exile",
+  "r": 8
+ },
+ "ccv": {
+  "t": "Fables, Vol. 2: Animal Farm",
+  "r": 7
+ },
+ "cc8": {
+  "t": "Fables, Vol. 3: Storybook Love",
+  "r": 6
+ },
+ "bd6": {
+  "t": "Festín de cuervos (Canción de hielo y fuego, #4)",
+  "r": 7
+ },
+ "bdb": {
+  "t": "Fool Moon (The Dresden Files, #2)",
+  "r": 3
+ },
+ "bdq": {
+  "t": "Fool's Errand (Tawny Man, #1)",
+  "r": 7
+ },
+ "bdk": {
+  "t": "Fool's Fate (Tawny Man, #3)",
+  "r": 8
+ },
+ "bao": {
+  "t": "Foundation (Foundation, #1)",
+  "r": 7
+ },
+ "bbc": {
+  "t": "Gardens of the Moon (The Malazan Book of the Fallen, #1)",
+  "r": 7
+ },
+ "cc1": {
+  "t": "Gideon Falls Omnibus",
+  "r": 3
+ },
+ "bfw": {
+  "t": "Golden Son (Red Rising Saga, #2)",
+  "r": 10
+ },
+ "bda": {
+  "t": "Grave Peril (The Dresden Files, #3)",
+  "r": 6
+ },
+ "cby": {
+  "t": "Harleen",
+  "r": 9
+ },
+ "be2": {
+  "t": "Harry Potter and the Chamber of Secrets (Harry Potter, #2)",
+  "r": 6
+ },
+ "be1": {
+  "t": "Harry Potter and the Goblet of Fire (Harry Potter, #4)",
+  "r": 7
+ },
+ "bd5": {
+  "t": "Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)",
+  "r": 7
+ },
+ "bha": {
+  "t": "Harry Potter and the Sorcerer's Stone (Harry Potter, #1)",
+  "r": 7
+ },
+ "bh3": {
+  "t": "How to Win Friends & Influence People",
+  "r": 8
+ },
+ "bg4": {
+  "t": "Howling Dark (The Sun Eater, #2)",
+  "r": 8
+ },
+ "bdi": {
+  "t": "Hyperion (Hyperion Cantos, #1)",
+  "r": 8
+ },
+ "be0": {
+  "t": "I Have No Mouth & I Must Scream",
+  "r": 5
+ },
+ "ccd": {
+  "t": "Invincible: Ultimate Collection, Vol. 1",
+  "r": 6
+ },
+ "bbw": {
+  "t": "Iron Gold (Red Rising Saga, #4)",
+  "r": 6
+ },
+ "ccb": {
+  "t": "JLA: Tower of Babel",
+  "r": 6
+ },
+ "bed": {
+  "t": "Juego de tronos (Canción de hielo y fuego, #1)",
+  "r": 9
+ },
+ "cgx": {
+  "t": "Kingdom Come",
+  "r": 7
+ },
+ "bdg": {
+  "t": "Kingdoms of Death (The Sun Eater, #4)",
+  "r": 7
+ },
+ "beb": {
+  "t": "La espada del destino (Geralt de Rivia, #0.7)",
+  "r": 6
+ },
+ "bdj": {
+  "t": "La sangre de los elfos (Geralt de Rivia, #1)",
+  "r": 5
+ },
+ "be3": {
+  "t": "Last Argument of Kings (The First Law, #3)",
+  "r": 9
+ },
+ "baz": {
+  "t": "Leviathan Wakes",
+  "r": 8
+ },
+ "bbv": {
+  "t": "Light Bringer (Red Rising Saga, #6)",
+  "r": 9
+ },
+ "bgz": {
+  "t": "Lonesome Dove (Lonesome Dove, #1)",
+  "r": 10
+ },
+ "baq": {
+  "t": "Los hijos de Húrin",
+  "r": 8
+ },
+ "bal": {
+  "t": "Los tres mundos (Julio César, #3)",
+  "r": 10
+ },
+ "bfb": {
+  "t": "Maldita Roma: La conquista del poder de Julio César (Julio César, #2)",
+  "r": 10
+ },
+ "cbu": {
+  "t": "Marvel Masterworks: The Amazing Spider-Man, Vol. 1",
+  "r": 7
+ },
+ "bam": {
+  "t": "Misery",
+  "r": 7
+ },
+ "bbj": {
+  "t": "Mistborn: The Final Empire (Mistborn, #1)",
+  "r": 7
+ },
+ "bbx": {
+  "t": "Morning Star (Red Rising Saga, #3)",
+  "r": 9
+ },
+ "bf5": {
+  "t": "Musashi",
+  "r": 8
+ },
+ "bgb": {
+  "t": "Mushoku Tensei: Jobless Reincarnation (Light Novel) Vol. 1",
+  "r": 5
+ },
+ "bf4": {
+  "t": "Oathbringer (The Stormlight Archive, #3)",
+  "r": 9
+ },
+ "bdw": {
+  "t": "Of Blood and Fire (The Bound and the Broken, #1)",
+  "r": 6
+ },
+ "bdt": {
+  "t": "Of Darkness and Light (The Bound and the Broken, #2)",
+  "r": 6
+ },
+ "ba6": {
+  "t": "Path of Destruction (Star Wars: Darth Bane, #1)",
+  "r": 8
+ },
+ "bew": {
+  "t": "Pet Sematary",
+  "r": 5
+ },
+ "bdy": {
+  "t": "Project Hail Mary",
+  "r": 7
+ },
+ "bdn": {
+  "t": "Red Rising (Red Rising Saga, #1)",
+  "r": 8
+ },
+ "bf3": {
+  "t": "Rhythm of War (The Stormlight Archive, #4)",
+  "r": 7
+ },
+ "bh2": {
+  "t": "Rich Dad Poor Dad: What the Rich Teach Their Kids About Money That the Poor and Middle Class Do Not!",
+  "r": 8
+ },
+ "bet": {
+  "t": "Roma soy yo: La verdadera historia de Julio César (Julio César, #1)",
+  "r": 9
+ },
+ "bd4": {
+  "t": "Royal Assassin (Farseer Trilogy, #2)",
+  "r": 8
+ },
+ "ba7": {
+  "t": "Rule of Two (Star Wars: Darth Bane, #2)",
+  "r": 7
+ },
+ "cbd": {
+  "t": "Saga, Compendium One",
+  "r": 10
+ },
+ "bbz": {
+  "t": "Sapiens: A Brief History of Humankind",
+  "r": 9
+ },
+ "bdr": {
+  "t": "Ship of Magic (Liveship Traders, #1)",
+  "r": 5
+ },
+ "bf6": {
+  "t": "Shōgun: The Epic Novel of Japan (The Asian Saga #1)",
+  "r": 9
+ },
+ "bg9": {
+  "t": "Sin City Volume 1: The Hard Goodbye",
+  "r": 6
+ },
+ "ccu": {
+  "t": "Spider-Man: Birth of Venom",
+  "r": 7
+ },
+ "cch": {
+  "t": "Spider-Man: Blue",
+  "r": 6
+ },
+ "ccs": {
+  "t": "Spider-Man: The Death of Captain Stacy",
+  "r": 7
+ },
+ "cc6": {
+  "t": "Star Wars Legends: The Empire Omnibus, Vol. 1",
+  "r": 5
+ },
+ "ccc": {
+  "t": "Star Wars: Darth Vader Omnibus",
+  "r": 6
+ },
+ "ca8": {
+  "t": "Star Wars: Darth Vader by Charles Soule Omnibus",
+  "r": 9
+ },
+ "cc5": {
+  "t": "Star Wars: Knights of the Old Republic, Vol. 1: Commencement",
+  "r": 6
+ },
+ "cc2": {
+  "t": "Star Wars: Obi-Wan & Anakin",
+  "r": 3
+ },
+ "ba3": {
+  "t": "Star Wars: Revenge of the Sith (Star Wars Novelizations, #3)",
+  "r": 8
+ },
+ "cc0": {
+  "t": "Stephen King's The Stand, Volume 1: Captain Trips",
+  "r": 4
+ },
+ "bb4": {
+  "t": "Steppenwolf",
+  "r": 7
+ },
+ "bdm": {
+  "t": "Storm Front (The Dresden Files, #1)",
+  "r": 5
+ },
+ "bba": {
+  "t": "Streets of Laredo (Lonesome Dove, #2)",
+  "r": 8
+ },
+ "bb2": {
+  "t": "Summer Knight (The Dresden Files, #4)",
+  "r": 7
+ },
+ "bgn": {
+  "t": "Tai-Pan",
+  "r": 7
+ },
+ "cct": {
+  "t": "The Amazing Spider-Man: Kraven's Last Hunt",
+  "r": 8
+ },
+ "ccr": {
+  "t": "The Amazing Spider-Man: Origin of the Hobgoblin",
+  "r": 7
+ },
+ "chl": {
+  "t": "The Amazing Spider-Man: Spider-Man No More (Marvel Ultimate Graphic Novels Collection)",
+  "r": 8
+ },
+ "chk": {
+  "t": "The Amazing Spider-Man: The Death of Gwen Stacy",
+  "r": 9
+ },
+ "chj": {
+  "t": "The Amazing Spider-Man: The Saga of the Alien Costume",
+  "r": 8
+ },
+ "ccq": {
+  "t": "The Batman Adventures: Mad Love",
+  "r": 8
+ },
+ "bea": {
+  "t": "The Blade Itself (The First Law, #1)",
+  "r": 8
+ },
+ "bgf": {
+  "t": "The Book of the New Sun",
+  "r": 10
+ },
+ "be9": {
+  "t": "The Call of Cthulhu",
+  "r": 5
+ },
+ "bfa": {
+  "t": "The Complete Maus",
+  "r": 10
+ },
+ "chi": {
+  "t": "The Death of Superman",
+  "r": 7
+ },
+ "beq": {
+  "t": "The Dragon Reborn (The Wheel of Time, #3)",
+  "r": 7
+ },
+ "bdl": {
+  "t": "The Eye of the World (The Wheel of Time, #1)",
+  "r": 6
+ },
+ "bdv": {
+  "t": "The Fall (The Bound and the Broken, #0.5)",
+  "r": 5
+ },
+ "bde": {
+  "t": "The Fall of Hyperion (Hyperion Cantos, #2)",
+  "r": 6
+ },
+ "bbl": {
+  "t": "The Godfather",
+  "r": 9
+ },
+ "bdp": {
+  "t": "The Golden Fool (Tawny Man, #2)",
+  "r": 6
+ },
+ "ber": {
+  "t": "The Great Hunt (The Wheel of Time, #2)",
+  "r": 7
+ },
+ "bdc": {
+  "t": "The Haunting of Hill House",
+  "r": 5
+ },
+ "bh9": {
+  "t": "The Hero of Ages (Mistborn, #3)",
+  "r": 8
+ },
+ "beu": {
+  "t": "The Hitchhiker's Guide to the Galaxy (Hitchhiker's Guide, #1)",
+  "r": 8
+ },
+ "bhb": {
+  "t": "The Hobbit, or There and Back Again",
+  "r": 8
+ },
+ "cck": {
+  "t": "The Infinity Gauntlet",
+  "r": 6
+ },
+ "bec": {
+  "t": "The Last Wish (The Witcher, #0.5)",
+  "r": 6
+ },
+ "bh4": {
+  "t": "The Laws of Human Nature",
+  "r": 10
+ },
+ "bd7": {
+  "t": "The Lord of the Rings",
+  "r": 9
+ },
+ "bdo": {
+  "t": "The Name of the Wind (The Kingkiller Chronicle, #1)",
+  "r": 5
+ },
+ "bgl": {
+  "t": "The Pillars of the Earth (Kingsbridge, #1)",
+  "r": 10
+ },
+ "cco": {
+  "t": "The Promise (Avatar: The Last Airbender, #1)",
+  "r": 7
+ },
+ "cbe": {
+  "t": "The Sandman: The Deluxe Edition, Book One",
+  "r": 9
+ },
+ "bex": {
+  "t": "The Shining (The Shining, #1)",
+  "r": 6
+ },
+ "bgq": {
+  "t": "The Silmarillion",
+  "r": 7
+ },
+ "bfc": {
+  "t": "The Song of Achilles",
+  "r": 9
+ },
+ "bh8": {
+  "t": "The Three-Body Problem (Remembrance of Earth’s Past, #1)",
+  "r": 5
+ },
+ "bbk": {
+  "t": "The Trouble with Peace (The Age of Madness, #2)",
+  "r": 10
+ },
+ "bev": {
+  "t": "The Truth (Discworld, #25; Industrial Revolution, #2)",
+  "r": 7
+ },
+ "cd0": {
+  "t": "The Walking Dead: Compendium Four",
+  "r": 8
+ },
+ "cd1": {
+  "t": "The Walking Dead: Compendium One",
+  "r": 9
+ },
+ "ccz": {
+  "t": "The Walking Dead: Compendium Three",
+  "r": 8
+ },
+ "ccy": {
+  "t": "The Walking Dead: Compendium Two",
+  "r": 9
+ },
+ "bbi": {
+  "t": "The Way of Kings (The Stormlight Archive, #1)",
+  "r": 10
+ },
+ "bf2": {
+  "t": "The Well of Ascension (Mistborn, #2)",
+  "r": 6
+ },
+ "bbf": {
+  "t": "The Wisdom of Crowds (The Age of Madness #3)",
+  "r": 10
+ },
+ "bdz": {
+  "t": "Three Days of Happiness",
+  "r": 8
+ },
+ "bd9": {
+  "t": "Tiempo de odio (Geralt de Rivia, #2)",
+  "r": 6
+ },
+ "bgy": {
+  "t": "Tormenta de espadas (Canción de hielo y fuego, #3)",
+  "r": 10
+ },
+ "bas": {
+  "t": "Un mundo sin fin (Los pilares de la tierra, #2)",
+  "r": 10
+ },
+ "bbr": {
+  "t": "Una Palabra Dos Pensamientos",
+  "r": 8
+ },
+ "chh": {
+  "t": "V for Vendetta",
+  "r": 8
+ },
+ "be8": {
+  "t": "Warbreaker",
+  "r": 8
+ },
+ "cb6": {
+  "t": "Watchmen",
+  "r": 10
+ },
+ "bb8": {
+  "t": "Wind and Truth (The Stormlight Archive, #5)",
+  "r": 6
+ },
+ "cc3": {
+  "t": "Wolverine: Old Man Logan",
+  "r": 4
+ },
+ "bg3": {
+  "t": "Words of Radiance (The Stormlight Archive, #2)",
+  "r": 10
+ },
+ "bh1": {
+  "t": "¡Sálvese quien pueda!: El futuro del trabajo en la era de la automatización",
+  "r": 7
+ },
+ "bgg": {
+  "t": "ファタモルガーナの館　―The house in Fata morgana―　あなたの原典に至る物語I [Fata Morgana no Yakata: Anata no Genten ni Itaru Monogatari 1]",
+  "r": 6
+ }
+}

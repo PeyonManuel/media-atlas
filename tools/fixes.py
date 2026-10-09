@@ -155,6 +155,11 @@ IMAGES = json.loads((Path(__file__).parent / 'images.json').read_text())
 for i in W['items']:
     if IMAGES.get(i['id']): i['img'] = IMAGES[i['id']]
 
+# Ratings corrected by hand (out of 10): The Avengers (2012) is an 8.
+RATINGS = {'fpo': 8}
+for i in W['items']:
+    if i['id'] in RATINGS: i['r'] = RATINGS[i['id']]
+
 MOVES = {'The Elephant Man': 'Twin Peaks & Lynch'}
 for t, dest in MOVES.items():
     for i in W['items']:

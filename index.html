@@ -1686,7 +1686,7 @@ let userMoved = false;
 // pixels): the tile cells, or the full-size covers when those exist. Works are shown as their objects
 // well before that.
 const PHONE = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;   // phones get a much deeper zoom; the canvas is still capped by device pixels
-const MAX_K = hiCount ? Math.min(PHONE ? 60 : 40, (PHONE ? 150 : 75) / Math.max(1, window.devicePixelRatio || 1)) : Math.min(PHONE ? 24 : 9, (PHONE ? 48 : 12) / Math.max(1, window.devicePixelRatio || 1));   // a little short of the tiles' full resolution
+const MAX_K = PHONE ? (hiCount ? 80 : 40) : (hiCount ? Math.min(40, 75 / Math.max(1, window.devicePixelRatio || 1)) : Math.min(9, 12 / Math.max(1, window.devicePixelRatio || 1)));   // a little short of the tiles' full resolution
 const zoom = d3.zoom().scaleExtent([0.3, MAX_K])
   // the wheel is handled below, so it can glide instead of jumping
   .filter(e => (!e.ctrlKey || e.type === 'wheel') && !e.button && e.type !== 'wheel')

@@ -156,7 +156,7 @@ for i in W['items']:
     if IMAGES.get(i['id']): i['img'] = IMAGES[i['id']]
 
 # Ratings corrected by hand (out of 10): The Avengers (2012) is an 8.
-RATINGS = {'fpo': 8}
+RATINGS = {'fpo': 8, 'm6j': 8}
 for i in W['items']:
     if i['id'] in RATINGS: i['r'] = RATINGS[i['id']]
 

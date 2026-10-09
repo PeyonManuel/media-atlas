@@ -550,6 +550,9 @@ for (const c of W.continents) {
   c.lx = c.works.length ? d3.mean(c.works, w => w.px) : c.x; c.ly = c.works.length ? d3.mean(c.works, w => w.py) : c.y;
   c.mix = {}; for (const w of c.works) if (w.st !== 'planned') c.mix[w.m] = (c.mix[w.m] || 0) + 1;
   c.mixTotal = Object.values(c.mix).reduce((a, b) => a + b, 0) || 1;
+  // where its works reach (map tiles only paint the continents that reach into them)
+  const ws = W.items.filter(i => provById.get(i.p).c === c.id);
+  c.bb = ws.length ? [d3.min(ws, w => w.px), d3.min(ws, w => w.py), d3.max(ws, w => w.px), d3.max(ws, w => w.py)] : [c.x, c.y, c.x, c.y];
 }
 // Cover tiles: up to 8 x 8 cells of 108 x 160 px (albums use the top 108 x 108). Each tile holds the
 // works of one patch of the map, so a zoomed-in view needs only the few tiles under it.
@@ -670,13 +673,17 @@ const geo = new Map();
 function densityGrid(points, sig, x0, y0, nx, ny) {
   const grid = new Float32Array(nx * ny);
   const R = Math.ceil(sig * 3 / CELL), k2 = 2 * sig * sig;
+  // the Gaussian splits into a row factor and a column factor, so each point costs two short rows of exp()
+  const wx = new Float64Array(2 * R + 3), wy = new Float64Array(2 * R + 3);
   for (const [px_, py_, wgt] of points) {
     const cx = (px_ - x0) / CELL, cy = (py_ - y0) / CELL;
     const ix0 = Math.max(0, Math.floor(cx - R)), ix1 = Math.min(nx - 1, Math.ceil(cx + R));
     const iy0 = Math.max(0, Math.floor(cy - R)), iy1 = Math.min(ny - 1, Math.ceil(cy + R));
-    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) {
-      const dx = (ix - cx) * CELL, dy = (iy - cy) * CELL;
-      grid[iy * nx + ix] += wgt * Math.exp(-(dx * dx + dy * dy) / k2);
+    for (let ix = ix0; ix <= ix1; ix++) { const dx = (ix - cx) * CELL; wx[ix - ix0] = Math.exp(-dx * dx / k2); }
+    for (let iy = iy0; iy <= iy1; iy++) { const dy = (iy - cy) * CELL; wy[iy - iy0] = wgt * Math.exp(-dy * dy / k2); }
+    for (let iy = iy0; iy <= iy1; iy++) {
+      const fy = wy[iy - iy0], row = iy * nx;
+      for (let ix = ix0; ix <= ix1; ix++) grid[row + ix] += fy * wx[ix - ix0];
     }
   }
   return grid;
@@ -758,19 +765,27 @@ function buildGeometry() {
       }
       return { value: mp.value, path, empty: !mp.coordinates.length };
     });
-    paths.cx = (x0 + x1) / 2; paths.cy = (y0 + y1) / 2;
+    paths.cx = (x0 + x1) / 2; paths.cy = (y0 + y1) / 2; paths.bb = [x0, y0, x0 + nx * CELL, y0 + ny * CELL];
+    paths.grid = { g: coastGrid, x0, y0, nx, ny };
     geo.set(c.id, paths);
   }
-  // One clip path holding every coastline, for province borders.
-  landClip = new Path2D();
-  for (const paths of geo.values()) landClip.addPath(paths[COAST].path);
   // Province borders: Voronoi edges between neighbouring works of different provinces.
   const pts = W.items;
   const del = d3.Delaunay.from(pts, d => d.px, d => d.py);
   const vor = del.voronoi([W.bounds[0] - 200, W.bounds[1] - 200, W.bounds[2] + 200, W.bounds[3] + 200]);
   const cc = vor.circumcenters, { triangles, halfedges } = del;
-  borderPath = new Path2D();
-  const probe = document.createElement('canvas').getContext('2d');
+  borderPath = new Map();   // continent id -> its stretch of borders
+  // on land where the coast's density field is above the coastline level (the same field the coast is
+  // traced from, read bilinearly, so this agrees with the drawn coast)
+  const onLand = (cid, X, Y) => {
+    const G = geo.get(cid)?.grid;
+    if (!G) return false;
+    const fx = (X - G.x0) / CELL, fy = (Y - G.y0) / CELL, ix = Math.floor(fx), iy = Math.floor(fy);
+    if (ix < 0 || iy < 0 || ix >= G.nx - 1 || iy >= G.ny - 1) return false;
+    const u = fx - ix, v = fy - iy, j = iy * G.nx + ix, g = G.g;
+    const val = (g[j] * (1 - u) + g[j + 1] * u) * (1 - v) + (g[j + G.nx] * (1 - u) + g[j + G.nx + 1] * u) * v;
+    return val >= COAST_LEVELS[COAST];
+  };
   for (let e = 0; e < halfedges.length; e++) {
     const j = halfedges[e];
     if (j < e) continue;
@@ -781,15 +796,18 @@ function buildGeometry() {
     const x1 = cc[2 * t1], y1 = cc[2 * t1 + 1], x2 = cc[2 * t2], y2 = cc[2 * t2 + 1];
     // keep the stretches of the edge that lie on land (tested in eighths)
     let open = false;
+    const cid = provById.get(a.p).c;
+    let bp = borderPath.get(cid);
+    if (!bp) borderPath.set(cid, bp = new Path2D());
     for (let q = 0; q < 8; q++) {
-      const fm = (q + 0.5) / 8, inside = probe.isPointInPath(landClip, x1 + (x2 - x1) * fm, y1 + (y2 - y1) * fm, 'evenodd');
-      if (inside && !open) { borderPath.moveTo(x1 + (x2 - x1) * q / 8, y1 + (y2 - y1) * q / 8); open = true; }
-      if (!inside && open) { borderPath.lineTo(x1 + (x2 - x1) * q / 8, y1 + (y2 - y1) * q / 8); open = false; }
+      const fm = (q + 0.5) / 8, inside = onLand(cid, x1 + (x2 - x1) * fm, y1 + (y2 - y1) * fm);
+      if (inside && !open) { bp.moveTo(x1 + (x2 - x1) * q / 8, y1 + (y2 - y1) * q / 8); open = true; }
+      if (!inside && open) { bp.lineTo(x1 + (x2 - x1) * q / 8, y1 + (y2 - y1) * q / 8); open = false; }
     }
-    if (open) borderPath.lineTo(x2, y2);
+    if (open) bp.lineTo(x2, y2);
   }
 }
-let landClip, borderPath;
+let borderPath;
 // Each sub-island is a plateau on its parent: a tighter shoreline drawn around its own works.
 const plateaus = new Map();
 function buildPlateaus() {
@@ -818,6 +836,7 @@ function buildPlateaus() {
         ring.forEach(([gx, gy], j) => { const X = x0 + gx * CELL, Y = y0 + gy * CELL; j ? path.lineTo(X, Y) : path.moveTo(X, Y); });
         path.closePath();
       }
+      path.bb = [x0, y0, x1, y1];
       plateaus.set(p.id, path);
     });
   }
@@ -1068,13 +1087,12 @@ function jitter(i) {
   if (v === undefined) { let x = 0; for (const ch of i.id) x = (x * 31 + ch.charCodeAt(0)) % 1009; v = x / 1009; JIT.set(i.id, v); }
   return v;
 }
-const GLYPHS = { key: null, batch: null, list: [] };
 const PAUSED = () => T.dark ? '#f2b65a' : '#d98a1c';   // the pause mark's amber
 // A shared path for symbols drawn alike (same rating tier, colour, opacity and fill or outline).
-function batchPath(batch, tier, col, alpha, kind) {
-  const key = `${tier}|${col}|${alpha}|${kind}`;
+function batchPath(batch, tier, col, alpha, kind, cid = '') {
+  const key = `${tier}|${col}|${alpha}|${kind}|${cid}`;
   let b = batch.get(key);
-  if (!b) { b = { tier, col, alpha, kind, path: new Path2D() }; batch.set(key, b); }
+  if (!b) { b = { tier, col, alpha, kind, path: new Path2D(), bb: cid && contById.get(cid).bb }; batch.set(key, b); }
   return b.path;
 }
 // Cover bitmaps come in half-octave sizes (a bit larger than drawn, so they stay sharp). New sizes are
@@ -1105,10 +1123,300 @@ function coverBitmap(i, im, devW) {
 }
 
 let keyAway = null;
-// When the scale last changed. While zooming, the overview's shared symbol paths are rebuilt in coarser
-// steps (a size error of a few percent is invisible in motion) and refined once the zoom comes to rest.
+// When the scale last changed (covers rendered while zooming wait for the zoom to rest).
 let zoomT = 0, refineT = 0;
 const zoomingNow = () => performance.now() - zoomT < 220;
+
+// ---------- map tiles ----------
+// Everything that holds still while the view moves (sea, land and hills, plateaus, borders, unexplored
+// landmarks, a selected route, and, zoomed out, the work symbols themselves) is painted once into 512-px
+// tiles per quarter-octave of zoom and reused. A frame then only copies a screenful of tiles, so panning
+// and zooming cost the same however much land is in view. Tiles are painted at or above the view's scale
+// (never stretched up), the old zoom step stands in while the next one is painted a few tiles per frame,
+// and a changed selection swaps in all at once when its tiles are ready.
+const MT = { px: 512, cache: new Map(), free: [], shown: null, idleT: 0, glyphs: new Map() };
+// While zooming, tiles are painted at eighth-octave steps at or above the view's scale (never stretched up);
+// once the zoom rests, at the view's own scale, so the resting map is exactly what a direct paint would be.
+const mtScaleFor = k => zoomingNow() ? Math.pow(2, Math.ceil(Math.log2(k) * 8 - 1e-6) / 8) : k;
+function mtVersion(glyphs) {
+  return [glyphs ? 'g' : 'l', state.selProv, state.selCont, state.selCreator, state.selRoute, state.soft,
+    [...state.hidden].join(), T.dark, T.sea, dpr, glyphs ? state.selItem : ''].join('|');
+}
+const mtKey = (L, tx, ty) => `${L.ver}#${L.kq}#${tx}#${ty}`;
+// The tiles of layer L ({ ver, glyphs, kq }) over the view: [tx0, ty0, tx1, ty1].
+function mtRange(kq, pad = 0) {
+  const s = kq * dpr / MT.px, [wx0, wy0] = transform.invert([0, 0]), [wx1, wy1] = transform.invert([Wpx, Hpx]);
+  return [Math.floor(wx0 * s) - pad, Math.floor(wy0 * s) - pad, Math.floor(wx1 * s) + pad, Math.floor(wy1 * s) + pad];
+}
+function mtEach([x0, y0, x1, y1], f) { for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) f(tx, ty); }
+function mtPaint(L, tx, ty) {
+  const P = MT.px, s = L.kq * dpr;
+  let c = MT.free.pop() || Object.assign(document.createElement('canvas'), { width: P, height: P });
+  let g = c.getContext('2d', { alpha: false });
+  if (!g) {
+    // out of canvas memory (Safari's cap): let the older half of the tiles go and try once more
+    mtFlush(MT.cache.size / 2);
+    c = Object.assign(document.createElement('canvas'), { width: P, height: P });
+    g = c.getContext('2d', { alpha: false });
+    if (!g) { c = Object.assign(document.createElement('canvas'), { width: 1, height: 1 }); g = c.getContext('2d'); }
+  }
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.fillStyle = T.sea; g.fillRect(0, 0, P, P);
+  if (c.width === P) { g.setTransform(s, 0, 0, s, -tx * P, -ty * P);
+  paintStatic(g, L.kq, L.glyphs, [tx * P / s, ty * P / s, (tx + 1) * P / s, (ty + 1) * P / s]); }
+  const t = { c, used: performance.now() };
+  MT.cache.set(mtKey(L, tx, ty), t);
+  return t;
+}
+// Let the n least recently drawn tiles go (all of them by default).
+function mtFlush(n = Infinity) {
+  const old = [...MT.cache].sort((u, v) => u[1].used - v[1].used).slice(0, Math.ceil(n));
+  for (const [key, t] of old) {
+    MT.cache.delete(key);
+    if (MT.free.length < 8 && t.c.width === MT.px) MT.free.push(t.c); else t.c.width = t.c.height = 0;
+  }
+  if (!MT.cache.size) MT.shown = null;
+}
+// Is the world rectangle of tile (tx, ty) of layer L fully painted in layer S?
+function mtCovered(L, tx, ty, S) {
+  const a = MT.px / (L.kq * dpr), b = S.kq * dpr / MT.px;
+  const r = [Math.floor(tx * a * b + 1e-6), Math.floor(ty * a * b + 1e-6), Math.ceil((tx + 1) * a * b - 1e-6) - 1, Math.ceil((ty + 1) * a * b - 1e-6) - 1];
+  let ok = true;
+  mtEach(r, (x, y) => { if (ok && !MT.cache.has(mtKey(S, x, y))) ok = false; });
+  return ok;
+}
+// Copies the tiles for the view into ctx (device pixels). Returns true while some are still to be painted.
+// What was on screen last frame stands in until the new tiles are all painted (a few per frame), then they
+// swap in together; only ground the old tiles don't cover is painted at once.
+function mtDraw(k) {
+  const glyphs = k < COVER_K0, now = performance.now();
+  const L = { ver: mtVersion(glyphs), glyphs, kq: mtScaleFor(k) }, range = mtRange(L.kq);
+  const S = MT.shown && (MT.shown.ver !== L.ver || MT.shown.kq !== L.kq) ? MT.shown : null;
+  const missing = [];
+  mtEach(range, (tx, ty) => { if (!MT.cache.has(mtKey(L, tx, ty))) missing.push([tx, ty]); });
+  const s = L.kq * dpr / MT.px, [cx, cy] = transform.invert([Wpx / 2, Hpx / 2]);
+  missing.sort((u, v) => Math.hypot(u[0] + 0.5 - cx * s, u[1] + 0.5 - cy * s) - Math.hypot(v[0] + 0.5 - cx * s, v[1] + 0.5 - cy * s));
+  const until = now + (zoomingNow() ? 7 : 24), uncovered = new Set();
+  for (const [tx, ty] of missing) {
+    const cov = S && mtCovered(L, tx, ty, S);
+    if (!cov) uncovered.add(mtKey(L, tx, ty));
+    if (!cov || performance.now() < until) mtPaint(L, tx, ty);
+  }
+  const left = missing.filter(([tx, ty]) => !MT.cache.has(mtKey(L, tx, ty))).length;
+  const blit = (Y, only) => {
+    const f = k / Y.kq, P = MT.px, ox = transform.x * dpr, oy = transform.y * dpr, step = P * f;
+    mtEach(mtRange(Y.kq), (tx, ty) => {
+      const key = mtKey(Y, tx, ty), t = MT.cache.get(key);
+      if (!t || (only && !only(key))) return;
+      t.used = now;
+      const x0 = Math.round(ox + tx * step), y0 = Math.round(oy + ty * step);
+      const x1 = Math.round(ox + (tx + 1) * step), y1 = Math.round(oy + (ty + 1) * step);
+      ctx.drawImage(t.c, x0, y0, x1 - x0, y1 - y0);
+    });
+  };
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+  if (left && S) {
+    blit(S);
+    // far-apart zoom steps of the same map: the sharper tiles fill in as they come; otherwise only the gaps
+    const far = S.ver === L.ver && (L.kq / S.kq > 1.3 || S.kq / L.kq > 1.3);
+    blit(L, key => far || uncovered.has(key));
+  } else { blit(L); MT.shown = L; }
+  // keep about three screenfuls of tiles; the rest are let go (a few canvases kept for reuse)
+  const cap = (range[2] - range[0] + 1) * (range[3] - range[1] + 1) * (PHONE ? 2 : 3) + (PHONE ? 8 : 16);
+  if (MT.cache.size > cap) {
+    const old = [...MT.cache].filter(([, t]) => t.used < now).sort((u, v) => u[1].used - v[1].used);
+    for (const [key, t] of old.slice(0, MT.cache.size - cap)) {
+      MT.cache.delete(key);
+      if (MT.free.length < 8) MT.free.push(t.c); else t.c.width = t.c.height = 0;
+    }
+  }
+  if (!left) mtIdle();
+  return left > 0;
+}
+// When nothing else is happening, paint the ring of tiles just outside the view, so a pan finds them ready.
+function mtIdle() {
+  clearTimeout(MT.idleT);
+  MT.idleT = setTimeout(() => {
+    if (zoomingNow() || dirty) return mtIdle();
+    const k = transform.k, glyphs = k < COVER_K0, L = { ver: mtVersion(glyphs), glyphs, kq: mtScaleFor(k) }, until = performance.now() + 8;
+    let more = false;
+    mtEach(mtRange(L.kq, 1), (tx, ty) => {
+      if (MT.cache.has(mtKey(L, tx, ty))) return;
+      if (performance.now() < until) mtPaint(L, tx, ty); else more = true;
+    });
+    if (more) mtIdle();
+  }, 60);
+}
+// The vignette, painted once per size: the open sea recedes toward the edges.
+let vignette = null;
+function vignetteFor(w, h) {
+  const key = `${w}x${h}|${T.dark}`;
+  if (vignette && vignette.key === key) return vignette.c;
+  const c = document.createElement('canvas'), q = 4;
+  c.width = Math.max(1, Math.round(w / q)); c.height = Math.max(1, Math.round(h / q));
+  const g = c.getContext('2d'), W2 = c.width, H2 = c.height;
+  const vg = g.createRadialGradient(W2 / 2, H2 / 2, Math.min(W2, H2) * 0.25, W2 / 2, H2 / 2, Math.max(W2, H2) * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, T.dark ? 'rgba(0,0,0,0.32)' : 'rgba(40,70,80,0.10)');
+  g.fillStyle = vg; g.fillRect(0, 0, W2, H2);
+  vignette = { key, c };
+  return c;
+}
+const dimTo = () => state.soft ? 0.6 : 0.3;
+function alphaOf(i, off, routeSet) {
+  if (off) return 0.07;
+  let a = 1;
+  const prov = provById.get(i.p);
+  if (!inSelProv(i.p)) a = dimTo();
+  if (state.selCont && prov.c !== state.selCont) a = dimTo();
+  if (state.selCreator && i.c !== state.selCreator) a = 0.2;
+  if (routeSet && !routeSet.has(i.id)) a = 0.18;
+  if (i.st === 'dropped') a *= 0.6;   // paused keeps its colour and gets a pause mark instead
+  return a;
+}
+const selRoute = () => state.selRoute && (W.routes || []).find(rt => rt.id === state.selRoute);
+// The still part of the map, in world units at scale kq, into g (any 2D context already set to world space).
+function paintStatic(g, kq, glyphs, view) {
+  const px = 1 / kq;
+  // only what reaches into this tile (with room for strokes and the biggest symbols)
+  const m = 60 / kq, hit = bb => !(bb[2] < view[0] - m || bb[0] > view[2] + m || bb[3] < view[1] - m || bb[1] > view[3] + m);
+  // Graticule.
+  g.strokeStyle = T.seaLine; g.globalAlpha = 0.22; g.lineWidth = px * 0.8;
+  g.beginPath();
+  for (let x = Math.floor(W.bounds[0] / 250) * 250 - 500; x < W.bounds[2] + 500; x += 250) { g.moveTo(x, W.bounds[1] - 600); g.lineTo(x, W.bounds[3] + 600); }
+  for (let y = Math.floor(W.bounds[1] / 250) * 250 - 500; y < W.bounds[3] + 500; y += 250) { g.moveTo(W.bounds[0] - 600, y); g.lineTo(W.bounds[2] + 600, y); }
+  g.stroke(); g.globalAlpha = 1;
+
+  // Shallows: a pale wash just offshore, then the depth rings.
+  const near = [...geo].filter(([, paths]) => hit(paths.bb));
+  for (const [, paths] of near) {
+    g.globalAlpha = T.dark ? 0.22 : 0.45; g.fillStyle = T.seaLine; g.fill(paths[1].path, 'evenodd');
+  }
+  g.strokeStyle = T.seaLine; g.lineWidth = px;
+  for (const [, paths] of near) {
+    g.globalAlpha = 0.45; g.stroke(paths[0].path);
+    g.globalAlpha = 0.7; g.stroke(paths[1].path);
+  }
+  g.globalAlpha = 1;
+
+  // Land and elevation.
+  for (const [cid, paths] of near) {
+    const dim = state.selCont && state.selCont !== cid ? (state.soft ? 0.8 : 0.55) : 1;
+    g.globalAlpha = dim;
+    for (let l = COAST; l < paths.length; l++) {
+      if (paths[l].empty) continue;
+      const z = l - COAST;
+      g.fillStyle = landColor(cid, z);
+      g.fill(paths[l].path, 'evenodd');
+      if (z) {
+        g.strokeStyle = T.contour; g.globalAlpha = dim * (0.2 + 0.05 * z); g.lineWidth = px * 0.8;
+        g.stroke(paths[l].path); g.globalAlpha = dim;
+      }
+    }
+    g.globalAlpha = dim * 0.75; g.strokeStyle = T.ink3; g.lineWidth = px * 1.1;
+    g.stroke(paths[COAST].path);
+  }
+  g.globalAlpha = 1;
+
+  // Sub-island plateaus: each its own tint (siblings shifted apart in hue, all lighter than the land they
+  // stand on), a drop shadow on the downhill side, a dark cliff edge and a lit rim along its top.
+  for (const [pid, path] of plateaus) {
+    if (!hit(path.bb)) continue;
+    const p = provById.get(pid), cid = p.c;
+    const dim = (state.selCont && state.selCont !== cid ? 0.55 : 1) * (inSelProv(pid) ? 1 : 0.6);
+    g.save();
+    g.globalAlpha = dim * (T.dark ? 0.6 : 0.45); g.translate(px * 1.8, px * 3); g.fillStyle = T.contour; g.fill(path, 'evenodd');
+    g.restore();
+    g.globalAlpha = dim; g.fillStyle = plateauColor(p); g.fill(path, 'evenodd');
+    g.save();
+    g.globalAlpha = dim * (T.dark ? 0.35 : 0.8); g.strokeStyle = '#ffffff'; g.lineWidth = px * 1.4;
+    g.translate(-px * 0.8, -px * 1.1); g.stroke(path);
+    g.restore();
+    g.globalAlpha = dim * 0.95; g.strokeStyle = T.contour; g.lineWidth = px * 1.6; g.stroke(path);
+  }
+  g.globalAlpha = 1;
+
+  // Province borders (already cut to the land).
+  g.strokeStyle = T.border; g.globalAlpha = 0.6; g.lineWidth = px * 0.9;
+  g.setLineDash([px * 3, px * 2.5]);
+  for (const [cid, bp] of borderPath) if (hit(geo.get(cid).bb)) g.stroke(bp);
+  g.setLineDash([]);
+  g.globalAlpha = 1;
+
+  // Unexplored landmarks: one dashed path per shade.
+  const gr = Math.max(1.6, Math.min(5, 2.4 * Math.sqrt(kq))) * px;
+  g.strokeStyle = T.ghost; g.lineWidth = px * 1.1; g.setLineDash([px * 1.6, px * 1.4]);
+  const ghostPaths = new Map();
+  for (const gh of GHOSTS) {
+    if (gh.px < view[0] - m || gh.px > view[2] + m || gh.py < view[1] - m || gh.py > view[3] + m) continue;
+    const dim = !inSelProv(gh.p) || (state.selCont && provById.get(gh.p).c !== state.selCont);
+    const a = dim ? (state.soft ? 0.5 : 0.25) : 0.85;
+    let path = ghostPaths.get(a);
+    if (!path) ghostPaths.set(a, path = new Path2D());
+    path.moveTo(gh.px + gr, gh.py); path.arc(gh.px, gh.py, gr, 0, Math.PI * 2);
+  }
+  for (const [a, path] of ghostPaths) { g.globalAlpha = a; g.stroke(path); }
+  g.setLineDash([]); g.globalAlpha = 1;
+
+  // A selected route is traced as a dashed path through its stops, under the works themselves.
+  const route = selRoute();
+  if (route) {
+    const ws = route.items.map(id => itemById.get(id));
+    g.save(); g.strokeStyle = T.accent; g.lineCap = 'round';
+    for (const [wd, al, dash] of [[px * 7, 0.18, null], [px * 2.4, 0.95, [px * 8, px * 6]]]) {
+      g.lineWidth = wd; g.globalAlpha = al; g.setLineDash(dash || []);
+      g.beginPath();
+      ws.forEach((w, n) => {
+        if (!n) { g.moveTo(w.px, w.py); return; }
+        const p0 = ws[n - 1], dx = w.px - p0.px, dy = w.py - p0.py, len = Math.hypot(dx, dy) || 1, bend = Math.min(SPACE * 8, len * 0.2);
+        g.quadraticCurveTo((p0.px + w.px) / 2 - dy / len * bend, (p0.py + w.py) / 2 + dx / len * bend, w.px, w.py);
+      });
+      g.stroke();
+    }
+    g.restore();
+  }
+  if (!glyphs) return;
+  // Zoomed out, the selection's soft glow sits under its symbol, and the ~2,000 symbols are gathered into a
+  // few shared paths, one per look (tier, colour, opacity, fill or outline).
+  const selW = state.selItem && itemById.get(state.selItem);
+  const r = Math.max(1.9, Math.min(6.5, 2.5 * Math.sqrt(kq))) * px;
+  if (selW && !state.hidden.has(selW.m)) selGlow(g, selW.px, selW.py, r * rateScale(selW) * 4.2);
+  for (const b of glyphBatches(kq)) {
+    if (!hit(b.bb)) continue;
+    g.globalAlpha = b.alpha;
+    if (b.kind === 'fill') { g.fillStyle = b.col; g.fill(b.path); }
+    else { g.strokeStyle = b.col; g.lineWidth = px * (b.kind === 'ring' ? 1.5 : b.kind === 'edge' ? 1.4 : 1.2); g.stroke(b.path); }
+  }
+  g.globalAlpha = 1;
+}
+function selGlow(g, cx, cy, R) {
+  const gr = g.createRadialGradient(cx, cy, 0, cx, cy, R), c = d3.color(T.accent);
+  c.opacity = T.dark ? 0.5 : 0.38; gr.addColorStop(0, c.formatRgb()); gr.addColorStop(0.45, c.formatRgb());
+  c.opacity = 0; gr.addColorStop(1, c.formatRgb());
+  g.fillStyle = gr; g.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+}
+// The shared symbol paths for scale kq and the current selection (a few kept, for zooming back and forth).
+function glyphBatches(kq) {
+  const key = `${kq}|${mtVersion(true)}`;
+  let list = MT.glyphs.get(key);
+  if (list) return list;
+  const batch = new Map(), edged = kq > 1.4, routeSet = (r => r ? new Set(r.items) : null)(selRoute());
+  const edge = T.dark ? 'rgba(8,14,17,0.55)' : 'rgba(255,255,255,0.75)';
+  const rq = Math.max(1.9, Math.min(6.5, 2.5 * Math.sqrt(kq))) / kq;
+  for (const i of DRAW_ORDER) {
+    const fade = alphaOf(i, state.hidden.has(i.m), routeSet), col = itemColor(i);
+    const base = i.dl ? itemById.get(i.dl) : i, s = rateScale(base) * (i.dl ? 0.8 : 1);
+    const rr = rq * s * (i.st === 'planned' ? 0.85 : 1), layers = lengthLayers(i);
+    const tier = [i.r >= 7 ? 1 : 0, 2, 3][peakLevel(i)], fa = Math.round(fade * 40) / 40, cid = provById.get(i.p).c;
+    for (let j = layers; j >= 1; j--) addGlyph(batchPath(batch, tier, col, Math.round(fade * (0.5 - j * 0.08) * 40) / 40, 'fill', cid), i.m, i.px + rr * 0.42 * j, i.py - rr * 0.42 * j, rr);
+    if (edged && i.st !== 'planned') addGlyph(batchPath(batch, tier - 0.5, edge, fa, 'edge', cid), i.m, i.px, i.py, rr);
+    addGlyph(batchPath(batch, tier, col, fa, i.st === 'planned' ? 'line' : 'fill', cid), i.m, i.px, i.py, rr);
+    if (i.st === 'paused') { const rp = batchPath(batch, 4, PAUSED(), fa, 'ring', cid); rp.moveTo(i.px + rr * 1.75, i.py); rp.arc(i.px, i.py, rr * 1.75, 0, Math.PI * 2); }
+  }
+  list = [...batch.values()].sort((u, v) => u.tier - v.tier);
+  if (MT.glyphs.size >= 4) MT.glyphs.delete(MT.glyphs.keys().next().value);
+  MT.glyphs.set(key, list);
+  return list;
+}
+
 function draw() {
   dirty = false;
   const k = transform.k;
@@ -1117,178 +1425,35 @@ function draw() {
   if (away !== keyAway) { keyAway = away; document.getElementById('key').classList.toggle('away', away); }
   const moving = stepMotion();
   coverBudget = performance.now() + (zoomingNow() ? 3 : 8); coverPending = false;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.fillStyle = T.sea; ctx.fillRect(0, 0, Wpx, Hpx);
-  // A soft vignette so the open sea recedes toward the edges.
-  const vg = ctx.createRadialGradient(Wpx / 2, Hpx / 2, Math.min(Wpx, Hpx) * 0.25, Wpx / 2, Hpx / 2, Math.max(Wpx, Hpx) * 0.75);
-  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, T.dark ? 'rgba(0,0,0,0.32)' : 'rgba(40,70,80,0.10)');
-  ctx.fillStyle = vg; ctx.fillRect(0, 0, Wpx, Hpx);
+  const tilesPending = mtDraw(k);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(vignetteFor(canvas.width, canvas.height), 0, 0, canvas.width, canvas.height);
   ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * transform.x, dpr * transform.y);
   const px = 1 / k;
-  const viewCx = transform.invertX(Wpx / 2), viewCy = transform.invertY(Hpx / 2);
-
-  // Graticule.
-  ctx.strokeStyle = T.seaLine; ctx.globalAlpha = 0.22; ctx.lineWidth = px * 0.8;
-  ctx.beginPath();
-  for (let x = Math.floor(W.bounds[0] / 250) * 250 - 500; x < W.bounds[2] + 500; x += 250) { ctx.moveTo(x, W.bounds[1] - 600); ctx.lineTo(x, W.bounds[3] + 600); }
-  for (let y = Math.floor(W.bounds[1] / 250) * 250 - 500; y < W.bounds[3] + 500; y += 250) { ctx.moveTo(W.bounds[0] - 600, y); ctx.lineTo(W.bounds[2] + 600, y); }
-  ctx.stroke(); ctx.globalAlpha = 1;
-
-  // Shallows: a pale wash just offshore, then the depth rings.
-  for (const paths of geo.values()) {
-    ctx.globalAlpha = T.dark ? 0.22 : 0.45; ctx.fillStyle = T.seaLine; ctx.fill(paths[1].path, 'evenodd');
-  }
-  ctx.strokeStyle = T.seaLine; ctx.lineWidth = px;
-  for (const paths of geo.values()) {
-    ctx.globalAlpha = 0.45; ctx.stroke(paths[0].path);
-    ctx.globalAlpha = 0.7; ctx.stroke(paths[1].path);
-  }
-  ctx.globalAlpha = 1;
-
-  // Land and elevation.
-  for (const [cid, paths] of geo) {
-    const dim = state.selCont && state.selCont !== cid ? (state.soft ? 0.8 : 0.55) : 1;
-    ctx.globalAlpha = dim;
-    // Higher ground leans away from the middle of the view, so the hills shift a little as you move.
-    const [lx, ly] = motion.on ? [(paths.cx - viewCx) * PARALLAX, (paths.cy - viewCy) * PARALLAX] : [0, 0];
-    for (let l = COAST; l < paths.length; l++) {
-      if (paths[l].empty) continue;
-      const z = l - COAST;
-      ctx.fillStyle = landColor(cid, z);
-      if (z) { ctx.save(); ctx.translate(lx * z, ly * z); }
-      ctx.fill(paths[l].path, 'evenodd');
-      if (z) {
-        ctx.strokeStyle = T.contour; ctx.globalAlpha = dim * (0.2 + 0.05 * z); ctx.lineWidth = px * 0.8;
-        ctx.stroke(paths[l].path); ctx.globalAlpha = dim; ctx.restore();
-      }
-    }
-    ctx.globalAlpha = dim * 0.75; ctx.strokeStyle = T.ink3; ctx.lineWidth = px * 1.1;
-    ctx.stroke(paths[COAST].path);
-  }
-  ctx.globalAlpha = 1;
-
-  // Sub-island plateaus: each its own tint (siblings shifted apart in hue, all lighter than the land they
-  // stand on), a drop shadow on the downhill side, a dark cliff edge and a lit rim along its top.
-  for (const [pid, path] of plateaus) {
-    const p = provById.get(pid), cid = p.c;
-    const dim = (state.selCont && state.selCont !== cid ? 0.55 : 1) * (inSelProv(pid) ? 1 : 0.6);
-    ctx.save();
-    ctx.globalAlpha = dim * (T.dark ? 0.6 : 0.45); ctx.translate(px * 1.8, px * 3); ctx.fillStyle = T.contour; ctx.fill(path, 'evenodd');
-    ctx.restore();
-    ctx.globalAlpha = dim; ctx.fillStyle = plateauColor(p); ctx.fill(path, 'evenodd');
-    ctx.save();
-    ctx.globalAlpha = dim * (T.dark ? 0.35 : 0.8); ctx.strokeStyle = T.dark ? '#ffffff' : '#ffffff'; ctx.lineWidth = px * 1.4;
-    ctx.translate(-px * 0.8, -px * 1.1); ctx.stroke(path);
-    ctx.restore();
-    ctx.globalAlpha = dim * 0.95; ctx.strokeStyle = T.contour; ctx.lineWidth = px * 1.6; ctx.stroke(path);
-  }
-  ctx.globalAlpha = 1;
-
-  // Province borders (already cut to the land).
-  ctx.strokeStyle = T.border; ctx.globalAlpha = 0.6; ctx.lineWidth = px * 0.9;
-  ctx.setLineDash([px * 3, px * 2.5]); ctx.stroke(borderPath); ctx.setLineDash([]);
-  ctx.globalAlpha = 1;
-
-  // Uncharted provinces (no works at all): a dashed outline in the open sea.
-  ctx.strokeStyle = T.ghost; ctx.lineWidth = px; ctx.setLineDash([px * 4, px * 3]);
-
-  ctx.setLineDash([]);
-
-  // Unexplored landmarks.
-  const gr = Math.max(1.6, Math.min(5, 2.4 * Math.sqrt(k))) * px;
-  ctx.strokeStyle = T.ghost; ctx.lineWidth = px * 1.1; ctx.setLineDash([px * 1.6, px * 1.4]);
-  for (const g of GHOSTS) {
-    const dim = !inSelProv(g.p) || (state.selCont && provById.get(g.p).c !== state.selCont);
-    ctx.globalAlpha = dim ? (state.soft ? 0.5 : 0.25) : 0.85;
-    ctx.beginPath(); ctx.arc(g.px, g.py, gr, 0, Math.PI * 2); ctx.stroke();
-  }
-  ctx.setLineDash([]); ctx.globalAlpha = 1;
 
   // Works: medium symbols at a distance, covers once you zoom in (crossfading between COVER_K0 and COVER_K1).
-  // 9s are drawn 1.25x and 10s 1.5x the size of everything else, and on top.
+  // 9s are drawn 1.35x and 10s 1.7x the size of everything else, and on top.
   const r = Math.max(1.9, Math.min(6.5, 2.5 * Math.sqrt(k))) * px;
   const coverT = Math.max(0, Math.min(1, (k - COVER_K0) / (COVER_K1 - COVER_K0)));
   const [vx0, vy0] = transform.invert([-40, -40]), [vx1, vy1] = transform.invert([Wpx + 40, Hpx + 40]);
   const edge = T.dark ? 'rgba(8,14,17,0.55)' : 'rgba(255,255,255,0.75)';
-  const route = state.selRoute && (W.routes || []).find(rt => rt.id === state.selRoute);
+  const route = selRoute();
   const routeSet = route ? new Set(route.items) : null;
-  // A selected route is traced as a dashed path through its stops, under the works themselves.
-  if (route) {
-    const ws = route.items.map(id => itemById.get(id));
-    ctx.save(); ctx.strokeStyle = T.accent; ctx.lineCap = 'round';
-    for (const [wd, al, dash] of [[px * 7, 0.18, null], [px * 2.4, 0.95, [px * 8, px * 6]]]) {
-      ctx.lineWidth = wd; ctx.globalAlpha = al; ctx.setLineDash(dash || []);
-      ctx.beginPath();
-      ws.forEach((w, n) => {
-        if (!n) { ctx.moveTo(w.px, w.py); return; }
-        const p0 = ws[n - 1], dx = w.px - p0.px, dy = w.py - p0.py, len = Math.hypot(dx, dy) || 1, bend = Math.min(SPACE * 8, len * 0.2);
-        ctx.quadraticCurveTo((p0.px + w.px) / 2 - dy / len * bend, (p0.py + w.py) / 2 + dx / len * bend, w.px, w.py);
-      });
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-  const dimTo = state.soft ? 0.6 : 0.3;
-  const alphaOf = (i, off) => {
-    let a = off ? 0.07 : 1;
-    if (off) return a;
-    const prov = provById.get(i.p);
-    if (!inSelProv(i.p)) a = dimTo;
-    if (state.selCont && prov.c !== state.selCont) a = dimTo;
-    if (state.selCreator && i.c !== state.selCreator) a = 0.2;
-    if (routeSet && !routeSet.has(i.id)) a = 0.18;
-    if (i.st === 'dropped') a *= 0.6;   // paused keeps its colour and gets a pause mark instead
-    return a;
-  };
-  // What's selected sits in a soft glow (drawn under it); hovering needs no mark, the lift shows it.
+  // Up close, what's selected sits in a soft glow under its cover (zoomed out, the tiles carry it).
   const selW = state.selItem && itemById.get(state.selItem);
-  if (selW && !state.hidden.has(selW.m)) {
+  if (coverT > 0 && selW && !state.hidden.has(selW.m)) {
     let cx = selW.px, cy = selW.py, R = r * rateScale(selW) * 4.2;
-    if (coverT > 0 && selW.sp) {
+    if (selW.sp) {
       const fr = frameOf(selW), M = objMargins(selW, fr.w, fr.h), sw = swayOf(selW);
       const near = Math.max(fr.w + M.l + M.r, fr.h + M.t + M.b) * 1.05;
       cx += (fr.cx - selW.px + (sw ? sw.ox * px : 0)) * coverT; cy += (fr.cy - selW.py + (sw ? sw.oy * px : 0)) * coverT;
       R += (near - R) * coverT;
     }
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R), c = d3.color(T.accent);
-    c.opacity = T.dark ? 0.5 : 0.38; g.addColorStop(0, c.formatRgb()); g.addColorStop(0.45, c.formatRgb());
-    c.opacity = 0; g.addColorStop(1, c.formatRgb());
-    ctx.fillStyle = g; ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+    selGlow(ctx, cx, cy, R);
   }
-  // Zoomed out, the ~2,000 symbols are gathered into a few shared paths, one per look (tier, colour,
-  // opacity, fill or outline). Building those paths is the expensive part, so they are built once per
-  // zoom step and selection and reused while panning; only the handful of symbols the cursor is
-  // swelling (or the hovered one) are drawn again on top, live.
-  const batchMode = coverT === 0;
-  let batch = null, overlayOnly = false;
-  if (batchMode) {
-    const steps = zoomingNow() ? 5 : 16;
-    if (steps < 16) { clearTimeout(refineT); refineT = setTimeout(requestDraw, 240); }
-    const kq = Math.pow(2, Math.round(Math.log2(k) * steps) / steps), edged = kq > 1.4;
-    const key = `${kq}|${state.selProv}|${state.selCont}|${state.selCreator}|${state.selRoute}|${state.soft}|${[...state.hidden].join()}|${T.dark}`;
-    if (GLYPHS.key !== key) {
-      GLYPHS.key = key; GLYPHS.batch = new Map();
-      const rq = Math.max(1.9, Math.min(6.5, 2.5 * Math.sqrt(kq))) / kq;
-      for (const i of DRAW_ORDER) {
-        const fade = alphaOf(i, state.hidden.has(i.m)), col = itemColor(i);
-        const base = i.dl ? itemById.get(i.dl) : i, s = rateScale(base) * (i.dl ? 0.8 : 1);
-        const rr = rq * s * (i.st === 'planned' ? 0.85 : 1), layers = lengthLayers(i);
-        const tier = [i.r >= 7 ? 1 : 0, 2, 3][peakLevel(i)], fa = Math.round(fade * 40) / 40;
-        for (let j = layers; j >= 1; j--) addGlyph(batchPath(GLYPHS.batch, tier, col, Math.round(fade * (0.5 - j * 0.08) * 40) / 40, 'fill'), i.m, i.px + rr * 0.42 * j, i.py - rr * 0.42 * j, rr);
-        if (edged && i.st !== 'planned') addGlyph(batchPath(GLYPHS.batch, tier - 0.5, edge, fa, 'edge'), i.m, i.px, i.py, rr);
-        addGlyph(batchPath(GLYPHS.batch, tier, col, fa, i.st === 'planned' ? 'line' : 'fill'), i.m, i.px, i.py, rr);
-        if (i.st === 'paused') { const rp = batchPath(GLYPHS.batch, 4, PAUSED(), fa, 'ring'); rp.moveTo(i.px + rr * 1.75, i.py); rp.arc(i.px, i.py, rr * 1.75, 0, Math.PI * 2); }
-      }
-      GLYPHS.list = [...GLYPHS.batch.values()].sort((u, v) => u.tier - v.tier);
-    }
-    for (const b of GLYPHS.list) {
-      ctx.globalAlpha = b.alpha;
-      if (b.kind === 'fill') { ctx.fillStyle = b.col; ctx.fill(b.path); }
-      else { ctx.strokeStyle = b.col; ctx.lineWidth = px * (b.kind === 'ring' ? 1.5 : b.kind === 'edge' ? 1.4 : 1.2); ctx.stroke(b.path); }
-    }
-    ctx.globalAlpha = 1;
-    overlayOnly = true;
-  }
+  // Zoomed out the tiles hold the symbols; only the handful the cursor is swelling (or the hovered one)
+  // are drawn again on top, live.
+  const overlayOnly = coverT === 0;
   // Fetch cover tiles only from just before covers start to fade in, and only for this part of the map.
   const drawNow = performance.now();
   if (k > COVER_K0 * 0.8) wantTiles(vx0, vy0, vx1, vy1);
@@ -1298,7 +1463,7 @@ function draw() {
     if (i.px < vx0 || i.px > vx1 || i.py < vy0 || i.py > vy1) continue;
     if (overlayOnly && !motion.lift.has(i.id) && !(nearness(i.px, i.py, swellReach) > 0.02)) continue;
     const off = state.hidden.has(i.m);
-    const a = alphaOf(i, off);
+    const a = alphaOf(i, off, routeSet);
     const col = itemColor(i);
     const base = i.dl ? itemById.get(i.dl) : i;   // expansions take their game's size
     const s = rateScale(base) * (i.dl ? 0.8 : 1);
@@ -1374,7 +1539,7 @@ function draw() {
 
   drawPortals(k, px);
   drawLabels();
-  if (moving || coverPending) requestDraw();
+  if (moving || coverPending || tilesPending) requestDraw();
 }
 
 // ---------- portals ----------
@@ -1489,20 +1654,20 @@ function drawLabels() {
     if (!show) continue;
     // sizes in half-pixel steps: every new font size costs the browser a fresh set of glyphs
     const size = Math.round(Math.max(10.5, Math.min(15, 9 + sr / 18)) * 2) / 2;
-    ctx.font = `600 ${size}px "Spectral SC", Spectral, Georgia, serif`;
+    const font = `600 ${size}px "Spectral SC", Spectral, Georgia, serif`;
     // a series not finished yet says how far along it is
     const label = !p.works.length ? p.name + (ES ? ' (sin explorar)' : ' (uncharted)') : p.run && p.have < p.run ? `${p.name} · ${p.have}/${p.run}` : p.name;
     // Under the name: one symbol per medium in the region, the biggest share first.
     const mix = MEDIA.filter(m => p.media[m]).sort((a, b) => p.media[b] - p.media[a]);
     const pipR = 3.4, pipGap = 11;
     const pipsW = mix.length ? mix.length * pipGap - (pipGap - pipR * 2) : 0;
-    const w = Math.max(textW(label), pipsW);
+    const w = Math.max(textW(label, font), pipsW);
     const y = p.subs.length ? sy : p.works.length ? sy - Math.min(sr * 0.15, 10) - (mix.length ? 5 : 0) : sy;
     const boxH = size + 4 + (mix.length ? 13 : 0);
     if (!free(sx - w / 2 - 4, y - size / 2 - 2, w + 8, boxH)) continue;
     ctx.globalAlpha = (inSelProv(p.id) ? 1 : 0.45) * (p.id === state.selProv ? 1 : Math.min(1, (k - 0.8) / 0.25 + 0.2));
     // lettered once per name, size and theme into a small bitmap, then copied each frame
-    const bmp = provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo), f = size / bmp.size;
+    const bmp = provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo, font), f = size / bmp.size;
     const bx = Math.round((sx - bmp.ox * f) * dpr) / dpr, by = Math.round((y - bmp.oy * f) * dpr) / dpr;
     ctx.drawImage(bmp.c, bx, by, bmp.w * f, bmp.h * f);
   }
@@ -1516,13 +1681,14 @@ function drawLabels() {
     const [qx0, qy0] = transform.invert([-50, -20]), [qx1, qy1] = transform.invert([Wpx + 10, Hpx + 20]);
     const vis = W.items.filter(i => i.px >= qx0 && i.px <= qx1 && i.py >= qy0 && i.py <= qy1 && !state.hidden.has(i.m) && (!i.dl || i.id === state.selItem));
     vis.sort((a, b) => (b.id === state.selItem) - (a.id === state.selItem) || b.r - a.r);
-    ctx.font = `500 ${coverMode ? 10.5 : 11.5}px Archivo, Arial, sans-serif`;
+    const titleFont = `500 ${coverMode ? 10.5 : 11.5}px Archivo, Arial, sans-serif`;
+    ctx.font = titleFont;
     ctx.textAlign = coverMode ? 'center' : 'left';
     const maxW = coverMode ? spacing * 0.95 : 170;
     for (const i of vis) {
       const [sx, sy] = transform.apply([i.px, i.py]);
       if (sx < -50 || sy < -20 || sx > Wpx + 10 || sy > Hpx + 20) continue;
-      const [t, w] = fitTitle(i.t, ctx.font, maxW);
+      const [t, w] = fitTitle(i.t, titleFont, maxW);
       const ly = coverMode && i.sp ? transform.apply([0, frameOf(i).cy + frameOf(i).h / 2 + objMargins(i, frameOf(i).w, frameOf(i).h).b])[1] + 9 : sy;
       const bx = coverMode ? sx - w / 2 - 2 : sx + 6;
       if (!free(bx, ly - 7, w + 4, 14)) continue;
@@ -1549,7 +1715,7 @@ function drawLabels() {
 // A title cut to fit maxW in the current font, with its width. Cached, since measuring text is slow
 // and the same few hundred titles are fitted every frame while panning.
 const PLB = new Map();
-function provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo) {
+function provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo, font) {
   const base = `${p.id}|${label}|${halo}|${T.ink}|${T.dark}|${dpr}`, key = base + '|' + size;
   let b = PLB.get(key);
   if (b) return b;
@@ -1560,7 +1726,7 @@ function provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo) {
   const c = document.createElement('canvas'); c.width = Math.ceil(bw * dpr); c.height = Math.ceil(bh * dpr);
   const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
   const cx = bw / 2, y = top;
-  g.font = ctx.font; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.textAlign = 'center';
+  g.font = font; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.textAlign = 'center';
   g.strokeStyle = halo; g.lineWidth = 3.5; g.strokeText(label, cx, y);
   g.fillStyle = p.works.length ? T.ink : T.ghost; g.fillText(label, cx, y);
   if (mix.length) {
@@ -1579,10 +1745,16 @@ function provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo) {
   return b;
 }
 const TW = new Map();
-function textW(t) {
-  const key = ctx.font + '|' + t;
+// (measured on a side context whose font is set only when it changes: setting or even reading a canvas
+// font re-parses it, which adds up over a few hundred labels a frame)
+const MEASURE = document.createElement('canvas').getContext('2d');
+function textW(t, font) {
+  const key = font + '|' + t;
   let w = TW.get(key);
-  if (w === undefined) { w = ctx.measureText(t).width; if (TW.size > 8000) TW.clear(); TW.set(key, w); }
+  if (w === undefined) {
+    if (MEASURE.__font !== font) { MEASURE.font = font; MEASURE.__font = font; }
+    w = MEASURE.measureText(t).width; if (TW.size > 8000) TW.clear(); TW.set(key, w);
+  }
   return w;
 }
 const FIT = new Map();
@@ -1688,7 +1860,7 @@ const MAX_K = PHONE ? (hiCount ? 80 : 40) : (hiCount ? Math.min(40, 75 / Math.ma
 const zoom = d3.zoom().scaleExtent([0.3, MAX_K])
   // the wheel is handled below, so it can glide instead of jumping
   .filter(e => (!e.ctrlKey || e.type === 'wheel') && !e.button && e.type !== 'wheel')
-  .on('zoom', e => { if (e.transform.k !== transform.k) zoomT = performance.now(); transform = e.transform; if (e.sourceEvent) userMoved = true; if (motion.on) notePan(e.transform); hideTip(); requestDraw(); })
+  .on('zoom', e => { if (e.transform.k !== transform.k) { zoomT = performance.now(); clearTimeout(refineT); refineT = setTimeout(requestDraw, 240); } transform = e.transform; if (e.sourceEvent) userMoved = true; if (motion.on) notePan(e.transform); hideTip(); requestDraw(); })
   .clickDistance(5)   // a click with a little jitter is still a click
   .on('start', () => { canvas.classList.add('dragging'); pressT = transform; })
   // The panel follows the map only after a real pan or zoom, not after a click.
@@ -2686,15 +2858,25 @@ function coverEl(i, w, cls = '') {
   });
   // Painted when it scrolls into view, from its tile once that has loaded.
   cv.__url = i.img || null;
-  cv.__paint = () => whenSheet(i.sp[0], () => {
+  cv.__paint = () => whenSheet(i.sp[0], () => panelPaint(() => {
     const im = TILE[i.sp[0]].im;
-    if (!im) return;
+    if (!im || !cv.isConnected) return;
     const g = cv.getContext('2d');
     g.globalAlpha = i.st === 'planned' ? 0.55 : 1;
     const ob = objBitmap(i, im, W); g.drawImage(ob.c, 0, 0, ob.c.width / (ob.s || 1), ob.c.height / (ob.s || 1));
-  });
+  }));
   lazyPaint(cv);
   return cv;
+}
+// Panel covers waiting on the same tile are painted a few per frame, not all at once when it arrives.
+const PANEL_Q = [];
+function panelPaint(f) {
+  PANEL_Q.push(f);
+  if (PANEL_Q.length === 1) requestAnimationFrame(function run() {
+    const until = performance.now() + 6;
+    do PANEL_Q.shift()(); while (PANEL_Q.length && performance.now() < until);
+    if (PANEL_Q.length) requestAnimationFrame(run);
+  });
 }
 // Panel covers are painted when they come within a screen of being scrolled into view, so a long
 // region list doesn't render hundreds of objects (and fetch every tile) the moment it opens.
@@ -3272,6 +3454,9 @@ buildGeometry();
 buildPlateaus();
 settlePortals();
 new ResizeObserver(() => resize()).observe(stage);
+// On phones, a page put away lets its map tiles go (they're repainted on return), so it holds no memory
+// in the background and never comes back to tiles the system emptied.
+document.addEventListener('visibilitychange', () => { if (document.hidden && PHONE) mtFlush(); else if (!document.hidden) requestDraw(); });
 resize();
 fitWorld(0);
 renderLedger();

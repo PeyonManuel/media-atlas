@@ -25,6 +25,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `cohesion.py` regrows each continent island by island so related islands touch; `pairs.py` seats works
   that share a portal together; `blurbs.json` EN/ES descriptions for every continent, island, sub-island.
 - `piles.json` (read by fixes.py): seasons per show (`seasons`, anime too) and volumes per manga (`vols`), looked up Oct 2026. The page stacks a card per season, or per ten volumes, under the work (`pileCount`); footprints include the pile, so re-export boxes after changing it. Film and album lengths were dropped on purpose (Manuel: they're all alike).
+- Map tiles (`MT`, `mtDraw`, `paintStatic` in the page): everything that holds still (sea, land, hills, plateaus,
+  borders, landmarks, a selected route and, below `COVER_K0`, the work symbols) is painted into 512-px tiles and
+  copied each frame. Change those layers in `paintStatic`, and add any state they depend on to `mtVersion`, or
+  the tiles go stale. Works up close, labels and portals are drawn live. Profile with real input before and
+  after changing the draw loop.
 - Spanish UI comes from the browser language (`ES` flag, phrase table; source in `tools/i18n.js`).
 - Covers are final sprite sheets in `tiles/` (108×160 cells).
 - Linked covers: a work with `img` (from `tools/images.json`, looked up on its own site: Rate Your Music, Letterboxd, Backloggd, AniList, Goodreads, never Wikipedia) draws that image only when selected (ledger) or zoomed in past `COVER_K0`; tiles otherwise. Three load at a time; unused ones are let go after a minute.

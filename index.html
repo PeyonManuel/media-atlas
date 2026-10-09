@@ -2076,7 +2076,30 @@ function hiRect(i) {
   const [, cell] = i.hs, sq = i.sp && i.sp[2];
   return [(cell % HI.cols) * HI.cw, Math.floor(cell / HI.cols) * HI.ch, HI.cw, sq ? HI.cw : HI.ch];
 }
-function paintArt(g, im, i, x, y, w, h) { const [sx, sy, sw, sh] = im.__hi ? hiRect(i) : srcRect(i); g.drawImage(im, sx, sy, sw, sh, x, y, w, h); }
+// Linked art: a work with `img` (a web address of its verified cover) is drawn from that image once it has
+// loaded, cropped to fill its cover rectangle; until then (or if the link fails) the tile is drawn.
+const LINK_ART = new Map();
+function linkArt(i) {
+  if (!i.img) return null;
+  let e = LINK_ART.get(i.img);
+  if (!e) {
+    const im = new Image(); im.decoding = 'async'; im.referrerPolicy = 'no-referrer';
+    e = { im, ready: false, failed: false };
+    im.onload = () => { e.ready = true; requestDraw(); };
+    im.onerror = () => { e.failed = true; };
+    im.src = i.img; LINK_ART.set(i.img, e);
+  }
+  return e.ready ? e.im : null;
+}
+function paintArt(g, im, i, x, y, w, h) {
+  const L = linkArt(i);
+  if (L) {
+    const sc = Math.max(w / L.naturalWidth, h / L.naturalHeight), sw = w / sc, sh = h / sc;
+    g.drawImage(L, (L.naturalWidth - sw) / 2, (L.naturalHeight - sh) / 2, sw, sh, x, y, w, h); return;
+  }
+  if (!im || !i.sp) return;
+  const [sx, sy, sw, sh] = im.__hi ? hiRect(i) : srcRect(i); g.drawImage(im, sx, sy, sw, sh, x, y, w, h);
+}
 function rrPath(g, x, y, w, h, r) {
   r = Math.max(0, Math.min(r, w / 2, h / 2));
   g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
@@ -2531,7 +2554,7 @@ function drawFilm(g, im, i, x, y, w, h, px, detail) {
 const OBJ_PX = Math.min(window.devicePixelRatio || 1, 2);
 const OBJ = { cache: new Map(), px: 0, limit: 30e6 };
 function objBitmap(i, im, W, onlyCached) {
-  const key = `${i.id}|${W}|${T.dark ? 1 : 0}|${im && im.__hi ? 'h' : ''}`;
+  const key = `${i.id}|${W}|${T.dark ? 1 : 0}|${im && im.__hi ? 'h' : ''}|${i.img && linkArt(i) ? 'L' : ''}`;
   let b = OBJ.cache.get(key);
   if (b) { OBJ.cache.delete(key); OBJ.cache.set(key, b); return b; }
   if (onlyCached) return null;

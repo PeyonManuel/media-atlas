@@ -27,6 +27,7 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `piles.json` (read by fixes.py): seasons per show (`seasons`, anime too) and volumes per manga (`vols`), looked up Oct 2026. The page stacks a card per season, or per ten volumes, under the work (`pileCount`); footprints include the pile, so re-export boxes after changing it. Film and album lengths were dropped on purpose (Manuel: they're all alike).
 - Spanish UI comes from the browser language (`ES` flag, phrase table; source in `tools/i18n.js`).
 - Covers are final sprite sheets in `tiles/` (108×160 cells); hi-res covers were dropped on purpose.
+- Linked covers: a work with `img` (from `tools/images.json`, looked up on its own site: Rate Your Music, Letterboxd, Backloggd, AniList, Goodreads, never Wikipedia) draws that image only when selected (ledger) or zoomed in past `COVER_K0`; tiles otherwise. Three load at a time; unused ones are let go after a minute.
 
 ## Checks before pushing
 `python3 tools/evaluate.py .` (touching relations should not drop), `python3 tools/tests/check_portals.py .`

@@ -2076,25 +2076,45 @@ function hiRect(i) {
   const [, cell] = i.hs, sq = i.sp && i.sp[2];
   return [(cell % HI.cols) * HI.cw, Math.floor(cell / HI.cols) * HI.ch, HI.cw, sq ? HI.cw : HI.ch];
 }
-// Linked art: a work with `img` (a web address of its verified cover) is drawn from that image once it has
-// loaded, cropped to fill its cover rectangle; until then (or if the link fails) the tile is drawn.
-const LINK_ART = new Map();
+// Linked art: a work with `img` (its verified cover on the source site) is drawn from that image only where
+// it's worth it: when the work is selected (the ledger's cover) or the map is zoomed in to where covers are
+// big enough to show it. Everywhere else, and until the image has loaded (or if it fails), the tile is drawn.
+// Images load three at a time, and the ones no longer wanted are let go after a while.
+const LINK_ART = new Map(), LINK_Q = [];
+let LINK_BUSY = 0;
+const wantHi = i => !!i.img && (state.selItem === i.id || transform.k >= COVER_K0);
 function linkArt(i) {
   if (!i.img) return null;
   let e = LINK_ART.get(i.img);
-  if (!e) {
-    const im = new Image(); im.decoding = 'async'; im.referrerPolicy = 'no-referrer';
-    e = { im, ready: false, failed: false };
-    im.onload = () => { e.ready = true; requestDraw(); };
-    im.onerror = () => { e.failed = true; };
-    im.src = i.img; LINK_ART.set(i.img, e);
-  }
-  return e.ready ? e.im : null;
+  if (!e) { e = { url: i.img, im: null, ready: false, failed: false, queued: false, last: 0 }; LINK_ART.set(i.img, e); }
+  e.last = performance.now();
+  if (!e.queued && !e.failed) { e.queued = true; LINK_Q.push(e); linkPump(); }
+  return e;
 }
+function linkPump() {
+  while (LINK_BUSY < 3 && LINK_Q.length) {
+    const e = LINK_Q.shift(); LINK_BUSY++;
+    const im = new Image(); im.decoding = 'async'; im.referrerPolicy = 'no-referrer'; e.im = im;
+    const done = () => {
+      LINK_BUSY--; linkPump();
+      // panel covers showing this image repaint; the map repaints on its next frame
+      document.querySelectorAll('canvas.objc').forEach(c => { if (c.__url === e.url && c.__paint) c.__paint(); });
+      requestDraw();
+    };
+    im.onload = () => { e.ready = true; done(); };
+    im.onerror = () => { e.failed = true; done(); };
+    im.src = e.url;
+  }
+}
+// let go of images nobody has wanted for a while (they reload if wanted again)
+setInterval(() => {
+  const now = performance.now();
+  for (const [k, e] of LINK_ART) if (e.ready && now - e.last > 60e3) { e.im.src = ''; e.ready = false; e.queued = false; LINK_ART.delete(k); }
+}, 15e3);
 function paintArt(g, im, i, x, y, w, h) {
-  const L = linkArt(i);
-  if (L) {
-    const sc = Math.max(w / L.naturalWidth, h / L.naturalHeight), sw = w / sc, sh = h / sc;
+  const e = wantHi(i) ? linkArt(i) : null;
+  if (e && e.ready) {
+    const L = e.im, sc = Math.max(w / L.naturalWidth, h / L.naturalHeight), sw = w / sc, sh = h / sc;
     g.drawImage(L, (L.naturalWidth - sw) / 2, (L.naturalHeight - sh) / 2, sw, sh, x, y, w, h); return;
   }
   if (!im || !i.sp) return;
@@ -2554,7 +2574,7 @@ function drawFilm(g, im, i, x, y, w, h, px, detail) {
 const OBJ_PX = Math.min(window.devicePixelRatio || 1, 2);
 const OBJ = { cache: new Map(), px: 0, limit: 30e6 };
 function objBitmap(i, im, W, onlyCached) {
-  const key = `${i.id}|${W}|${T.dark ? 1 : 0}|${im && im.__hi ? 'h' : ''}|${i.img && linkArt(i) ? 'L' : ''}`;
+  const key = `${i.id}|${W}|${T.dark ? 1 : 0}|${im && im.__hi ? 'h' : ''}|${i.img && wantHi(i) && LINK_ART.get(i.img)?.ready ? 'L' : ''}`;
   let b = OBJ.cache.get(key);
   if (b) { OBJ.cache.delete(key); OBJ.cache.set(key, b); return b; }
   if (onlyCached) return null;
@@ -2629,6 +2649,7 @@ function coverEl(i, w, cls = '') {
     style: `width:${cw / OBJ_PX}px;height:${ch / OBJ_PX}px`, role: 'img', 'aria-label': `${MEDIA_LABEL[i.m]}: ${i.t}`,
   });
   // Painted when it scrolls into view, from its tile once that has loaded.
+  cv.__url = i.img || null;
   cv.__paint = () => whenSheet(i.sp[0], () => {
     const im = TILE[i.sp[0]].im;
     if (!im) return;

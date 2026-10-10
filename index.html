@@ -136,6 +136,14 @@ button, input { font: inherit; color: inherit; }
 .g-link { width: 14px; height: 0; border-top: 1.6px dashed var(--accent); display: inline-block; flex: none; }
 .chip-links[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .chip.chip-links[aria-pressed="false"] { opacity: 0.85; }
+.follow { position: absolute; top: 16px; right: 16px; max-width: min(520px, calc(100% - 420px)); display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px;
+  background: var(--panel); border: 1px solid var(--rule); padding: 6px 6px 6px 12px; font-size: 12.5px; z-index: 3; }
+.follow .lbl { font: 500 10.5px/1 var(--f-ui); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.follow .name { border: 0; background: none; padding: 2px 0; color: var(--accent); cursor: pointer; font: italic 500 12.5px/1.3 var(--f-ui); text-align: left; }
+.follow .name:hover { text-decoration: underline; }
+.follow .x { border: 0; background: none; width: 24px; height: 24px; cursor: pointer; color: var(--ink-3); font: 400 17px/1 var(--f-ui); }
+.follow .x:hover { color: var(--ink); }
+@media (max-width: 760px) { .follow { top: 100px; left: 12px; right: auto; max-width: calc(100% - 24px); } }
 .g-realm { width: 8px; height: 8px; background: var(--ink); transform: rotate(45deg); }
 
 .zoom { position: absolute; right: 16px; bottom: 16px; display: grid; background: var(--panel); border: 1px solid var(--rule); }
@@ -419,7 +427,7 @@ const PHRASES = new Map(Object.entries({
   'Ledger': 'Registro', 'Survey Ledger': 'Registro del mapa', 'Atlas': 'Atlas', 'Continent': 'Continente', 'Region': 'Región',
   'Sub-island': 'Subisla', 'Creator': 'Autor', 'Route': 'Ruta', 'KEY': 'LEYENDA',
   'Media': 'Medios', 'Summits': 'Cumbres', 'Continents': 'Continentes', 'Largest cross-media realms': 'Mayores reinos entre medios',
-  'Connections': 'Conexiones', 'Connection': 'Conexión', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa',
+  'Connections': 'Conexiones', 'Connection': 'Conexión', 'Following': 'Siguiendo', 'Stop following': 'Dejar de seguir', 'Followed connections': 'Conexiones seguidas', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa',
   'Threads between works that sit apart on the map: who drew on whom, one hand or one composer across genres, one world in several media.': 'Hilos entre obras que están lejos en el mapa: quién se inspiró en quién, un mismo autor o compositor en varios géneros, un mismo mundo en varios medios.',
   'Blind spots': 'Puntos ciegos', 'At odds with the crowd': 'En desacuerdo con el público',
   'Peaks': 'Cimas', 'Lineage': 'Línea temporal', 'Works': 'Obras', 'Still in the fog': 'Aún en la niebla', 'Sub-islands': 'Subislas',
@@ -842,6 +850,7 @@ const state = {
   soft: false,                // true when the selection came from panning, not a click: dim others less
   hover: null,
   links: (() => { try { return localStorage.getItem('atlas.links') === '1'; } catch { return false; } })(),   // every connection drawn
+  follow: [],                 // ids of the connections being followed: set by a click, kept while the map moves
 };
 const canvas = document.getElementById('map');
 const ctx = canvas.getContext('2d');
@@ -1135,7 +1144,7 @@ const MT = { px: 512, cache: new Map(), free: [], shown: null, idleT: 0, glyphs:
 const mtQuant = k => Math.pow(2, Math.ceil(Math.log2(k) * 8 - 1e-6) / 8);
 function mtVersion(glyphs) {
   return [glyphs ? 'g' : 'l', state.selProv, state.selCont, state.selCreator, state.selRoute, state.soft,
-    [...state.hidden].join(), T.dark, T.sea, dpr, state.links,
+    [...state.hidden].join(), T.dark, T.sea, dpr, state.links, state.follow.join(),
     glyphs || (state.selItem && LINKS.some(L => L.r.items.includes(state.selItem))) ? state.selItem : ''].join('|');
 }
 const mtKey = (L, tx, ty) => `${L.ver}#${L.kq}#${tx}#${ty}`;
@@ -1322,12 +1331,35 @@ const LINKS = (W.routes || []).map(r => {
   return { r, ws, path, legs, bb: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], provs: new Set(ws.map(w => w.p)) };
 });
 const linkById = new Map(LINKS.map(L => [L.r.id, L]));
-// The connections to bring forward: through the selected work, or touching the island in view.
+// The connections to bring forward. Followed ones (from a click on a work or island) stay firm while the
+// map is panned and zoomed, whatever the panel moves on to; the island in view while panning only hints at
+// its own, lightly, and not while something is being followed.
+const linksThrough = i => LINKS.filter(L => L.r.items.includes(i.id));
+const linksOn = pid => { const fam = provById.get(pid).family; return LINKS.filter(L => fam.some(q => L.provs.has(q.id))); };
 function focusLinks() {
   if (state.selRoute || state.selCreator) return [];
-  if (state.selItem) return LINKS.filter(L => L.r.items.includes(state.selItem));
-  if (state.selProv) { const fam = provById.get(state.selProv).family; return LINKS.filter(L => fam.some(q => L.provs.has(q.id))); }
+  if (state.follow.length) return LINKS.filter(L => state.follow.includes(L.r.id));
+  if (state.selItem && !state.soft) return linksThrough(itemById.get(state.selItem));
+  if (state.selProv && !state.soft) return linksOn(state.selProv);
   return [];
+}
+const hintLinks = () => !state.follow.length && state.soft && state.selProv && !state.selRoute ? linksOn(state.selProv) : [];
+function follow(list) {
+  state.follow = list.map(L => L.r.id);
+  renderFollow(); requestDraw();
+}
+// The followed connections, named in a small tag on the map (each opens its connection; the cross lets go).
+const followEl = document.createElement('div');
+followEl.className = 'follow'; followEl.hidden = true; followEl.setAttribute('aria-label', 'Followed connections');
+document.getElementById('stage').append(followEl);
+function renderFollow() {
+  const ls = LINKS.filter(L => state.follow.includes(L.r.id));
+  followEl.hidden = !ls.length || !!state.selRoute;
+  if (followEl.hidden) return followEl.replaceChildren();
+  followEl.replaceChildren(...[h('span', { class: 'lbl' }, 'Following'),
+    ...ls.slice(0, 3).map(L => h('button', { type: 'button', class: 'name', onclick: () => selectRoute(L.r.id) }, '⟡ ' + L.r.name)),
+    ls.length > 3 ? h('span', { class: 'lbl' }, `+${ls.length - 3}`) : null,
+    h('button', { type: 'button', class: 'x', 'aria-label': 'Stop following', title: 'Stop following', onclick: () => follow([]) }, '×')].filter(Boolean));
 }
 function toggleLinks(on = !state.links) {
   state.links = on;
@@ -1436,15 +1468,15 @@ function paintStatic(g, kq, glyphs, view) {
     g.restore();
   }
   // Connections: all of them faintly when switched on, the ones through the selection more firmly.
-  const focus = focusLinks();
-  if (state.links || focus.length) {
+  const focus = focusLinks(), hint = hintLinks();
+  if (state.links || focus.length || hint.length) {
     g.save(); g.strokeStyle = T.accent; g.lineCap = 'round'; g.lineJoin = 'round';
     for (const L of LINKS) {
       if (L.r.id === state.selRoute || !hit(L.bb)) continue;
-      const f = focus.includes(L);
-      if (!f && !state.links) continue;
+      const f = focus.includes(L), hn = !f && hint.includes(L);
+      if (!f && !hn && !state.links) continue;
       g.setLineDash([]); g.globalAlpha = f ? 0.14 : 0.07; g.lineWidth = px * (f ? 7 : 5); g.stroke(L.path);
-      g.globalAlpha = f ? 0.9 : 0.5; g.lineWidth = px * (f ? 1.9 : 1.3); g.setLineDash(f ? [] : [px * 6, px * 4]); g.stroke(L.path);
+      g.globalAlpha = f ? 0.9 : hn ? 0.6 : 0.5; g.lineWidth = px * (f ? 1.9 : 1.3); g.setLineDash(f ? [] : [px * 6, px * 4]); g.stroke(L.path);
     }
     g.restore();
   }
@@ -1697,8 +1729,9 @@ function drawLabels() {
     ctx.textAlign = 'left';
   }
   LINK_HITS.length = 0;
-  const focus = focusLinks();
-  if (focus.length) drawLinkNames(focus, free, halo, true);
+  const focus = focusLinks(), hint = hintLinks();
+  if (focus.length) { drawLinkNames(focus, free, halo, true); if (state.follow.length) drawWayOn(focus, free, halo); }
+  if (hint.length) drawLinkNames(hint, free, halo, false);
   drawContinentLabels(free, halo);
   // portal names: for the selected island (and the one under the cursor), so the map stays readable
   // portal reasons: always for the selected island and the hovered portal; for everything once zoomed in
@@ -1722,7 +1755,7 @@ function drawLabels() {
     ctx.globalAlpha = 1;
   }
 
-  if (state.links) drawLinkNames(LINKS.filter(L => L.r.id !== state.selRoute && !focus.includes(L)), free, halo, false);
+  if (state.links) drawLinkNames(LINKS.filter(L => L.r.id !== state.selRoute && !focus.includes(L) && !hint.includes(L)), free, halo, false);
   // Province and realm names.
   const provs = [...W.provinces].sort((a, b) => (b.id === state.selProv) - (a.id === state.selProv) || b.works.length - a.works.length);
   for (const p of provs) {
@@ -1903,6 +1936,41 @@ function drawLinkNames(list, free, halo, strong) {
   }
   ctx.globalAlpha = 1; ctx.textAlign = 'left';
 }
+// Where a followed thread runs off the screen: a small arrow at the edge, toward its nearest stops out of
+// view, with the stop's title (a click glides there at the same zoom).
+function drawWayOn(list, free, halo) {
+  const cx = Wpx / 2, cy = Hpx / 2, pad = 26, out = [];
+  for (const L of list) for (const w of L.ws) {
+    const [sx, sy] = transform.apply([w.px, w.py]);
+    if (sx >= 0 && sx <= Wpx && sy >= 0 && sy <= Hpx) continue;
+    out.push({ L, w, sx, sy, d: Math.hypot(sx - cx, sy - cy) });
+  }
+  out.sort((a, b) => a.d - b.d);
+  const seen = new Set();
+  ctx.font = 'italic 500 11px Archivo, Arial, sans-serif'; ctx.textBaseline = 'middle';
+  let shown = 0;
+  for (const o of out) {
+    if (shown >= 5 || seen.has(o.w.id)) continue;
+    seen.add(o.w.id);
+    // where the line from the middle toward the stop meets the edge (inset)
+    const dx = o.sx - cx, dy = o.sy - cy, t = Math.min((cx - pad) / Math.abs(dx || 1e-6), (cy - pad) / Math.abs(dy || 1e-6));
+    const ex = cx + dx * t, ey = cy + dy * t, ang = Math.atan2(dy, dx);
+    const title = o.w.t.length > 22 ? o.w.t.slice(0, 21).trimEnd() + '…' : o.w.t;
+    const tw = textW(title, ctx.font);
+    // the title sits inward of the arrow, on whichever side keeps it on screen
+    const lx = Math.max(8, Math.min(Wpx - tw - 8, ex - (dx > 0 ? tw + 16 : -16))), ly = Math.max(12, Math.min(Hpx - 12, ey + (Math.abs(dy) > Math.abs(dx) ? (dy > 0 ? -14 : 14) : 0)));
+    if (!free(Math.min(ex - 9, lx), Math.min(ey - 9, ly - 8), Math.abs(lx - ex) + tw + 18, 20)) continue;
+    shown++;
+    ctx.save(); ctx.translate(ex, ey); ctx.rotate(ang); ctx.globalAlpha = 0.9;
+    ctx.fillStyle = T.accent; ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(-4, -5.5); ctx.lineTo(-1.5, 0); ctx.lineTo(-4, 5.5); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.textAlign = 'left'; ctx.globalAlpha = 0.85;
+    ctx.strokeStyle = halo; ctx.lineWidth = 3.5; ctx.strokeText(title, lx, ly);
+    ctx.fillStyle = T.accent; ctx.fillText(title, lx, ly);
+    LINK_HITS.push({ stop: o.w, link: o.L, x: Math.min(ex - 9, lx), y: Math.min(ey - 9, ly - 8), w: Math.abs(lx - ex) + tw + 18, h: 20 });
+  }
+  ctx.globalAlpha = 1;
+}
 function drawContinentLabels(free, halo) {
   const k = transform.k;
   const ca = Math.max(0, Math.min(1, (2.4 - k) / 1.2));
@@ -2009,6 +2077,11 @@ function goTo(t, ms = 750) {
   sel.transition().duration(ms).ease(d3.easeCubicInOut).call(zoom.transform, t);
 }
 const fitWorld = (ms) => goTo(fitTransform([W.bounds[0] - 40, W.bounds[1] - 40, W.bounds[2] + 40, W.bounds[3] + 40], 0.02), ms);
+// Over to a work at the current zoom (or a little closer if far out), keeping whatever is followed.
+function glideTo(w) {
+  const k = Math.max(transform.k, 0.9);
+  goTo(d3.zoomIdentity.translate(Wpx / 2 - k * w.px, Hpx / 2 - k * w.py).scale(k), 700);
+}
 const fitCircle = (x, y, r, ms) => goTo(fitTransform([x - r, y - r, x + r, y + r], 0.12), ms);
 
 const qItems = d3.quadtree(W.items, d => d.px, d => d.py);
@@ -2133,7 +2206,7 @@ function goPortal(pt) {
 }
 const qGhosts = d3.quadtree(GHOSTS, d => d.px, d => d.py);
 function pick(mx, my) {
-  for (const b of LINK_HITS) if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) return b.link;
+  for (const b of LINK_HITS) if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) return b.stop ? { wayOn: b.stop, link: b.link } : b.link;
   const [x, y] = transform.invert([mx, my]);
   const k = transform.k;
   for (const pt of PORTALS) {
@@ -2194,6 +2267,12 @@ function buildTip(hit) {
   tipFor = hit;
   tip.replaceChildren();
   const b = document.createElement('b'), s = document.createElement('span');
+  if (hit.wayOn) {
+    b.textContent = `→ ${hit.wayOn.t}`;
+    s.textContent = `${hit.link.r.name} · ${provById.get(hit.wayOn.p).name}`;
+    tip.append(h('div', { class: 'tt' }, b, s)); tip.classList.remove('has-cover');
+    return;
+  }
   if (hit.legs) {
     b.textContent = hit.r.name;
     s.textContent = `${hit.ws.length} stops · ${[...new Set(hit.ws.map(w => MEDIA_LABEL[w.m]))].join(' · ')}`;
@@ -2225,6 +2304,7 @@ canvas.addEventListener('click', e => {
   const r = canvas.getBoundingClientRect();
   const mx = e.clientX - r.left, my = e.clientY - r.top;
   const hit = pick(mx, my);
+  if (hit && hit.wayOn) return glideTo(hit.wayOn);
   if (hit && hit.legs) return selectRoute(hit.r.id);
   if (hit && hit.portal) return goPortal(hit);
   if (hit && !hit.ghost) return selectItem(hit.id, { fly: false });
@@ -3403,7 +3483,7 @@ function renderRoute(rid) {
   );
 }
 function selectRoute(rid) {
-  clearSel(); state.selRoute = rid; renderRoute(rid);
+  clearSel(); state.selRoute = rid; renderRoute(rid); renderFollow();
   const ws = routeById.get(rid).items.map(id => itemById.get(id));
   const [x0, x1] = d3.extent(ws, i => i.px), [y0, y1] = d3.extent(ws, i => i.py);
   goTo(fitTransform([x0 - 40, y0 - 40, x1 + 40, y1 + 40], 0.1));
@@ -3466,7 +3546,7 @@ function selectCreator(name) {
   requestDraw(); openSheet();
 }
 function selectLedger({ fly = true, back = false } = {}) {
-  clearSel(); renderLedger();
+  clearSel(); follow([]); renderLedger();
   if (back && ledgerScroll != null) document.getElementById('panel').scrollTop = ledgerScroll;
   if (fly) fitWorld(); requestDraw();
 }
@@ -3476,7 +3556,7 @@ function selectContinent(cid, { fly = true } = {}) {
   const c = contById.get(cid); if (fly) fitCircle(c.x, c.y, c.r); requestDraw(); openSheet();
 }
 function selectProvince(pid, { fly = true, gentle = false, sheet = true } = {}) {
-  clearSel(); state.selProv = pid; renderProvince(pid);
+  clearSel(); state.selProv = pid; renderProvince(pid); follow(linksOn(pid));
   const p = provById.get(pid);
   const ws = p.family.flatMap(q => q.works);
   const cx = ws.length ? d3.mean(ws, w => w.px) : p.x, cy = ws.length ? d3.mean(ws, w => w.py) : p.y;
@@ -3494,7 +3574,7 @@ function selectProvince(pid, { fly = true, gentle = false, sheet = true } = {}) 
 }
 function selectItem(id, { fly = true, sheet = true } = {}) {
   const i = itemById.get(id);
-  clearSel(); state.selItem = id; state.selProv = i.p; renderItem(id);
+  clearSel(); state.selItem = id; state.selProv = i.p; renderItem(id); follow(linksThrough(i));
   if (fly) fitCircle(i.px, i.py, 40); requestDraw(); if (sheet) openSheet();
 }
 

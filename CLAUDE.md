@@ -21,7 +21,10 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `routes.py` connections (`W.routes`, EN/ES): threads between works that sit apart: who drew on whom, one
   creator/studio/composer across genres, one world in several media. Stops in release order, only documented
   links, only works on the map. Drawn in the tiles (all of them with the key's Connections switch, the ones
-  through the selected work or island on their own), names lettered live and clickable.
+  through the selected work or island on their own), names lettered live and clickable. A click on a work or
+  island starts following its connections (`state.follow`): they stay drawn while the map is panned and zoomed
+  (the panel's auto-follow never clears them), named in the Following tag, with arrows at the screen's edge
+  toward stops out of view. Islands merely panned past only hint at theirs, faintly.
 - `media.py` groups each mixed island by medium (one wedge per medium, series kept together inside it).
 - `spread.py` pushes works apart until no two covers overlap, using `tools/boxes.json` (each work's drawn
   footprint, measured in the page by `tools/tests/export_boxes.py`). Re-export the boxes whenever cover

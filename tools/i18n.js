@@ -35,7 +35,7 @@ const PHRASES = new Map(Object.entries({
   'Ledger': 'Registro', 'Survey Ledger': 'Registro del mapa', 'Atlas': 'Atlas', 'Continent': 'Continente', 'Region': 'Región',
   'Sub-island': 'Subisla', 'Creator': 'Autor', 'Route': 'Ruta', 'KEY': 'LEYENDA',
   'Media': 'Medios', 'Summits': 'Cumbres', 'Continents': 'Continentes', 'Largest cross-media realms': 'Mayores reinos entre medios',
-  'Connections': 'Conexiones', 'Connection': 'Conexión', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa',
+  'Connections': 'Conexiones', 'Connection': 'Conexión', 'Following': 'Siguiendo', 'Stop following': 'Dejar de seguir', 'Followed connections': 'Conexiones seguidas', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa',
   'Threads between works that sit apart on the map: who drew on whom, one hand or one composer across genres, one world in several media.': 'Hilos entre obras que están lejos en el mapa: quién se inspiró en quién, un mismo autor o compositor en varios géneros, un mismo mundo en varios medios.',
   'Blind spots': 'Puntos ciegos', 'At odds with the crowd': 'En desacuerdo con el público',
   'Peaks': 'Cimas', 'Lineage': 'Línea temporal', 'Works': 'Obras', 'Still in the fog': 'Aún en la niebla', 'Sub-islands': 'Subislas',

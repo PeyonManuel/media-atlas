@@ -168,6 +168,9 @@ for i in W['items']:
     if i['src'] == 'goodreads':
         i['r'] = BOOK_SCORES[i['id']]['r'] if i['id'] in BOOK_SCORES else 0
 
+# Fight Club is a 9 (Manuel's score; the base data had 10)
+if 'fvb' in items: items['fvb']['r'] = 9
+
 # the Westeros novels are shown under their English titles (the Spanish editions were linked by mistake)
 ENGLISH_TITLES = {
     'bed': 'A Game of Thrones (A Song of Ice and Fire, #1)', 'bd8': 'A Clash of Kings (A Song of Ice and Fire, #2)',

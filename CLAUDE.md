@@ -8,7 +8,7 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   Page code is edited directly. World data is **never** hand-edited: change the scripts in `tools/` and run
   `python3 tools/rebuild.py`, which restores `tools/base-world.html`'s data and runs, in order:
   fixes → subisles → series → media → spread → continents → portals → cohesion → continents → pairs →
-  spread → cohesion (settle only) → blurbs.
+  spread → cohesion (settle only) → blurbs → routes.
 - `fixes.py` data corrections and moves (anime folded into film/TV, merged seasons, misfiled works) and typical
   episode lengths for non-anime shows (`EP_MIN`).
 - `subisles.py` franchise realms as sub-islands (`PARENT`), curated book/game series (`CURATED`, with
@@ -17,7 +17,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `continents_links.py` continent sketch positions (`SKETCH`), which continents relate (`LINKS`), island
   neighbours and border preferences. Base relations on what the works actually share (portals, creators),
   not on guesses: an unfounded link (Underworld–Playgrounds) once put unrelated continents side by side.
-- `portals.py` two-way portals: genuine double genres (`GENRE_HOMES`) and clear inspirations (`INSPIRED`).
+- `portals.py` two-way portals: genuine double genres (`GENRE_HOMES`) and game-genre homes (`PORTALS`).
+- `routes.py` connections (`W.routes`, EN/ES): threads between works that sit apart: who drew on whom, one
+  creator/studio/composer across genres, one world in several media. Stops in release order, only documented
+  links, only works on the map. Drawn in the tiles (all of them with the key's Connections switch, the ones
+  through the selected work or island on their own), names lettered live and clickable.
 - `media.py` groups each mixed island by medium (one wedge per medium, series kept together inside it).
 - `spread.py` pushes works apart until no two covers overlap, using `tools/boxes.json` (each work's drawn
   footprint, measured in the page by `tools/tests/export_boxes.py`). Re-export the boxes whenever cover
@@ -49,9 +53,9 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   Games go by theme first; their game genre is a neighbour or a portal.
 - Campaign Shooters holds single-player shooters with Boomer Shooters inside; Call of Duty/milsims (Military
   Front, with Battlefield), and Halo are separate islands beside it because they also have multiplayer.
-- Portals: always two-way; only for genuine double genres (Butch Cassidy is a western) or clear inspiration
-  that makes sense from both ends (Tarantino ↔ westerns / Asian action), never mere topic overlap (Raging
-  Bull is not sports manga). Each says concisely why. Works sharing a portal sit together with the portal
+- Portals: always two-way; only where a work belongs on a second island too (Butch Cassidy is a western;
+  Django Unchained is a spaghetti western), never mere topic overlap (Raging Bull is not sports manga).
+  Inspiration (Yojimbo → A Fistful of Dollars, Berserk → Dark Souls) is a connection, not a portal. Each says concisely why. Works sharing a portal sit together with the portal
   beside them and a visual link. A portal stands among the works it speaks for: inside its own island, on its
   plateau if a sub-island, and clear of sub-islands it doesn't belong to.
 - Scores: x/10 for everything, books included (Goodreads stars converted by hand in `tools/book_scores.json`,

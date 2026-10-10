@@ -89,6 +89,7 @@ PORTALS = [
     ('Art & Atmosphere', ('work', 'Portal 2', 'game'), 'Portal', 'Portal'),
     ('Party & Co-op', ('work', 'Left 4 Dead 2', 'game'), 'Left 4 Dead', 'Left 4 Dead'),
     ('Immersive Sims', ('island', 'Shadow Moses'), 'Metal Gear Solid', 'Metal Gear Solid'),
+    ('Mecha & Space Opera', ('island', 'NERV Headquarters'), 'Evangelion', 'Evangelion'),
     # LEGO games, gathered from wherever their licence put them
     ('3D Mascot Meadows', ('work', 'LEGO DC Super-Villains', 'game'), 'LEGO DC Super-Villains', 'LEGO DC Super-Villains'),
     ('3D Mascot Meadows', ('work', 'LEGO Star Wars: The Complete Saga', 'game'), 'LEGO Star Wars', 'LEGO Star Wars'),
@@ -125,7 +126,7 @@ GENRE_HOMES = {
     'Final Frontiers': ['2001: A Space Odyssey', 'Interstellar', 'Avatar', 'Avatar: The Way of Water', 'Avatar: Fire and Ash', 'Aliens', 'Arrival', 'E.T. the Extra-Terrestrial',
         'Back to the Future', 'Super 8', 'Ready Player One', 'Stalker', 'On the Silver Globe', 'Metropolis', 'Fantastic Planet', 'Star Trek', 'Star Trek Into Darkness', 'Star Trek Beyond'],
     'Sci-Fi Thrillers': ['Inception', 'Tenet', 'Donnie Darko'],
-    'Cyberpunk & Dystopia': ['A Clockwork Orange', 'The Hunger Games', 'TRON: Legacy', 'Serial Experiments Lain|tv', 'V for Vendetta|comics',
+    'Cyberpunk & Dystopia': ['Blade Runner', 'A Clockwork Orange', 'The Hunger Games', 'TRON: Legacy', 'Serial Experiments Lain|tv', 'V for Vendetta|comics',
         'Absolute Transmetropolitan Vol.  1|comics', 'Y: The Last Man Omnibus|comics'],
     'Space Opera': ['John Carter', 'Saga, Compendium One|comics'],
     'Mecha & Space Opera': ['Transformers'],
@@ -138,27 +139,9 @@ GENRE_HOMES = {
     'Jidaigeki': ['Lady Snowblood', 'Kill Bill: Vol. 1'],
     'Hong Kong Action': ['Kill Bill: Vol. 1', 'Kill Bill: Vol. 2', 'John Wick'],
 }
-# Clear, well-known inspiration that makes sense from both ends (each becomes a two-way portal).
-INSPIRED = [
-    # (island, destination, why — shown on the portal at both ends)
-    ('Spaghetti Westerns', ('island', 'Kurosawa Range'), 'Yojimbo → A Fistful of Dollars'),
-    ('A Galaxy Far, Far Away', ('work', 'The Hidden Fortress', 'film'), 'The Hidden Fortress → Star Wars'),
-    ('FromSoftware Peaks', ('island', 'Berserk'), 'Berserk → Dark Souls'),
-    ("R'lyeh", ('work', 'Bloodborne', 'game'), 'Lovecraft → Bloodborne'),
-    ("R'lyeh", ('work', 'The Thing', 'film'), 'Lovecraft → The Thing'),
-    ("R'lyeh", ('island', "Junji Ito's Spiral"), 'Lovecraft → Junji Ito'),
-    ('Twin Peaks & Lynch', ('work', 'Alan Wake II', 'game'), 'Twin Peaks → Alan Wake'),
-    ('Twin Peaks & Lynch', ('island', 'Silent Hill'), 'Twin Peaks → Silent Hill'),
-    ('Amblin Suburbs', ('work', 'Stranger Things', 'tv'), 'Spielberg → Stranger Things'),
-    ('The Wasteland', ('work', 'Mad Max 2', 'film'), 'Mad Max → Fallout'),
-    ('Cyberpunk & Dystopia', ('work', 'Blade Runner', 'film'), 'Blade Runner → cyberpunk'),
-    ('Night City', ('work', 'Blade Runner', 'film'), 'Blade Runner → Cyberpunk 2077'),
-    ('Castlevania', ('work', "Bram Stoker's Dracula", 'film'), 'Dracula → Castlevania'),
-    ('Boomer Shooters', ('work', 'Evil Dead II', 'film'), 'Evil Dead II → Doom'),
-    ('Boomer Shooters', ('work', 'Aliens', 'film'), 'Aliens → Doom'),
-    ('Indie Precision', ('work', 'Popeye the Sailor Meets Sindbad the Sailor', 'film'), 'Fleischer cartoons → Cuphead'),
-    ('Mecha & Space Opera', ('island', 'NERV Headquarters'), 'Evangelion'),
-]
+# Inspiration (who drew on whom) is a connection now (routes.py), not a portal: portals are for works that
+# belong on a second island. Kept here only for a link that is both, should one come up.
+INSPIRED = []
 WHY = {}
 for frm, target, label in INSPIRED:
     PORTALS.append((frm, target, label, label)); WHY[(frm, target[1])] = label

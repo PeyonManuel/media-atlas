@@ -27,20 +27,7 @@ if (ES) {
   for (const c of W.continents) if (CONT_ES[c.id]) [c.name, c.blurb] = CONT_ES[c.id];
   for (const p of W.provinces) if (p.blurb_es) p.blurb = p.blurb_es;
   for (const pt of W.portals || []) if (pt.label_es) pt.label = pt.label_es;
-  const ROUTE_ES = {
-    big3seinen: ['Los tres grandes del seinen', 'El trío que los lectores de seinen señalan como la cumbre del género: Berserk de Miura, Vagabond de Inoue y Monster de Urasawa.'],
-    big3shonen: ['Los tres grandes de la Shōnen Jump', 'Las tres series que sostuvieron la Weekly Shōnen Jump durante los 2000.'],
-    kurosawa: ['Los herederos de Kurosawa', 'George Lucas ha dicho que La fortaleza escondida dio forma a Star Wars, contada por dos campesinos que se pelean. Por un puñado de dólares de Sergio Leone es un remake no autorizado de Yojimbo.'],
-    berserksouls: ['La larga sombra de Berserk', 'Hidetaka Miyazaki ha citado el Berserk de Kentaro Miura como una influencia clave en la fantasía oscura de FromSoftware.'],
-    lovecraft: ['Los herederos de Lovecraft', 'El horror cósmico después de Lovecraft: La cosa de John Carpenter, Junji Ito (que cita a Lovecraft entre sus influencias) y Bloodborne de FromSoftware.'],
-    killbill: ['Los ingredientes de Kill Bill', 'Tarantino construyó la venganza de la Novia sobre Lady Snowblood y eligió a Gordon Liu, estrella de La cámara 36 de Shaolin, en los dos volúmenes.'],
-    square: ['La edad de oro de Square', 'Los juegos de rol de Square de 1994 a 2000, varios con música de Nobuo Uematsu.'],
-    hbo: ['La edad de oro de HBO', 'Los dramas de prestigio de HBO, de Los Soprano a Chernobyl.'],
-    leone: ['Leone y Morricone', 'Todas las películas de Sergio Leone del mapa tienen música de Ennio Morricone.'],
-    cosmere: ['El Cosmere', 'Las novelas de Brandon Sanderson comparten un universo, unido por viajeros entre mundos como Hoid.'],
-    shooters: ['De Doom a Ultrakill', 'Los shooters en primera persona del mapa, en orden: el Doom de id, los shooters narrativos de Valve, Halo en consola y el revival retro.'],
-  };
-  for (const r of W.routes || []) if (ROUTE_ES[r.id]) [r.name, r.blurb] = ROUTE_ES[r.id];
+  for (const r of W.routes || []) if (r.name_es) [r.name, r.blurb] = [r.name_es, r.blurb_es];
 }
 const nfEs = d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['', ' €'] }).format(',');
 // Whole-text phrases (exact) and patterns, English to Spanish.
@@ -48,7 +35,9 @@ const PHRASES = new Map(Object.entries({
   'Ledger': 'Registro', 'Survey Ledger': 'Registro del mapa', 'Atlas': 'Atlas', 'Continent': 'Continente', 'Region': 'Región',
   'Sub-island': 'Subisla', 'Creator': 'Autor', 'Route': 'Ruta', 'KEY': 'LEYENDA',
   'Media': 'Medios', 'Summits': 'Cumbres', 'Continents': 'Continentes', 'Largest cross-media realms': 'Mayores reinos entre medios',
-  'Routes · experimental': 'Rutas · experimental', 'Blind spots': 'Puntos ciegos', 'At odds with the crowd': 'En desacuerdo con el público',
+  'Connections': 'Conexiones', 'Connection': 'Conexión', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa',
+  'Threads between works that sit apart on the map: who drew on whom, one hand or one composer across genres, one world in several media.': 'Hilos entre obras que están lejos en el mapa: quién se inspiró en quién, un mismo autor o compositor en varios géneros, un mismo mundo en varios medios.',
+  'Blind spots': 'Puntos ciegos', 'At odds with the crowd': 'En desacuerdo con el público',
   'Peaks': 'Cimas', 'Lineage': 'Línea temporal', 'Works': 'Obras', 'Still in the fog': 'Aún en la niebla', 'Sub-islands': 'Subislas',
   'Portals': 'Portales', 'Length': 'Duración', 'Neighbours in this region': 'Vecinos en esta región', 'Where they sit': 'Dónde están',
   'Works, oldest first': 'Obras, de la más antigua a la más nueva', 'Regions': 'Regiones', 'Stops': 'Paradas',
@@ -92,11 +81,12 @@ const PATTERNS = [
   [/^(.*)\. Longer than (\d+)% of the (.*) on the map\.$/, (m, a, p, n) => `${trText(a)}. Más largo que el ${p} % de ${{ books: 'los libros', comics: 'los cómics', 'manga series': 'los mangas', shows: 'las series', games: 'los juegos' }[n] || n} del mapa.`],
   [/^(\d+) on AniList, counted as one show$/, '$1 en AniList, contadas como una serie'],
   [/^All (\d+) works by (.*)$/, 'Las $1 obras de $2'],
-  [/^([\d.,]+)\/(5|10) average$/, 'media de $1/$2'], [/^ \/ 10, Serializd rating for the show$/, ' / 10, nota de Serializd para la serie'],
-  [/^ \/ 10, average of rated seasons$/, ' / 10, media de las temporadas puntuadas'],
+  [/^([\d.,]+)\/(5|10) average$/, 'media de $1/$2'], [/^\/ 10, Serializd rating for the show$/, '/ 10, nota de Serializd para la serie'],
+  [/^\/ 10, average of rated seasons$/, '/ 10, media de las temporadas puntuadas'],
   [/^(.*) · Manu (.*), crowd (.*)$/, '$1 · Manu $2, público $3'],
   [/^(\d+) works across (\d+) regions?\. Everything else on the map is dimmed\.$/, '$1 obras en $2 regiones. El resto del mapa queda atenuado.'],
-  [/^(\d+) stops across (.*)\. Routes are an experiment: curated links that cross regions\.$/, '$1 paradas en $2. Las rutas son un experimento: enlaces que cruzan regiones.'],
+  [/^(\d+) stops across (.*)\.$/, '$1 paradas en $2.'], [/^Connections (\d+)$/, 'Conexiones $1'], [/^Connection · (\d+) stops$/, 'Conexión · $1 paradas'],
+  [/^(\d+) stops · (.*)$/, (m, n, a) => `${n} paradas · ${a.split(' · ').map(trText).join(' · ')}`],
   [/^Open on (.*) ↗$/, 'Abrir en $1 ↗'], [/^Creator · (\d+) works$/, 'Autor · $1 obras'], [/^Region · (.*)$/, 'Región · $1'],
   [/^Portal to (.*), on (.*)$/, 'Portal a $1, en $2'], [/^Portal to (.*)$/, 'Portal a $1'], [/^has a portal here \((.*)\)$/, 'tiene un portal aquí ($1)'],
   [/^Unexplored landmark(.*)$/, 'Hito sin explorar$1'], [/^(\d+) \/ 5$/, '$1 / 5'],

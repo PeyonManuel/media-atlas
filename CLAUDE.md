@@ -18,9 +18,10 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   neighbours and border preferences. Base relations on what the works actually share (portals, creators),
   not on guesses: an unfounded link (Underworld–Playgrounds) once put unrelated continents side by side.
 - `portals.py` two-way portals: genuine double genres (`GENRE_HOMES`) and game-genre homes (`PORTALS`).
-- `routes.py` connections (`W.routes`, EN/ES, each with a `kind` the ledger groups by: influence, idea, maker,
-  canon): threads between works that sit apart: who drew on whom, the ideas and themes they share (a philosophy,
-  a question; a big work like One Piece sits on several), one creator/studio/composer across genres, one world in
+- `routes.py` connections (`W.routes`, EN/ES, each with a `kind` the ledger groups by: influence, idea, source,
+  maker, score, canon; `ROUTES` takes its kind from `KIND`, `MORE` carries it first): threads between works that sit apart:
+  who drew on whom, the ideas and themes they share (a philosophy, a question; a big work like One Piece sits on
+  several), a myth or old story retold, one creator/studio/composer across genres, one world in
   several media. Stops in release order, only documented links, only works on the map (planned ones too). Drawn in the tiles (all of them with the key's Connections switch, the ones
   through the selected work or island on their own), names lettered live and clickable. A click on a work or
   island starts following its connections (`state.follow`): they stay drawn while the map is panned and zoomed

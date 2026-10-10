@@ -241,6 +241,7 @@ button, input { font: inherit; color: inherit; }
 .ext { color: var(--accent); font-weight: 500; text-decoration: none; }
 .ext:hover { text-decoration: underline; }
 .linkish { border: 0; background: none; padding: 0; color: var(--accent); cursor: pointer; text-align: left; font-weight: 500; }
+.follow-pick { opacity: .75; } .follow-pick[aria-pressed="true"] { opacity: 1; font-weight: 700; }
 
 /* Works drawn as their objects on small canvases (same renderer as the map). */
 .objc { display: block; flex: none; max-width: 100%; height: auto; }
@@ -433,7 +434,7 @@ const PHRASES = new Map(Object.entries({
   'Sub-island': 'Subisla', 'Creator': 'Autor', 'Route': 'Ruta', 'KEY': 'LEYENDA',
   'Media': 'Medios', 'Summits': 'Cumbres', 'Continents': 'Continentes', 'Largest cross-media realms': 'Mayores reinos entre medios',
   'Connections': 'Conexiones', 'Connection': 'Conexión', 'Who drew on whom': 'Quién se inspiró en quién', 'Ideas and themes': 'Ideas y temas',
-  'One hand across the map': 'Una misma mano por todo el mapa', 'Runs and canons': 'Etapas y cánones', 'Myths and old stories': 'Mitos e historias antiguas', 'Composers and musicians': 'Compositores y músicos', 'Faces across the map': 'Caras por todo el mapa', 'Following': 'Siguiendo', 'Stop following': 'Dejar de seguir', 'Followed connections': 'Conexiones seguidas', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa', 'Show on the map': 'Mostrar en el mapa', 'Hide on the map': 'Ocultar del mapa',
+  'One hand across the map': 'Una misma mano por todo el mapa', 'Runs and canons': 'Etapas y cánones', 'Myths and old stories': 'Mitos e historias antiguas', 'Composers and musicians': 'Compositores y músicos', 'Faces across the map': 'Caras por todo el mapa', 'Following': 'Siguiendo', 'Stop following': 'Dejar de seguir', 'Followed connections': 'Conexiones seguidas', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa', 'Show on the map': 'Mostrar en el mapa', 'Follow it on the map': 'Seguirla en el mapa', 'Hide on the map': 'Ocultar del mapa',
   'Threads between works that sit apart on the map: who drew on whom, the ideas and themes they share, one hand or one composer across genres, one world in several media.': 'Hilos entre obras que están lejos en el mapa: quién se inspiró en quién, las ideas y los temas que comparten, un mismo autor o compositor en varios géneros, un mismo mundo en varios medios.',
   'Blind spots': 'Puntos ciegos', 'At odds with the crowd': 'En desacuerdo con el público',
   'Peaks': 'Cimas', 'Lineage': 'Línea temporal', 'Works': 'Obras', 'Still in the fog': 'Aún en la niebla', 'Sub-islands': 'Subislas',
@@ -1338,22 +1339,28 @@ const LINKS = (W.routes || []).map(r => {
   return { r, ws, path, legs, bb: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], provs: new Set(ws.map(w => w.p)) };
 });
 const linkById = new Map(LINKS.map(L => [L.r.id, L]));
-// The connections to bring forward. Followed ones (from a click on a work or island) stay firm while the
-// map is panned and zoomed, whatever the panel moves on to; the island in view while panning only hints at
-// its own, lightly, and not while something is being followed.
+// The connections to bring forward. A selected work or island only offers its own, faintly (candidates);
+// one is followed when it is picked (its name on the map or in the panel), and followed ones stay firm while
+// the map is panned and zoomed, whatever the panel moves on to, until the Following tag lets them go.
 const linksThrough = i => LINKS.filter(L => L.r.items.includes(i.id));
 const linksOn = pid => { const fam = provById.get(pid).family; return LINKS.filter(L => fam.some(q => L.provs.has(q.id))); };
 function focusLinks() {
   if (state.selRoute || state.selCreator) return [];
-  if (state.follow.length) return LINKS.filter(L => state.follow.includes(L.r.id));
-  if (state.selItem && !state.soft) return linksThrough(itemById.get(state.selItem));
-  if (state.selProv && !state.soft) return linksOn(state.selProv);
-  return [];
+  return LINKS.filter(L => state.follow.includes(L.r.id));
 }
-const hintLinks = () => !state.follow.length && state.soft && state.selProv && !state.selRoute ? linksOn(state.selProv) : [];
+function hintLinks() {
+  if (state.selRoute || state.selCreator || state.soft) return [];
+  const own = state.selItem ? linksThrough(itemById.get(state.selItem)) : state.selProv ? linksOn(state.selProv) : [];
+  return own.filter(L => !state.follow.includes(L.r.id));
+}
 function follow(list) {
   state.follow = list.map(L => L.r.id);
   renderFollow(); requestDraw();
+  for (const b of document.querySelectorAll('[data-follow]')) b.setAttribute('aria-pressed', String(state.follow.includes(b.dataset.follow)));
+}
+// Picking a connection follows it (or lets it go), keeping the others already followed.
+function toggleFollow(L) {
+  follow(state.follow.includes(L.r.id) ? LINKS.filter(M => M !== L && state.follow.includes(M.r.id)) : [...LINKS.filter(M => state.follow.includes(M.r.id)), L]);
 }
 // The followed connections, named in a small tag on the map (each opens its connection; the cross lets go).
 const followEl = document.createElement('div');
@@ -1481,7 +1488,7 @@ function paintStatic(g, kq, glyphs, view) {
     }
     g.restore();
   }
-  // Connections: all of them faintly when switched on, the ones through the selection more firmly.
+  // Connections: followed ones firmly, the selection's own as faint candidates, all of them faintly when switched on.
   const focus = focusLinks(), hint = hintLinks();
   if (state.links || focus.length || hint.length) {
     g.save(); g.strokeStyle = T.accent; g.lineCap = 'round'; g.lineJoin = 'round';
@@ -1491,8 +1498,8 @@ function paintStatic(g, kq, glyphs, view) {
       if (L.r.id === state.selRoute || !hit(L.bb)) continue;
       const f = focus.includes(L), hn = !f && hint.includes(L);
       if (!f && !hn && !linkShown(L)) continue;
-      g.setLineDash([]); g.globalAlpha = f ? 0.14 : 0.07 * dim; g.lineWidth = px * (f ? 7 : 5); g.stroke(L.path);
-      g.globalAlpha = f ? 0.9 : hn ? 0.6 : 0.5 * dim; g.lineWidth = px * (f ? 1.9 : 1.3); g.setLineDash(f ? [] : [px * 6, px * 4]); g.stroke(L.path);
+      if (!hn) { g.setLineDash([]); g.globalAlpha = f ? 0.14 : 0.07 * dim; g.lineWidth = px * (f ? 7 : 5); g.stroke(L.path); }
+      g.globalAlpha = f ? 0.9 : hn ? 0.32 : 0.5 * dim; g.lineWidth = px * (f ? 1.9 : hn ? 1 : 1.3); g.setLineDash(f ? [] : [px * 5, px * 5]); g.stroke(L.path);
     }
     g.restore();
   }
@@ -1747,7 +1754,7 @@ function drawLabels() {
   LINK_HITS.length = 0;
   const focus = focusLinks(), hint = hintLinks();
   if (focus.length) { drawLinkNames(focus, free, halo, true); if (state.follow.length) drawWayOn(focus, free, halo); }
-  if (hint.length) drawLinkNames(hint, free, halo, false);
+  if (hint.length) drawLinkNames(hint, free, halo, false, true);
   drawContinentLabels(free, halo);
   // portal names: for the selected island (and the one under the cursor), so the map stays readable
   // portal reasons: always for the selected island and the hovered portal; for everything once zoomed in
@@ -1929,7 +1936,7 @@ function labelBitmap(lines, size, spacing, w, lh, hgt, halo) {
 // Drawn before the province labels so those give way to them.
 // A connection's name sits on the middle of its longest leg (on screen), in its thread's colour.
 const LINK_HITS = [];
-function drawLinkNames(list, free, halo, strong) {
+function drawLinkNames(list, free, halo, strong, faint = false) {
   const font = `italic ${strong ? 600 : 500} ${strong ? 12 : 11}px Archivo, Arial, sans-serif`;
   ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const L of list) {
@@ -1945,7 +1952,7 @@ function drawLinkNames(list, free, halo, strong) {
     if (!best || bestLen < (strong ? 40 : 90)) continue;
     const t = '⟡ ' + L.r.name, w = textW(t, font) + 10, [sx, sy] = best;
     if (!free(sx - w / 2, sy - 9, w, 18)) continue;
-    ctx.globalAlpha = strong ? 1 : 0.85;
+    ctx.globalAlpha = strong ? 1 : faint ? 0.6 : 0.85;
     ctx.strokeStyle = halo; ctx.lineWidth = 4; ctx.strokeText(t, sx, sy);
     ctx.fillStyle = T.accent; ctx.fillText(t, sx, sy);
     LINK_HITS.push({ link: L, x: sx - w / 2, y: sy - 9, w, h: 18 });
@@ -2321,7 +2328,7 @@ canvas.addEventListener('click', e => {
   const mx = e.clientX - r.left, my = e.clientY - r.top;
   const hit = pick(mx, my);
   if (hit && hit.wayOn) return glideTo(hit.wayOn);
-  if (hit && hit.legs) return selectRoute(hit.r.id);
+  if (hit && hit.legs) return state.follow.includes(hit.r.id) || state.links ? selectRoute(hit.r.id) : toggleFollow(hit);
   if (hit && hit.portal) return goPortal(hit);
   if (hit && !hit.ghost) return selectItem(hit.id, { fly: false });
   if (hit && hit.ghost) return selectProvince(hit.p, { fly: false });
@@ -3474,7 +3481,7 @@ function renderItem(id) {
         i.crowd ? [h('dt', null, 'Crowd'), h('dd', null, crowdText(i))] : null,
         h('dt', null, 'Region'), h('dd', null, h('button', { type: 'button', class: 'linkish', onclick: () => selectProvince(p.id) }, p.name)),
         h('dt', null, 'Continent'), h('dd', null, h('button', { type: 'button', class: 'linkish', onclick: () => selectContinent(c.id) }, c.name)),
-        routesOf(i).length ? [h('dt', null, 'Connections'), h('dd', { class: 'stack' }, routesOf(i).map(r => h('button', { type: 'button', class: 'linkish', onclick: () => selectRoute(r.id) }, r.name)))] : null),
+        routesOf(i).length ? [h('dt', null, 'Connections'), h('dd', { class: 'stack' }, routesOf(i).map(r => h('button', { type: 'button', class: 'linkish follow-pick', 'data-follow': r.id, 'aria-pressed': String(state.follow.includes(r.id)), title: 'Follow it on the map', onclick: () => toggleFollow(linkById.get(r.id)) }, '⟡ ' + r.name)))] : null),
       extLink(i)),
     lengthRug(i) ? section('Length', lengthRug(i)) : null,
     near.length ? section('Neighbours in this region', h('div', { class: 'works' }, near.map(workRow))) : null,
@@ -3579,7 +3586,7 @@ function selectContinent(cid, { fly = true } = {}) {
   const c = contById.get(cid); if (fly) fitCircle(c.x, c.y, c.r); requestDraw(); openSheet();
 }
 function selectProvince(pid, { fly = true, gentle = false, sheet = true } = {}) {
-  clearSel(); state.selProv = pid; renderProvince(pid); follow(linksOn(pid));
+  clearSel(); state.selProv = pid; renderProvince(pid);
   const p = provById.get(pid);
   const ws = p.family.flatMap(q => q.works);
   const cx = ws.length ? d3.mean(ws, w => w.px) : p.x, cy = ws.length ? d3.mean(ws, w => w.py) : p.y;
@@ -3597,7 +3604,7 @@ function selectProvince(pid, { fly = true, gentle = false, sheet = true } = {}) 
 }
 function selectItem(id, { fly = true, sheet = true } = {}) {
   const i = itemById.get(id);
-  clearSel(); state.selItem = id; state.selProv = i.p; renderItem(id); follow(linksThrough(i));
+  clearSel(); state.selItem = id; state.selProv = i.p; renderItem(id);
   if (fly) fitCircle(i.px, i.py, 40); requestDraw(); if (sheet) openSheet();
 }
 

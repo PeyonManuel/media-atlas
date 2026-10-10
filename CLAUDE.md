@@ -26,10 +26,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   several media. Stops in release order, only documented links, only works on the map (planned ones too), and only threads that
   leave one island (a director whose films already share an island needs no thread). The key's switch shows them all,
   fainter the more there are; each ledger group can be shown alone (`state.linkKind`). Drawn in the tiles (all of them with the key's Connections switch, the ones
-  through the selected work or island on their own), names lettered live and clickable. A click on a work or
-  island starts following its connections (`state.follow`): they stay drawn while the map is panned and zoomed
-  (the panel's auto-follow never clears them), named in the Following tag, with arrows at the screen's edge
-  toward stops out of view. Islands merely panned past only hint at theirs, faintly.
+  through the selected work or island on their own), names lettered live and clickable. A selected work or
+  island only offers its connections as faint dashed candidates (Manuel: too many lines otherwise); picking one
+  (its name on the map or in the work's panel) follows it (`state.follow`, `toggleFollow`): firm, kept while the
+  map is panned and zoomed (the panel's auto-follow never clears it), named in the Following tag, with arrows at
+  the screen's edge toward stops out of view. Islands merely panned past show none.
 - `media.py` groups each mixed island by medium (one wedge per medium, series kept together inside it).
 - `spread.py` pushes works apart until no two covers overlap, using `tools/boxes.json` (each work's drawn
   footprint, measured in the page by `tools/tests/export_boxes.py`). Re-export the boxes whenever cover

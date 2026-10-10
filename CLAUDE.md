@@ -28,8 +28,10 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - Map tiles (`MT`, `mtDraw`, `paintStatic` in the page): everything that holds still (sea, land, hills, plateaus,
   borders, landmarks, a selected route and, below `COVER_K0`, the work symbols) is painted into 512-px tiles and
   copied each frame. Change those layers in `paintStatic`, and add any state they depend on to `mtVersion`, or
-  the tiles go stale. Works up close, labels and portals are drawn live. Profile with real input before and
-  after changing the draw loop.
+  the tiles go stale. While zooming, the tiles on screen are only scaled until the zoom is ~1.45x away from
+  them, and ground newly in view shows the world backdrop (coarse tiles painted while idle, `mtBackLayer`);
+  sharp tiles at the exact scale follow once the zoom rests. Works up close, labels and portals are drawn
+  live. Profile with real input (wheel zooms, drags) before and after changing the draw loop.
 - Spanish UI comes from the browser language (`ES` flag, phrase table; source in `tools/i18n.js`).
 - Covers are final sprite sheets in `tiles/` (108×160 cells).
 - Linked covers: a work with `img` (from `tools/images.json`, looked up on its own site: Rate Your Music, Letterboxd, Backloggd, AniList, Goodreads, never Wikipedia) draws that image only when selected (ledger) or zoomed in past `COVER_K0`; tiles otherwise. Three load at a time; unused ones are let go after a minute.

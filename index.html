@@ -1134,16 +1134,17 @@ const zoomingNow = () => performance.now() - zoomT < 220;
 // and zooming cost the same however much land is in view. Tiles are painted at or above the view's scale
 // (never stretched up), the old zoom step stands in while the next one is painted a few tiles per frame,
 // and a changed selection swaps in all at once when its tiles are ready.
-const MT = { px: 512, cache: new Map(), free: [], shown: null, idleT: 0, glyphs: new Map() };
-// While zooming, tiles are painted at eighth-octave steps at or above the view's scale (never stretched up);
-// once the zoom rests, at the view's own scale, so the resting map is exactly what a direct paint would be.
-const mtScaleFor = k => zoomingNow() ? Math.pow(2, Math.ceil(Math.log2(k) * 8 - 1e-6) / 8) : k;
+const MT = { px: 512, cache: new Map(), free: [], shown: null, idleT: 0, glyphs: new Map(), back: null, sink: null };
+// Tiles are painted at the view's own scale once the zoom rests, so the resting map is exactly what a direct
+// paint would be. While zooming, the tiles on screen are only scaled until the zoom has moved about half an
+// octave from them; then the next set is painted, at an eighth-octave step at or above the view's scale.
+const mtQuant = k => Math.pow(2, Math.ceil(Math.log2(k) * 8 - 1e-6) / 8);
 function mtVersion(glyphs) {
   return [glyphs ? 'g' : 'l', state.selProv, state.selCont, state.selCreator, state.selRoute, state.soft,
     [...state.hidden].join(), T.dark, T.sea, dpr, glyphs ? state.selItem : ''].join('|');
 }
 const mtKey = (L, tx, ty) => `${L.ver}#${L.kq}#${tx}#${ty}`;
-// The tiles of layer L ({ ver, glyphs, kq }) over the view: [tx0, ty0, tx1, ty1].
+// The tiles of a layer at scale kq over the view: [tx0, ty0, tx1, ty1].
 function mtRange(kq, pad = 0) {
   const s = kq * dpr / MT.px, [wx0, wy0] = transform.invert([0, 0]), [wx1, wy1] = transform.invert([Wpx, Hpx]);
   return [Math.floor(wx0 * s) - pad, Math.floor(wy0 * s) - pad, Math.floor(wx1 * s) + pad, Math.floor(wy1 * s) + pad];
@@ -1163,18 +1164,23 @@ function mtPaint(L, tx, ty) {
   g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.fillStyle = T.sea; g.fillRect(0, 0, P, P);
   if (c.width === P) { g.setTransform(s, 0, 0, s, -tx * P, -ty * P);
   paintStatic(g, L.kq, L.glyphs, [tx * P / s, ty * P / s, (tx + 1) * P / s, (ty + 1) * P / s]); }
-  const t = { c, used: performance.now() };
+  // rasterize it now (copying it anywhere does), so the time spent here is the tile's real cost and no
+  // later frame pays for it by surprise
+  if (!MT.sink) MT.sink = Object.assign(document.createElement('canvas'), { width: 1, height: 1 }).getContext('2d');
+  MT.sink.drawImage(c, 0, 0, 1, 1);
+  const t = { c, used: performance.now(), pin: !!L.pin };
   MT.cache.set(mtKey(L, tx, ty), t);
   return t;
 }
-// Let the n least recently drawn tiles go (all of them by default).
+// Let the n least recently drawn tiles go (all of them by default, the world backdrop too).
 function mtFlush(n = Infinity) {
-  const old = [...MT.cache].sort((u, v) => u[1].used - v[1].used).slice(0, Math.ceil(n));
+  const all = n === Infinity;
+  const old = [...MT.cache].filter(([, t]) => all || !t.pin).sort((u, v) => u[1].used - v[1].used).slice(0, Math.ceil(n));
   for (const [key, t] of old) {
     MT.cache.delete(key);
     if (MT.free.length < 8 && t.c.width === MT.px) MT.free.push(t.c); else t.c.width = t.c.height = 0;
   }
-  if (!MT.cache.size) MT.shown = null;
+  if (all) { MT.shown = null; MT.back = null; }
 }
 // Is the world rectangle of tile (tx, ty) of layer L fully painted in layer S?
 function mtCovered(L, tx, ty, S) {
@@ -1184,22 +1190,34 @@ function mtCovered(L, tx, ty, S) {
   mtEach(r, (x, y) => { if (ok && !MT.cache.has(mtKey(S, x, y))) ok = false; });
   return ok;
 }
+// The world backdrop: the whole map, symbols included, in a dozen or so coarse tiles (about 1,300 px across),
+// painted while idle and kept. Ground that comes into view mid-zoom shows it for a moment instead of being
+// painted while the zoom is still moving.
+function mtBackLayer() {
+  const b = W.bounds, kq = 1300 / ((b[2] - b[0] + 400) * dpr), s = kq * dpr / MT.px;
+  return { ver: 'B' + mtVersion(true), glyphs: true, kq, pin: true,
+    range: [Math.floor((b[0] - 200) * s), Math.floor((b[1] - 200) * s), Math.floor((b[2] + 200) * s), Math.floor((b[3] + 200) * s)] };
+}
 // Copies the tiles for the view into ctx (device pixels). Returns true while some are still to be painted.
 // What was on screen last frame stands in until the new tiles are all painted (a few per frame), then they
-// swap in together; only ground the old tiles don't cover is painted at once.
+// swap in together. At rest, ground nothing covers is painted at once; mid-zoom the backdrop stands in for it.
 function mtDraw(k) {
-  const glyphs = k < COVER_K0, now = performance.now();
-  const L = { ver: mtVersion(glyphs), glyphs, kq: mtScaleFor(k) }, range = mtRange(L.kq);
+  const glyphs = k < COVER_K0, now = performance.now(), zooming = zoomingNow(), ver = mtVersion(glyphs);
+  const S0 = MT.shown && MT.shown.ver === ver ? MT.shown : null;
+  const kq = zooming ? (S0 && k / S0.kq > 0.7 && k / S0.kq < 1.45 ? S0.kq : mtQuant(k)) : k;
+  const L = { ver, glyphs, kq }, range = mtRange(kq);
   const S = MT.shown && (MT.shown.ver !== L.ver || MT.shown.kq !== L.kq) ? MT.shown : null;
+  const B = MT.back && MT.back.kq !== kq ? MT.back : null;
   const missing = [];
   mtEach(range, (tx, ty) => { if (!MT.cache.has(mtKey(L, tx, ty))) missing.push([tx, ty]); });
-  const s = L.kq * dpr / MT.px, [cx, cy] = transform.invert([Wpx / 2, Hpx / 2]);
+  const s = kq * dpr / MT.px, [cx, cy] = transform.invert([Wpx / 2, Hpx / 2]);
   missing.sort((u, v) => Math.hypot(u[0] + 0.5 - cx * s, u[1] + 0.5 - cy * s) - Math.hypot(v[0] + 0.5 - cx * s, v[1] + 0.5 - cy * s));
-  const until = now + (zoomingNow() ? 7 : 24), uncovered = new Set();
+  const until = now + (zooming ? 5 : 20), uncovered = new Set();
   for (const [tx, ty] of missing) {
     const cov = S && mtCovered(L, tx, ty, S);
     if (!cov) uncovered.add(mtKey(L, tx, ty));
-    if (!cov || performance.now() < until) mtPaint(L, tx, ty);
+    // painted now when there is nothing at all to show there (mid-zoom the backdrop will do), else as time allows
+    if ((!cov && !(zooming && B)) || performance.now() < until) mtPaint(L, tx, ty);
   }
   const left = missing.filter(([tx, ty]) => !MT.cache.has(mtKey(L, tx, ty))).length;
   const blit = (Y, only) => {
@@ -1214,17 +1232,19 @@ function mtDraw(k) {
     });
   };
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
-  if (left && S) {
-    blit(S);
+  if (left) {
+    if (B && zooming && uncovered.size) { ctx.fillStyle = T.sea; ctx.fillRect(0, 0, canvas.width, canvas.height); blit(B); }
+    if (S) blit(S);
     // far-apart zoom steps of the same map: the sharper tiles fill in as they come; otherwise only the gaps
-    const far = S.ver === L.ver && (L.kq / S.kq > 1.3 || S.kq / L.kq > 1.3);
-    blit(L, key => far || uncovered.has(key));
+    const far = S && S.ver === L.ver && (L.kq / S.kq > 1.3 || S.kq / L.kq > 1.3);
+    blit(L, key => !S || far || uncovered.has(key));
   } else { blit(L); MT.shown = L; }
-  // keep about three screenfuls of tiles; the rest are let go (a few canvases kept for reuse)
+  // keep about three screenfuls of tiles (the backdrop aside); the rest are let go, a few canvases kept for reuse
   const cap = (range[2] - range[0] + 1) * (range[3] - range[1] + 1) * (PHONE ? 2 : 3) + (PHONE ? 8 : 16);
-  if (MT.cache.size > cap) {
-    const old = [...MT.cache].filter(([, t]) => t.used < now).sort((u, v) => u[1].used - v[1].used);
-    for (const [key, t] of old.slice(0, MT.cache.size - cap)) {
+  const loose = [...MT.cache].filter(([, t]) => !t.pin);
+  if (loose.length > cap) {
+    const old = loose.filter(([, t]) => t.used < now).sort((u, v) => u[1].used - v[1].used);
+    for (const [key, t] of old.slice(0, loose.length - cap)) {
       MT.cache.delete(key);
       if (MT.free.length < 8) MT.free.push(t.c); else t.c.width = t.c.height = 0;
     }
@@ -1232,17 +1252,33 @@ function mtDraw(k) {
   if (!left) mtIdle();
   return left > 0;
 }
-// When nothing else is happening, paint the ring of tiles just outside the view, so a pan finds them ready.
+// When nothing else is happening: keep the world backdrop current, then paint the ring of tiles just outside
+// the view, so a pan finds them ready. A few tiles per turn, so a click or a drag is never kept waiting.
 function mtIdle() {
   clearTimeout(MT.idleT);
   MT.idleT = setTimeout(() => {
     if (zoomingNow() || dirty) return mtIdle();
-    const k = transform.k, glyphs = k < COVER_K0, L = { ver: mtVersion(glyphs), glyphs, kq: mtScaleFor(k) }, until = performance.now() + 8;
+    const until = performance.now() + 8;
     let more = false;
-    mtEach(mtRange(L.kq, 1), (tx, ty) => {
-      if (MT.cache.has(mtKey(L, tx, ty))) return;
-      if (performance.now() < until) mtPaint(L, tx, ty); else more = true;
-    });
+    const BL = mtBackLayer();
+    if (!MT.back || MT.back.ver !== BL.ver || MT.back.kq !== BL.kq) {
+      mtEach(BL.range, (tx, ty) => {
+        if (MT.cache.has(mtKey(BL, tx, ty))) return;
+        if (performance.now() < until) mtPaint(BL, tx, ty); else more = true;
+      });
+      if (!more) {
+        // the new backdrop is complete: the old one goes
+        const old = MT.back; MT.back = BL;
+        if (old) for (const [key, t] of [...MT.cache]) if (t.pin && key.startsWith(`${old.ver}#${old.kq}#`)) { MT.cache.delete(key); t.c.width = t.c.height = 0; }
+      }
+    }
+    if (!more) {
+      const k = transform.k, glyphs = k < COVER_K0, L = { ver: mtVersion(glyphs), glyphs, kq: k };
+      mtEach(mtRange(L.kq, 1), (tx, ty) => {
+        if (MT.cache.has(mtKey(L, tx, ty))) return;
+        if (performance.now() < until) mtPaint(L, tx, ty); else more = true;
+      });
+    }
     if (more) mtIdle();
   }, 60);
 }

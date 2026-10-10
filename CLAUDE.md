@@ -19,10 +19,13 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   not on guesses: an unfounded link (Underworld–Playgrounds) once put unrelated continents side by side.
 - `portals.py` two-way portals: genuine double genres (`GENRE_HOMES`) and game-genre homes (`PORTALS`).
 - `routes.py` connections (`W.routes`, EN/ES, each with a `kind` the ledger groups by: influence, idea, source,
-  maker, score, canon; `ROUTES` takes its kind from `KIND`, `MORE` carries it first): threads between works that sit apart:
+  maker, score, face, canon; `ROUTES` takes its kind from `KIND`, `MORE` carries it first): threads between works that sit apart:
   who drew on whom, the ideas and themes they share (a philosophy, a question; a big work like One Piece sits on
-  several), a myth or old story retold, one creator/studio/composer across genres, one world in
-  several media. Stops in release order, only documented links, only works on the map (planned ones too). Drawn in the tiles (all of them with the key's Connections switch, the ones
+  several), a myth or old story retold, one creator/studio/composer/actor across genres and media (scores in games and TV count:
+  Zimmer wrote Modern Warfare 2's theme), a song that found a second life on screen, one world in
+  several media. Stops in release order, only documented links, only works on the map (planned ones too), and only threads that
+  leave one island (a director whose films already share an island needs no thread). The key's switch shows them all,
+  fainter the more there are; each ledger group can be shown alone (`state.linkKind`). Drawn in the tiles (all of them with the key's Connections switch, the ones
   through the selected work or island on their own), names lettered live and clickable. A click on a work or
   island starts following its connections (`state.follow`): they stay drawn while the map is panned and zoomed
   (the panel's auto-follow never clears them), named in the Following tag, with arrows at the screen's edge

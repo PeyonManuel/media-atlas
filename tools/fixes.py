@@ -168,6 +168,15 @@ for i in W['items']:
     if i['src'] == 'goodreads':
         i['r'] = BOOK_SCORES[i['id']]['r'] if i['id'] in BOOK_SCORES else 0
 
+# the Westeros novels are shown under their English titles (the Spanish editions were linked by mistake)
+ENGLISH_TITLES = {
+    'bed': 'A Game of Thrones (A Song of Ice and Fire, #1)', 'bd8': 'A Clash of Kings (A Song of Ice and Fire, #2)',
+    'bgy': 'A Storm of Swords (A Song of Ice and Fire, #3)', 'bd6': 'A Feast for Crows (A Song of Ice and Fire, #4)',
+    'be7': 'A Dance with Dragons (A Song of Ice and Fire, #5)',
+}
+for k, t in ENGLISH_TITLES.items():
+    if k in items: items[k]['t'] = t
+
 # Blackwater was read as the one-volume Complete Saga: the six separate volumes go.
 for x in ('bfj', 'bfi', 'bfe', 'bff', 'bfd', 'bfh'):
     if x in items:

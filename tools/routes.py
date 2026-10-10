@@ -2,8 +2,9 @@
 
 A portal says a work belongs on a second island too (Butch Cassidy is a western). A connection says works
 in different places belong to one story: who inspired whom, one creator or composer across genres, one
-author's world in several media. Each is traced across the map through its stops, in release order.
-Keep to what is documented (said by the makers, credited, or widely reported), and only works on the map.
+author's world in several media, or one idea (a philosophy, a question, a theme) at the heart of each. Each is traced across the map through its stops, in release order.
+Keep to what is documented (said by the makers, credited, or widely reported), and only works on the map
+(planned ones included: a thread can point at what is still to read or watch).
 usage: python3 routes.py SITE_DIR
 """
 import json, re, sys
@@ -148,6 +149,95 @@ ROUTES = [
      "HBO's run of prestige drama, from The Sopranos to Chernobyl.",
      'Los dramas de prestigio de HBO, de Los Soprano a Chernobyl.',
      ['t1bs', 't1dj', 't1do', 't1dq', 't1cs']),
+    # --- ideas and themes: works whose main idea is the same philosophy or question ---
+    ('nietzsche', "Nietzsche's shadow", 'La sombra de Nietzsche',
+     "Nietzsche's own Beyond Good and Evil; Hesse's Steppenwolf, steeped in him; 2001: A Space Odyssey, opening on Strauss's Also sprach Zarathustra and ending on a new kind of being; and Xenogears, built on Nietzsche, Freud and Jung.",
+     'Más allá del bien y del mal del propio Nietzsche; El lobo estepario de Hesse, impregnado de él; 2001: Una odisea del espacio, que se abre con el Así habló Zaratustra de Strauss y termina en un nuevo tipo de ser; y Xenogears, construido sobre Nietzsche, Freud y Jung.',
+     ['bdx', 'bb4', 'f10m', 'g19g']),
+    ('existence', 'Existence before meaning', 'La existencia antes que el sentido',
+     "Existentialism's question, what a life means when nothing hands it a meaning: Dostoevsky's student who kills to prove a theory, Travis Bickle (Schrader has named Sartre's Nausea among his sources), Evangelion's episode named after Kierkegaard's The Sickness Unto Death, Tyler Durden's nihilism, and NieR: Automata, whose machines take the names of Sartre, Pascal and Kierkegaard.",
+     'La pregunta del existencialismo, qué significa una vida cuando nada le da sentido: el estudiante de Dostoievski que mata para probar una teoría, Travis Bickle (Schrader ha citado La náusea de Sartre entre sus fuentes), el episodio de Evangelion titulado como La enfermedad mortal de Kierkegaard, el nihilismo de Tyler Durden y NieR: Automata, cuyas máquinas se llaman Sartre, Pascal y Kierkegaard.',
+     ['bfl', 'fzm', 'a10', 'fvb', 'g13v']),
+    ('faith', 'Faith on trial', 'La fe a prueba',
+     "Faith under trial: Dreyer's Joan before her judges, Bergman's knight playing chess with Death and demanding proof of God, Tarkovsky's icon painter falling silent, and Blasphemous's penitent in a land of Spanish Catholic guilt.",
+     'La fe a prueba: la Juana de Dreyer ante sus jueces, el caballero de Bergman jugando al ajedrez con la Muerte y exigiendo pruebas de Dios, el pintor de iconos de Tarkovski que enmudece y el Penitente de Blasphemous en una tierra de culpa católica española.',
+     ['fm0', 'fku', 'f10r', 'g12t']),
+    ('mortality', 'Living with death', 'Vivir con la muerte',
+     "What a life is worth once its end is in sight: a dying clerk who finally does one thing that matters, an old professor driving back through his life, an elf learning too late what a short human life was worth, and two stories of grief.",
+     'Lo que vale una vida cuando se ve su final: un funcionario moribundo que por fin hace algo que importa, un viejo profesor que recorre su vida en coche, una elfa que aprende tarde lo que valía una vida humana corta y dos historias de duelo.',
+     ['fl9', 'fkq', 'a38', 'a4g', 'fi1']),
+    ('mind', 'What makes a mind', 'Qué hace a una mente',
+     "Philosophy of mind: replicants with borrowed memories, Ghost in the Shell (named after Arthur Koestler's The Ghost in the Machine), Lain's self dissolving into the Wired, and SOMA's scanned minds waking in bodies that aren't theirs.",
+     'Filosofía de la mente: replicantes con recuerdos prestados, Ghost in the Shell (que toma su nombre de El fantasma en la máquina de Arthur Koestler), el yo de Lain disolviéndose en la Wired y las mentes escaneadas de SOMA despertando en cuerpos que no son suyos.',
+     ['fyn', 'a1s', 'a1z', 'g14s', 'fn4']),
+    ('real', 'Is any of this real?', '¿Algo de esto es real?',
+     "Lives inside a made-up world: a town that is a television set, a world that is code (The Matrix puts Baudrillard's Simulacra and Simulation on screen), and dreams inside dreams.",
+     'Vidas dentro de un mundo inventado: un pueblo que es un plató de televisión, un mundo que es código (Matrix muestra en pantalla Cultura y simulacro de Baudrillard) y sueños dentro de sueños.',
+     ['fvk', 'fvh', 'fqk']),
+    ('fate', 'Knowing what is coming', 'Saber lo que viene',
+     "Fate and free will: Paul Atreides trapped by his own prescience, Okabe fighting a future the worldlines won't let go of, Louise choosing a life whose end she already knows, and a solar system that ends every 22 minutes.",
+     'Destino y libre albedrío: Paul Atreides atrapado por su propia presciencia, Okabe luchando contra un futuro que las líneas temporales no sueltan, Louise eligiendo una vida cuyo final ya conoce y un sistema solar que se acaba cada 22 minutos.',
+     ['bap', 'aa', 'fnk', 'g12w']),
+    ('state', 'The state against the self', 'El Estado contra el individuo',
+     "Free will against the state: Kubrick's Alex reconditioned into goodness, Alan Moore's anarchist V, Panem's televised games, and Psycho-Pass's Sibyl System, a panopticon argued over by characters who quote Orwell, Pascal and Philip K. Dick.",
+     'El libre albedrío contra el Estado: el Alex de Kubrick reacondicionado para ser bueno, el V anarquista de Alan Moore, los juegos televisados de Panem y el Sistema Sibyl de Psycho-Pass, un panóptico debatido por personajes que citan a Orwell, Pascal y Philip K. Dick.',
+     ['f10a', 'chh', 'fpp', 'a3p']),
+    ('ideologies', 'Ideologies at work', 'Ideologías en juego',
+     "Political philosophy as the story: Legend of the Galactic Heroes weighing an enlightened autocrat against a failing democracy, BioShock's Rapture as Ayn Rand's Objectivism taken to its end, and Disco Elysium, where communism, fascism, ultraliberalism and moralism are things your detective can become.",
+     'La filosofía política como historia: Legend of the Galactic Heroes enfrentando a un autócrata ilustrado con una democracia en declive, la Rapture de BioShock como el objetivismo de Ayn Rand llevado al extremo y Disco Elysium, donde comunismo, fascismo, ultraliberalismo y moralismo son cosas en las que tu detective puede convertirse.',
+     ['a18', 'g17u', 'g120']),
+    ('hatred', 'Ending the cycle of hatred', 'Romper el ciclo del odio',
+     "How a cycle of hatred ends: One Piece's Fish-Man Island and the hatred handed down there, Naruto facing Pain, Vinland Saga's warrior who decides he has no enemies, Attack on Titan's war without innocents, and Undertale, which lets you finish without killing anyone.",
+     'Cómo se rompe un ciclo de odio: la Isla Gyojin de One Piece y el odio que se hereda allí, Naruto frente a Pain, el guerrero de Vinland Saga que decide no tener enemigos, la guerra sin inocentes de Attack on Titan y Undertale, que deja terminar sin matar a nadie.',
+     ['m5i', 'm93', 'm5t', 'm5l', 'g14t']),
+    ('fall', 'How a good man goes bad', 'Cómo se corrompe un buen hombre',
+     "Vince Gilligan pitched Breaking Bad as turning Mr. Chips into Scarface; the same descent runs through Macbeth in Kurosawa's Throne of Blood, Michael Corleone, and Jimmy McGill becoming Saul.",
+     'Vince Gilligan presentó Breaking Bad como convertir a Mr. Chips en Scarface; la misma caída recorre a Macbeth en Trono de sangre de Kurosawa, a Michael Corleone y a Jimmy McGill convirtiéndose en Saul.',
+     ['fkv', 'f109', 't1dr', 't1da']),
+    ('bushido', 'The way of the sword', 'El camino de la espada',
+     "Musashi's own book of strategy and Zen, Yoshikawa's novel of his life, Inoue's Vagabond drawn from it, and two games about what a warrior's code costs: Sekiro and Ghost of Tsushima.",
+     'El libro de estrategia y zen del propio Musashi, la novela de Yoshikawa sobre su vida, el Vagabond de Inoue basado en ella y dos juegos sobre lo que cuesta el código de un guerrero: Sekiro y Ghost of Tsushima.',
+     ['bgp', 'bf5', 'm5v', 'g12z', 'g12f']),
+    ('balance', 'Balance and the Way', 'El equilibrio y el Camino',
+     "Taoist and Buddhist ideas told for everyone: Avatar's four nations and Iroh's patience, and Master Oogway's 'there are no accidents'.",
+     'Ideas taoístas y budistas contadas para todos: las cuatro naciones de Avatar y la paciencia de Iroh, y el "no hay accidentes" del maestro Oogway.',
+     ['t1dt', 'frr']),
+    ('nature', 'Living with nature', 'Vivir con la naturaleza',
+     "People living with nature rather than against it: Kurosawa's Siberian hunter, Miyazaki's toxic jungle and forest gods, and Cameron's Pandora.",
+     'Vivir con la naturaleza y no contra ella: el cazador siberiano de Kurosawa, la jungla tóxica y los dioses del bosque de Miyazaki, y la Pandora de Cameron.',
+     ['fzq', 'a2g', 'a14', 'fqw']),
+    ('pessimism', 'Cosmic pessimism', 'Pesimismo cósmico',
+     "The universe doesn't care: Lovecraft's old gods, and True Detective's Rust Cohle, whose monologues draw on the pessimist writer Thomas Ligotti, as its creator has acknowledged.",
+     'Al universo le da igual: los dioses antiguos de Lovecraft y el Rust Cohle de True Detective, cuyos monólogos beben del escritor pesimista Thomas Ligotti, como ha reconocido su creador.',
+     ['be9', 't1db']),
+    ('freedom', 'The freest man', 'El hombre más libre',
+     "Freedom as the thing worth everything: Andy Dufresne's tunnel, Luffy's dream of being the freest man on the sea, Eren's world beyond the walls, and the last days of Dutch's gang as the frontier closes.",
+     'La libertad como lo que lo vale todo: el túnel de Andy Dufresne, el sueño de Luffy de ser el hombre más libre del mar, el mundo de Eren más allá de los muros y los últimos días de la banda de Dutch mientras se cierra la frontera.',
+     ['fwf', 'm5i', 'm5l', 'g137']),
+    ('family', 'Found family', 'La familia elegida',
+     "Families people choose: the Straw Hats, the Bebop's crew of strays, 'ohana means family', Dom Toretto's table, the Guardians, and the Forgers, a family faked for a mission that turns real.",
+     'Familias que se eligen: los Sombrero de Paja, la tripulación de descarriados del Bebop, "ohana significa familia", la mesa de Dom Toretto, los Guardianes y los Forger, una familia fingida para una misión que se vuelve de verdad.',
+     ['m5i', 'a1g', 'fuf', 'fq8', 'fog', 'a20']),
+    ('inherited', 'What is passed on', 'Lo que se hereda',
+     "Inherited will: Mufasa in the stars telling Simba to remember who he is, One Piece's 'inherited will, the flow of the age, and people's dreams', Naruto's Will of Fire, and Kamina's drill in Simon's hands.",
+     'La voluntad heredada: Mufasa en las estrellas diciéndole a Simba que recuerde quién es, la "voluntad heredada, el curso de los tiempos y los sueños de la gente" de One Piece, la Voluntad del Fuego de Naruto y el taladro de Kamina en manos de Simon.',
+     ['fwi', 'm5i', 'm93', 'a45']),
+    ('revenge', 'The cost of revenge', 'El precio de la venganza',
+     "Revenge and what it costs: Dantès's patient plan, Lady Snowblood born for vengeance, Guts's war on Griffith, Maximus, Oh Dae-su's fifteen years, Thorfinn learning to put it down, Glass crawling back from the dead, and Ellie's Seattle.",
+     'La venganza y lo que cuesta: el plan paciente de Dantès, Lady Snowblood nacida para vengarse, la guerra de Guts contra Griffith, Máximo, los quince años de Oh Dae-su, Thorfinn aprendiendo a soltarla, Glass arrastrándose de vuelta de la muerte y la Seattle de Ellie.',
+     ['bbq', 'f101', 'm5h', 'fv4', 'ftz', 'm5t', 'fnu', 'g12h']),
+    ('american', 'The American dream, gone wrong', 'El sueño americano, torcido',
+     "Fortunes made and souls sold: Kane's Xanadu, the Corleones, Tony Montana's world, Henry Hill, Daniel Plainview's oil, Walter White's empire and Jordan Belfort.",
+     'Fortunas hechas y almas vendidas: el Xanadú de Kane, los Corleone, el mundo de Tony Montana, Henry Hill, el petróleo de Daniel Plainview, el imperio de Walter White y Jordan Belfort.',
+     ['fls', 'f109', 'fyi', 'fxg', 'fs2', 't1dr', 'foq']),
+    ('memory', 'Memory and who we are', 'La memoria y quiénes somos',
+     "Memory as identity: a man who can't make new ones, lovers who erase each other, a mind run by its feelings, two strangers forgetting each other's names, and the final death of being forgotten.",
+     'La memoria como identidad: un hombre que no puede crear recuerdos nuevos, amantes que se borran el uno al otro, una mente gobernada por sus emociones, dos desconocidos que olvidan el nombre del otro y la muerte definitiva de ser olvidado.',
+     ['fuw', 'ftu', 'fo5', 'a13', 'fn3']),
+    ('greatness', 'The price of greatness', 'El precio de ser grande',
+     "What it takes: Joe burning down to white ash, Rocky going the distance, Hanamichi's back for one last game, and Fletcher's 'not quite my tempo'.",
+     'Lo que cuesta: Joe consumiéndose hasta quedar en ceniza blanca, Rocky aguantando hasta el final, la espalda de Hanamichi en un último partido y el "no es mi tempo" de Fletcher.',
+     ['m69', 'fzj', 'm66', 'fop']),
     # --- composers ---
     ('morricone', "Ennio Morricone's scores", 'Las bandas sonoras de Ennio Morricone',
      "Every Sergio Leone film on the map, and Morricone's scores beyond the West: The Battle of Algiers, The Thing, The Untouchables, Cinema Paradiso, and the Oscar at last for The Hateful Eight.",
@@ -163,12 +253,17 @@ ROUTES = [
      ['fzr', 'fzi', 'm1gd', 'fz1', 'fyu', 'fyo', 'fxe', 'fwu', 'fwp', 'fvi', 'fum', 'fiw']),
 ]
 
+# How each connection is grouped in the ledger.
+KIND = {'idea': {'nietzsche', 'existence', 'faith', 'mortality', 'mind', 'real', 'fate', 'state', 'ideologies', 'hatred', 'fall', 'bushido', 'balance', 'nature', 'pessimism', 'freedom', 'family', 'inherited', 'revenge', 'american', 'memory', 'greatness'},
+        'maker': {'toriyama', 'martin', 'naughtydog', 'kamiya', 'insomniac', 'coens', 'ridley', 'watanabe', 'urobuchi', 'morricone', 'zimmer', 'williams'},
+        'canon': {'big3seinen', 'big3shonen', 'cosmere', 'shooters', 'square', 'hbo'}}
+kind_of = lambda rid: next((k for k, ids in KIND.items() if rid in ids), 'influence')
 out, bad = [], []
 for rid, name, name_es, blurb, blurb_es, stops in ROUTES:
     miss = [s for s in stops if s not in items]
     if miss: bad.append((rid, miss)); stops = [s for s in stops if s in items]
     if len(stops) < 2: continue
-    out.append({'id': rid, 'name': name, 'name_es': name_es, 'blurb': blurb, 'blurb_es': blurb_es, 'items': stops})
+    out.append({'id': rid, 'kind': kind_of(rid), 'name': name, 'name_es': name_es, 'blurb': blurb, 'blurb_es': blurb_es, 'items': stops})
 W['routes'] = out
 print(f'{len(out)} connections' + (f', missing works: {bad}' if bad else ''))
 (SITE / 'index.html').write_text(html[:m.start(2)] + json.dumps(W, ensure_ascii=False, separators=(',', ':')) + html[m.end(2):])

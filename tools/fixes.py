@@ -172,6 +172,9 @@ for i in W['items']:
 if 'fvb' in items: items['fvb']['r'] = 9
 # Animals (Pink Floyd) is a 10 (Manuel's score; the base data had 9)
 if 'm1m4' in items: items['m1m4']['r'] = 10
+# both Trails in the Sky (the remake and the original) are a 6 (Manuel's score)
+for g in ('g18p', 'g1ag'):
+    if g in items: items[g]['r'] = 6
 
 # the Westeros novels are shown under their English titles (the Spanish editions were linked by mistake)
 ENGLISH_TITLES = {

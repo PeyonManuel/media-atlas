@@ -1394,6 +1394,8 @@ for kind, rid, name, name_es, blurb, blurb_es, stops in [(kind_of(r[0]),) + r fo
     if miss: bad.append((rid, miss)); stops = [s for s in stops if s in items]
     if len(stops) < 2: continue
     out.append({'id': rid, 'kind': kind, 'name': name, 'name_es': name_es, 'blurb': blurb, 'blurb_es': blurb_es, 'items': stops})
+# only themes, philosophies and inspirations are kept (no actors, composers, creators, canon or myths)
+out = [r for r in out if r['kind'] in ('idea', 'influence')]
 W['routes'] = out
 print(f'{len(out)} connections' + (f', missing works: {bad}' if bad else ''))
 (SITE / 'index.html').write_text(html[:m.start(2)] + json.dumps(W, ensure_ascii=False, separators=(',', ':')) + html[m.end(2):])

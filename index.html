@@ -910,10 +910,10 @@ function lengthLayers(i) {
   }
 }
 
-// Your 8s are drawn 1.1x, 9s 1.35x and 10s 1.7x the size of everything else (and on top).
+// Your 8s are drawn 1.25x, 9s 1.5x and 10s 2x the size of everything else (and on top).
 // Peaks: the 10s, and the 9s.
 const peakLevel = i => i.r >= 10 ? 2 : i.r >= 9 ? 1 : 0;
-const rateSize = i => i.r >= 10 ? 1.7 : i.r >= 9 ? 1.35 : i.r >= 8 ? 1.1 : 1;
+const rateSize = i => i.r >= 10 ? 2 : i.r >= 9 ? 1.5 : i.r >= 8 ? 1.25 : 1;
 const rateScale0 = i => rateSize(i);
 // Longer works are bigger, whatever the medium: size follows the hours a work takes (a game's HowLongToBeat
 // time, a show's episodes times their length, a book's pages at ~40 an hour, manga chapters at ~5 minutes,

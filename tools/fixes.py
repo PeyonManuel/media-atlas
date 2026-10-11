@@ -172,6 +172,8 @@ for i in W['items']:
 if 'fvb' in items: items['fvb']['r'] = 9
 # Animals (Pink Floyd) is a 10 (Manuel's score; the base data had 9)
 if 'm1m4' in items: items['m1m4']['r'] = 10
+# Barry Lyndon is a 9 (Manuel's score; the base data had 8)
+if 'fzn' in items: items['fzn']['r'] = 9
 # both Trails in the Sky (the remake and the original) are a 6 (Manuel's score)
 for g in ('g18p', 'g1ag'):
     if g in items: items[g]['r'] = 6

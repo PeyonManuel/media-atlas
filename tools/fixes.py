@@ -176,6 +176,9 @@ if 'm1m4' in items: items['m1m4']['r'] = 10
 if 'ftm' in items: items['ftm']['r'] = 8
 # Nine Queens is a 9 (Manuel's score; the base data had 10)
 if 'fux' in items: items['fux']['r'] = 9
+# The Last of Us Part I (the remake) and The Last of Us (the original) are 9s (Manuel's scores; the base data had 10)
+for g in ('g11r', 'g15o'):
+    if g in items: items[g]['r'] = 9
 # Barry Lyndon is a 9 (Manuel's score; the base data had 8)
 if 'fzn' in items: items['fzn']['r'] = 9
 # both Trails in the Sky (the remake and the original) are a 6 (Manuel's score)

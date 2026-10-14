@@ -31,6 +31,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   (its name on the map or in the work's panel) follows it (`state.follow`, `toggleFollow`): firm, kept while the
   map is panned and zoomed (the panel's auto-follow never clears it), named in the Following tag, with arrows at
   the screen's edge toward stops out of view. Islands merely panned past show none.
+- `canon.py` (last step) marks `canon: 1` on the works in `tools/canon.json` (id → title as Manuel named it). The canon is
+  not favourites or scores: the works he holds closest, that he sees himself in. Shown as a gold four-pointed star
+  (glyph top-left; on covers a gold badge in the corner opposite the pause mark), a Canon section in the ledger
+  grouped by medium, a line in the work's panel, and the key's Canon switch (`state.canon`) dims everything else.
+  He adds to it as works come to mind: append ids to canon.json and rerun canon.py (or the rebuild).
 - `media.py` groups each mixed island by medium (one wedge per medium, series kept together inside it).
 - `spread.py` pushes works apart until no two covers overlap, using `tools/boxes.json` (each work's drawn
   footprint, measured in the page by `tools/tests/export_boxes.py`). Re-export the boxes whenever cover

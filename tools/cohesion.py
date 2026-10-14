@@ -11,7 +11,7 @@ arrangement, the pieces move under four forces:
 A continent's coastline is drawn from its works, so its shape follows its islands.
 usage: python3 cohesion.py SITE_DIR
 """
-import json, math, re, sys
+import json, math, os, re, sys
 from collections import Counter, defaultdict
 from pathlib import Path
 import numpy as np
@@ -69,6 +69,9 @@ for name, c in BORDER:
 link = {tuple(sorted(l)) for l in LINKS}
 
 ISL = 38.0          # island gap within a continent
+P_ = lambda k, d: float(os.environ.get(k, d))   # tuning knobs (defaults are the chosen values)
+FACE = P_('COH_FACE', 1.0)
+ANG, COMPACT, BORDER_W, ROUNDS, PULL = int(P_('COH_ANG', 24)), P_('COH_COMPACT', 0.35), P_('COH_BORDER', 1.3), int(P_('COH_ROUNDS', 250)), P_('COH_PULL', 0.2)
 GAP_LINKED, GAP_FAR = 30.0, 46.0
 
 def nearest(a, b):
@@ -106,34 +109,62 @@ for a_, cs in border.items():
     if a_ is None: continue
     for c in cs:
         v = np.array(SKETCH[c]) - np.array(SKETCH[cont[a_]]); n_ = math.hypot(*v)
-        if n_: pull_dir[a_] += v / n_ * 1.3
+        if n_: pull_dir[a_] += v / n_ * BORDER_W
 R = rad + SP_ * 0.5 if 'SP_' in globals() else rad + 6
+def grow(ids, ang_n, phase, compact):
+    order = [max(ids, key=lambda a_: size[a_])]
+    placed = {order[0]: np.zeros(2)}
+    rest = set(ids) - set(order)
+    while rest:
+        # next: the island most tied to what is placed, then the biggest
+        nxt = max(rest, key=lambda a_: (sum(w for b_, w in nbr[a_] if b_ in placed), size[a_]))
+        best, bc = None, 1e18
+        for b_, pb in placed.items():
+            for k in range(ang_n):
+                ang = 2 * math.pi * (k + phase) / ang_n
+                d = R[b_] + R[nxt] + ISL * 0.75
+                cand = pb + d * np.array([math.cos(ang), math.sin(ang)])
+                if any(math.hypot(*(cand - q)) < R[o] + R[nxt] + ISL * 0.7 for o, q in placed.items()): continue
+                cost = sum(w * math.hypot(*(cand - placed[o])) for o, w in nbr[nxt] if o in placed)
+                cost += compact * math.hypot(*cand)                                   # compact
+                pd = pull_dir[nxt]
+                if pd.any(): cost -= (cand @ pd) * 0.5                             # toward related continents
+                if cost < bc: bc, best = cost, cand
+        placed[nxt] = best; rest.discard(nxt)
+    return placed
+
+def real_cost(ids, placed):
+    # how the grown continent does on its real works (islands aren't discs): related islands further apart
+    # than an island gap cost by their weight, islands crowding into each other cost a little (settle parts them)
+    P = {a_: pts[a_] - cen0[a_] + placed[a_] for a_ in ids}
+    def g(a_, b_):
+        return np.sqrt(((P[a_][:, None, :] - P[b_][None, :, :]) ** 2).sum(-1)).min()
+    cost = 0.0
+    for (a_, b_), w in aff.items():
+        if a_ in P and b_ in P: cost += w * max(0.0, g(a_, b_) - ISL)
+    for n_, a_ in enumerate(ids):
+        for b_ in ids[n_ + 1:]:
+            if math.hypot(*(placed[a_] - placed[b_])) < R[a_] + R[b_] + ISL:
+                d = g(a_, b_)
+                if d < ISL * 0.6: cost += 2.0 * (ISL * 0.6 - d)
+    # an island meant to face another continent costs by how far it sits behind the front on that side
+    for a_ in ids:
+        for c2 in border.get(a_, []):
+            v = np.array(SKETCH[c2]) - np.array(SKETCH[cont[a_]]); v = v / (math.hypot(*v) or 1)
+            front = max((P[b_] @ v).max() for b_ in ids)
+            cost += FACE * max(0.0, front - (P[a_] @ v).max())
+    return cost
+
 if not SETTLE_ONLY:
     pos = cen0.copy()
     for c in set(cont):
         ids = [a_ for a_ in range(N) if cont[a_] == c]
         if len(ids) < 2: continue
         mid = cmid0[c]
-        order = [max(ids, key=lambda a_: size[a_])]
-        placed = {order[0]: np.zeros(2)}
-        rest = set(ids) - set(order)
-        while rest:
-            # next: the island most tied to what is placed, then the biggest
-            nxt = max(rest, key=lambda a_: (sum(w for b_, w in nbr[a_] if b_ in placed), size[a_]))
-            best, bc = None, 1e18
-            span = math.sqrt(sum(size[b_] for b_ in placed))
-            for b_, pb in placed.items():
-                for k in range(24):
-                    ang = 2 * math.pi * k / 24
-                    d = R[b_] + R[nxt] + ISL * 0.75
-                    cand = pb + d * np.array([math.cos(ang), math.sin(ang)])
-                    if any(math.hypot(*(cand - q)) < R[o] + R[nxt] + ISL * 0.7 for o, q in placed.items()): continue
-                    cost = sum(w * math.hypot(*(cand - placed[o])) for o, w in nbr[nxt] if o in placed)
-                    cost += 0.35 * math.hypot(*cand)                                   # compact
-                    pd = pull_dir[nxt]
-                    if pd.any(): cost -= (cand @ pd) * 0.5                             # toward related continents
-                    if cost < bc: bc, best = cost, cand
-            placed[nxt] = best; rest.discard(nxt)
+        # grow it a few ways (step of the angles around each island, their phase, how compact) and keep the
+        # one whose real works sit best; the plain growth is among them, so this can only do better
+        tries = [(ANG, 0.0, COMPACT)] + [(n_, ph, cp) for n_ in (24, 36, 48) for ph in (0.0, 0.5) for cp in (0.2, 0.35, 0.5)]
+        placed = min((grow(ids, *t) for t in tries), key=lambda pl: real_cost(ids, pl))
         # the grown continent keeps its weighted middle where the arrangement put it
         wsum = sum(size[a_] for a_ in ids)
         shift = mid - sum(placed[a_] * size[a_] for a_ in ids) / wsum
@@ -143,7 +174,7 @@ if not SETTLE_ONLY:
 
 # Settle: the real works must keep an island gap; related islands in a continent ease together a little.
 before = {k: nearest(*k) for k in aff}
-for it in range(400 if SETTLE_ONLY else 120):
+for it in range(400 if SETTLE_ONLY else ROUNDS):
     cen = cen0 + off
     step = np.zeros((N, 2))
     hits = 0
@@ -168,7 +199,7 @@ for it in range(400 if SETTLE_ONLY else 120):
         d = nearest(a, b)
         if d > ISL * 1.15:
             v = cen[b] - cen[a]; u = v / (math.hypot(*v) or 1e-6)
-            pull = min(4.0, (d - ISL) * 0.05) * w
+            pull = min(4.0, (d - ISL) * PULL) * w
             fa = size[b] / (size[a] + size[b])
             step[a] += u * pull * fa; step[b] -= u * pull * (1 - fa)
     for c in set(cont):                               # keep each continent compact around its middle

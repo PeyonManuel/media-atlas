@@ -39,7 +39,12 @@ def shift(fam, ws, gh, dx, dy):
     for w in ws: w['px'] += dx; w['py'] += dy
     for g in gh: g['px'] += dx; g['py'] += dy
     for k in fam: k['x'] += dx; k['y'] += dy
-for name, toward in BORDER:
+# `continents.py SITE whole` (after cohesion has laid out the islands): only islands with no genre neighbour
+# to keep beside them swap to their border; for the others a swap would undo what cohesion arranged
+WHOLE = len(sys.argv) > 2 and sys.argv[2] == 'whole'
+from continents_links import NEIGHBOURS
+paired = {n for pair in NEIGHBOURS for n in pair}
+for name, toward in ([b for b in BORDER if b[0] not in paired] if WHOLE else BORDER):
     q = byname.get(name)
     if not q: continue
     q = provs[q['parent']] if q.get('parent') else q

@@ -7,8 +7,8 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `index.html` holds the page code and, in `<script type="application/json" id="world">`, the world data.
   Page code is edited directly. World data is **never** hand-edited: change the scripts in `tools/` and run
   `python3 tools/rebuild.py`, which restores `tools/base-world.html`'s data and runs, in order:
-  fixes → subisles → series → media → spread → continents → portals → cohesion → continents → pairs →
-  spread → cohesion (settle only) → blurbs → routes.
+  fixes → subisles → series → media → spread → continents → portals → cohesion → continents (whole) → pairs →
+  spread → cohesion (settle only) → blurbs → routes → canon.
 - `fixes.py` data corrections and moves (anime folded into film/TV, merged seasons, misfiled works) and typical
   episode lengths for non-anime shows (`EP_MIN`).
 - `subisles.py` franchise realms as sub-islands (`PARENT`), curated book/game series (`CURATED`, with
@@ -40,7 +40,10 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `spread.py` pushes works apart until no two covers overlap, using `tools/boxes.json` (each work's drawn
   footprint, measured in the page by `tools/tests/export_boxes.py`). Re-export the boxes whenever cover
   sizes change in the page (rating tiers, length scaling, cases), then rebuild.
-- `cohesion.py` regrows each continent island by island so related islands touch; `pairs.py` seats works
+- `cohesion.py` regrows each continent island by island so related islands touch (it grows each continent several ways and
+  keeps the one whose real works sit best: neighbour gaps, crowding, border islands at the front; knobs `COH_*` env vars);
+  the second `continents.py whole` pass only moves whole continents and swaps to the border just the islands without
+  a genre neighbour to keep (swapping the others undid cohesion); `pairs.py` seats works
   that share a portal together; `blurbs.json` EN/ES descriptions for every continent, island, sub-island.
 - `piles.json` (read by fixes.py): seasons per show (`seasons`, anime too) and volumes per manga (`vols`), looked up Oct 2026. The page stacks a card per season, or per ten volumes, under the work (`pileCount`); footprints include the pile, so re-export boxes after changing it. Film and album lengths were dropped on purpose (Manuel: they're all alike).
 - Map tiles (`MT`, `mtDraw`, `paintStatic` in the page): everything that holds still (sea, land, hills, plateaus,

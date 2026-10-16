@@ -183,6 +183,8 @@ for g in ('g11r', 'g15o'):
 if 'g10u' in items: items['g10u']['r'] = 9
 # Dusk is an 8 (Manuel's score; the base data had 9)
 if 'g135' in items: items['g135']['r'] = 8
+# Half-Life: Opposing Force is an 8 (Manuel's score; the base data had 9)
+if 'g199' in items: items['g199']['r'] = 8
 # Barry Lyndon is a 9 (Manuel's score; the base data had 8)
 if 'fzn' in items: items['fzn']['r'] = 9
 # both Trails in the Sky (the remake and the original) are a 6 (Manuel's score)

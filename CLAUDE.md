@@ -45,6 +45,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   the second `continents.py whole` pass only moves whole continents and swaps to the border just the islands without
   a genre neighbour to keep (swapping the others undid cohesion); `pairs.py` seats works
   that share a portal together; `blurbs.json` EN/ES descriptions for every continent, island, sub-island.
+- `additions.py` (after the settled layout, so the continents stay put) places the works listed in `tools/additions.json`
+  that came after the first survey: Backloggd games and RateYourMusic albums, scored x/10 (RYM stars: 5 = 10, 4.5 = 9,
+  4 = 8, 3.5 = 7; Backloggd's own 1-10). Each lands on its island beside works of its medium. They have no cover sprite
+  (`sp`) yet, so the page draws them as symbols until covers are made. To add more, append to additions.json and rebuild.
+- `apart.py` (last layout step before canon) nudges works whose footprints still overlap a few units apart.
 - `piles.json` (read by fixes.py): seasons per show (`seasons`, anime too) and volumes per manga (`vols`), looked up Oct 2026. The page stacks a card per season, or per ten volumes, under the work (`pileCount`); footprints include the pile, so re-export boxes after changing it. Film and album lengths were dropped on purpose (Manuel: they're all alike).
 - Map tiles (`MT`, `mtDraw`, `paintStatic` in the page): everything that holds still (sea, land, hills, plateaus,
   borders, landmarks, a selected route and, below `COVER_K0`, the work symbols) is painted into 512-px tiles and

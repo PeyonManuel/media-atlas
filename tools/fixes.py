@@ -168,6 +168,8 @@ for i in W['items']:
     if i['src'] == 'goodreads':
         i['r'] = BOOK_SCORES[i['id']]['r'] if i['id'] in BOOK_SCORES else 0
 
+# Assassin's Creed Black Flag Resynced is played now and a 7 (Backloggd)
+if 'g1ak' in items: items['g1ak']['r'] = 7; items['g1ak']['st'] = 'done'
 # Fight Club is a 9 (Manuel's score; the base data had 10)
 if 'fvb' in items: items['fvb']['r'] = 9
 # Animals (Pink Floyd) is a 10 (Manuel's score; the base data had 9)

@@ -170,6 +170,9 @@ for i in W['items']:
 
 # Assassin's Creed Black Flag Resynced is played now and a 7 (Backloggd)
 if 'g1ak' in items: items['g1ak']['r'] = 7; items['g1ak']['st'] = 'done'
+# Seven Samurai is a 10, Ikiru an 8 (Manuel)
+if 'fl3' in items: items['fl3']['r'] = 10
+if 'fl9' in items: items['fl9']['r'] = 8
 # Fight Club is a 9 (Manuel's score; the base data had 10)
 if 'fvb' in items: items['fvb']['r'] = 9
 # Animals (Pink Floyd) is a 10 (Manuel's score; the base data had 9)

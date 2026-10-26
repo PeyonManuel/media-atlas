@@ -1,4 +1,4 @@
-"""Last layout step: works whose drawn footprints (tools/boxes.json) still overlap are nudged apart.
+"""Last layout step: works whose drawn footprints (tools/boxes_apart.json, the latest export) still overlap are nudged apart.
 
 The island passes keep islands from touching, but two covers on facing coasts can still brush by a few units;
 this moves just those works, half the overlap each, along the axis with the smaller overlap.
@@ -11,7 +11,7 @@ SITE = Path(sys.argv[1])
 html = (SITE / 'index.html').read_text()
 m = re.search(r'(<script type="application/json" id="world">)(.*?)(</script>)', html, re.S)
 W = json.loads(m.group(2))
-BOX = json.loads((Path(__file__).parent / 'boxes.json').read_text())
+BOX = json.loads((Path(__file__).parent / 'boxes_apart.json').read_text())
 dflt = [-6.0, -9.0, 6.0, 9.0]
 ws = [i for i in W['items'] if i.get('sp') and not i.get('dl')]
 moved = 0

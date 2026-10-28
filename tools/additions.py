@@ -34,6 +34,15 @@ def box(i):
     b = cover_box(i) if i.get('sp') else DOT
     return [i['px'] + b[0], i['py'] + b[1], i['px'] + b[2], i['py'] + b[3]]
 
+TOP = {p['id']: p.get('parent') or p['id'] for p in W['provinces']}
+FAM = {i['id']: TOP[p['id']] for p in W['provinces'] for i in [items[x] for x in p['items']]}
+
+def clear_of_others(x, y, fam, gap=26):                  # islands of other families keep their distance
+    for o in W['items']:
+        if abs(o['px'] - x) > gap or abs(o['py'] - y) > gap or o.get('dl'): continue
+        if FAM.get(o['id']) not in (None, fam) and math.hypot(o['px'] - x, o['py'] - y) < gap: return False
+    return True
+
 def free(x, y, me_box=DOT):
     me = [x + me_box[0] - GAP, y + me_box[1] - GAP, x + me_box[2] + GAP, y + me_box[3] + GAP]
     for o in W['items']:
@@ -48,16 +57,18 @@ for a in json.loads((Path(__file__).parent / 'additions.json').read_text()):
     isle = provs[a['p']]
     mine = [items[x] for x in isle['items'] if items[x]['m'] == a['m']] or [items[x] for x in isle['items']]
     cx = sum(i['px'] for i in mine) / len(mine); cy = sum(i['py'] for i in mine) / len(mine)
+    if a.get('near') in items: cx, cy = items[a['near']]['px'], items[a['near']]['py']   # beside a named work (its series, its franchise)
     spot = None
+    if a.get('dl') in items: spot = (items[a['dl']]['px'], items[a['dl']]['py'])   # an expansion rides on its base work
     mybox = cover_box({'id': a['id'], 'r': a['r'], 'sp': a['sp']}) if a.get('sp') else DOT
-    for k in range(0, 400):                    # outward spiral from the medium's centre
-        r = 4 * math.sqrt(k); t = k * 2.399963
+    for k in (range(0, 1500) if spot is None else ()):                    # outward spiral from the medium's centre
+        r = 3 * math.sqrt(k); t = k * 2.399963
         x, y = cx + r * math.cos(t), cy + r * math.sin(t)
-        if free(x, y, mybox): spot = (round(x, 1), round(y, 1)); break
+        if free(x, y, mybox) and clear_of_others(x, y, TOP[a['p']]): spot = (round(x, 1), round(y, 1)); break
     if spot is None: sys.exit(f"no free spot for {a['t']}")
     n = {'id': a['id'], 'm': a['m'], 't': a['t'], 'c': a['c'], 'y': a['y'], 'r': a['r'], 'crowd': None, 'st': a['st'],
          'p': a['p'], 'src': a['src'], 'sid': a['sid'], 'px': spot[0], 'py': spot[1]}
-    for k in ('sp', 'len', 'mins', 'seasons'):
+    for k in ('sp', 'len', 'mins', 'seasons', 'dl'):
         if k in a: n[k] = a[k]
     for pr in W['provinces']:                  # a wanted-work placeholder for this title is now a real work
         pr['canon'] = [c for c in pr.get('canon', []) if not (c['t'].replace('Batman: ', '') == a['t'].replace('Batman: ', '') and not c.get('seen'))]

@@ -14,7 +14,8 @@
    32,
    0,
    0
-  ]
+  ],
+  "near": "g19o"
  },
  {
   "id": "n02",
@@ -505,7 +506,12 @@
   "p": "arenas",
   "src": "backloggd",
   "sid": "arena-breakout",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   29,
+   0
+  ]
  },
  {
   "id": "n31",
@@ -517,7 +523,13 @@
   "p": "silenthill",
   "src": "backloggd",
   "sid": "pt",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   30,
+   0
+  ],
+  "near": "g19a"
  },
  {
   "id": "n32",
@@ -529,7 +541,13 @@
   "p": "boomer",
   "src": "backloggd",
   "sid": "brutal-doom",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   31,
+   0
+  ],
+  "dl": "g19y"
  },
  {
   "id": "n33",
@@ -541,7 +559,12 @@
   "p": "precision",
   "src": "backloggd",
   "sid": "death-wish--2",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   32,
+   0
+  ]
  },
  {
   "id": "n34",
@@ -553,7 +576,12 @@
   "p": "mobile",
   "src": "backloggd",
   "sid": "cut-the-rope",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   33,
+   0
+  ]
  },
  {
   "id": "n35",
@@ -565,7 +593,13 @@
   "p": "campaign",
   "src": "backloggd",
   "sid": "max-payne-2-the-fall-of-max-payne",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   34,
+   0
+  ],
+  "near": "g1bj"
  },
  {
   "id": "n36",
@@ -577,6 +611,11 @@
   "p": "retro",
   "src": "backloggd",
   "sid": "pac-man",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   35,
+   0
+  ]
  }
 ]

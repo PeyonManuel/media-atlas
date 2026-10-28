@@ -477,5 +477,22 @@
    27,
    0
   ]
+ },
+ {
+  "id": "n29",
+  "m": "film",
+  "t": "Satantango",
+  "c": "",
+  "y": 1994,
+  "r": 10,
+  "p": "eastern",
+  "src": "letterboxd",
+  "sid": "satantango",
+  "st": "done",
+  "sp": [
+   32,
+   28,
+   0
+  ]
  }
 ]

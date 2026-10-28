@@ -45,6 +45,7 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   the second `continents.py whole` pass only moves whole continents and swaps to the border just the islands without
   a genre neighbour to keep (swapping the others undid cohesion); `pairs.py` seats works
   that share a portal together; `blurbs.json` EN/ES descriptions for every continent, island, sub-island.
+- `cover_sheet.py` builds `tiles/t32.webp` from `tools/covers_src/<id>.*` (covers taken from the sites themselves) and writes each addition's `sp` cell into additions.json. `boxes_apart.json` is the latest cover-size export (additions.py and apart.py read it; `boxes.json` stays the older one the layout was settled with, so exporting never reshuffles the map).
 - `additions.py` (after the settled layout, so the continents stay put) places the works listed in `tools/additions.json`
   that came after the first survey: Backloggd games and RateYourMusic albums, scored x/10 (RYM stars: 5 = 10, 4.5 = 9,
   4 = 8, 3.5 = 7; Backloggd's own 1-10). Each lands on its island beside works of its medium. They have no cover sprite

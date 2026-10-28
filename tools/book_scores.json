@@ -735,8 +735,12 @@
   "t": "ファタモルガーナの館　―The house in Fata morgana―　あなたの原典に至る物語I [Fata Morgana no Yakata: Anata no Genten ni Itaru Monogatari 1]",
   "r": 6
  },
-  "bai": {
-    "t": "I Am Pilgrim",
-    "r": 8
-  }
+ "bai": {
+  "t": "I Am Pilgrim",
+  "r": 10
+ },
+ "bae": {
+  "t": "Dead Beat (The Dresden Files, #7)",
+  "r": 8
+ }
 }

@@ -9,7 +9,12 @@
   "p": "boomer",
   "src": "backloggd",
   "sid": "heretic",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   0,
+   0
+  ]
  },
  {
   "id": "n02",
@@ -21,7 +26,12 @@
   "p": "party",
   "src": "backloggd",
   "sid": "guitar-hero-ii",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   1,
+   0
+  ]
  },
  {
   "id": "n03",
@@ -33,7 +43,12 @@
   "p": "retro",
   "src": "backloggd",
   "sid": "tetris",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   2,
+   0
+  ]
  },
  {
   "id": "n04",
@@ -45,7 +60,12 @@
   "p": "studiosprawl",
   "src": "backloggd",
   "sid": "despicable-me-minion-rush",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   3,
+   0
+  ]
  },
  {
   "id": "n05",
@@ -57,7 +77,12 @@
   "p": "strategy",
   "src": "backloggd",
   "sid": "bloons-td-4",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   4,
+   0
+  ]
  },
  {
   "id": "n06",
@@ -69,7 +94,12 @@
   "p": "songwriters",
   "src": "rym",
   "sid": "/release/album/sun-kil-moon/ghosts-of-the-great-highway/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   5,
+   1
+  ]
  },
  {
   "id": "n07",
@@ -81,7 +111,12 @@
   "p": "brazil",
   "src": "rym",
   "sid": "/release/album/novos-baianos/novos-baianos-f_c/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   6,
+   1
+  ]
  },
  {
   "id": "n08",
@@ -93,7 +128,12 @@
   "p": "brazil",
   "src": "rym",
   "sid": "/release/album/novos-baianos/acabou-chorare/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   7,
+   1
+  ]
  },
  {
   "id": "n09",
@@ -105,7 +145,12 @@
   "p": "indie",
   "src": "rym",
   "sid": "/release/album/duster/contemporary-movement/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   8,
+   1
+  ]
  },
  {
   "id": "n10",
@@ -117,7 +162,12 @@
   "p": "indie",
   "src": "rym",
   "sid": "/release/album/duster/stratosphere/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   9,
+   1
+  ]
  },
  {
   "id": "n11",
@@ -129,7 +179,12 @@
   "p": "jazz",
   "src": "rym",
   "sid": "/release/album/nina-simone/pastel-blues/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   10,
+   1
+  ]
  },
  {
   "id": "n12",
@@ -141,7 +196,12 @@
   "p": "boomer",
   "src": "rym",
   "sid": "/release/unauth/bobby-prince/doom/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   11,
+   1
+  ]
  },
  {
   "id": "n13",
@@ -153,7 +213,12 @@
   "p": "boomer",
   "src": "rym",
   "sid": "/release/album/andrew-hulshult/idkfa-2/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   12,
+   1
+  ]
  },
  {
   "id": "n14",
@@ -165,7 +230,12 @@
   "p": "boomer",
   "src": "rym",
   "sid": "/release/album/andrew-hulshult/dusk/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   13,
+   1
+  ]
  },
  {
   "id": "n15",
@@ -177,7 +247,12 @@
   "p": "goldenage",
   "src": "rym",
   "sid": "/release/album/beastie-boys/pauls-boutique/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   14,
+   1
+  ]
  },
  {
   "id": "n16",
@@ -189,7 +264,12 @@
   "p": "altmetal",
   "src": "rym",
   "sid": "/release/album/the-dillinger-escape-plan/one-of-us-is-the-killer/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   15,
+   1
+  ]
  },
  {
   "id": "n17",
@@ -201,7 +281,12 @@
   "p": "altmetal",
   "src": "rym",
   "sid": "/release/album/mastodon/crack-the-skye/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   16,
+   1
+  ]
  },
  {
   "id": "n18",
@@ -213,7 +298,12 @@
   "p": "underground",
   "src": "rym",
   "sid": "/release/album/earl-sweatshirt/some-rap-songs/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   17,
+   1
+  ]
  },
  {
   "id": "n19",
@@ -225,7 +315,12 @@
   "p": "electronic",
   "src": "rym",
   "sid": "/release/album/boards-of-canada/inferno/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   18,
+   1
+  ]
  },
  {
   "id": "n20",
@@ -237,7 +332,12 @@
   "p": "underground",
   "src": "rym",
   "sid": "/release/album/king-geedorah/take-me-to-your-leader/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   19,
+   1
+  ]
  },
  {
   "id": "n21",
@@ -249,7 +349,12 @@
   "p": "underground",
   "src": "rym",
   "sid": "/release/album/danger-mouse-black-thought/cheat-codes/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   20,
+   1
+  ]
  },
  {
   "id": "n22",
@@ -261,7 +366,12 @@
   "p": "grunge",
   "src": "rym",
   "sid": "/release/album/pearl-jam/ten/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   21,
+   1
+  ]
  },
  {
   "id": "n23",
@@ -273,7 +383,12 @@
   "p": "prog",
   "src": "rym",
   "sid": "/release/album/king-crimson/red/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   22,
+   1
+  ]
  },
  {
   "id": "n24",
@@ -285,6 +400,82 @@
   "p": "glam",
   "src": "rym",
   "sid": "/release/album/steely-dan/aja/",
-  "st": "done"
+  "st": "done",
+  "sp": [
+   32,
+   23,
+   1
+  ]
+ },
+ {
+  "id": "n25",
+  "m": "music",
+  "t": "Only Built 4 Cuban Linx...",
+  "c": "Raekwon",
+  "y": 1995,
+  "r": 8,
+  "p": "goldenage",
+  "src": "rym",
+  "sid": "/release/album/raekwon/only-built-4-cuban-linx/",
+  "st": "done",
+  "sp": [
+   32,
+   24,
+   1
+  ]
+ },
+ {
+  "id": "n26",
+  "m": "music",
+  "t": "Plastic Surgery Disasters",
+  "c": "Dead Kennedys",
+  "y": 1982,
+  "r": 9,
+  "p": "punk",
+  "src": "rym",
+  "sid": "/release/album/dead-kennedys/plastic-surgery-disasters/",
+  "st": "done",
+  "sp": [
+   32,
+   25,
+   1
+  ]
+ },
+ {
+  "id": "n27",
+  "m": "tv",
+  "t": "The World at War",
+  "c": "",
+  "y": 1973,
+  "r": 10,
+  "p": "historytv",
+  "src": "serializd",
+  "sid": "751",
+  "st": "done",
+  "sp": [
+   32,
+   26,
+   0
+  ],
+  "len": 26,
+  "mins": 1350,
+  "seasons": 1
+ },
+ {
+  "id": "n28",
+  "m": "film",
+  "t": "Batman: The Dark Knight Returns, Part 1",
+  "c": "",
+  "y": 2012,
+  "r": 8,
+  "p": "gotham",
+  "src": "letterboxd",
+  "sid": "batman-the-dark-knight-returns-part-1",
+  "st": "done",
+  "sp": [
+   32,
+   27,
+   0
+  ]
  }
 ]

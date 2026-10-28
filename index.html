@@ -99,6 +99,19 @@ button, input { font: inherit; color: inherit; }
 :root[data-theme="dark"] .grain { mix-blend-mode: screen; opacity: 0.35; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .grain { mix-blend-mode: screen; opacity: 0.35; } }
 
+/* Poster: the whole stage is the sheet; the title, key and compass are set large in its margins. */
+.poster .app { grid-template-columns: minmax(0, 1fr); }
+.poster .panel, .poster .zoom, .poster .tip, .poster .follow { display: none !important; }
+/* The map is then fitted as large as it goes around them (posterFit), so they sit in the sea, never on land. */
+.poster .cartouche { top: 44px; left: 44px; max-width: 390px; transform: scale(1.9); transform-origin: top left; }
+.poster .key, .poster .key.away { left: 44px; bottom: 44px; max-width: 470px; opacity: 1; transform: scale(1.75); transform-origin: bottom left; }
+.poster .key .note.live { display: none; }
+.poster .key .note.print { display: block; }
+.poster #chip-links { display: none; }
+.poster .compass { top: 56px; right: 80px; transform: scale(2.3); transform-origin: top right; }
+.poster .compass.away, .poster .compass.under { opacity: 1; }
+.key .note.print { display: none; }
+
 /* Compass rose: each point names the continent that lies furthest that way on this map. */
 .compass {
   position: absolute; right: 34px; top: 34px; width: 92px; height: 92px; margin: 0; color: var(--ink-2);
@@ -107,7 +120,7 @@ button, input { font: inherit; color: inherit; }
 .compass.away, .compass.under { opacity: 0; }
 .compass svg { width: 100%; height: 100%; display: block; }
 .compass figcaption {
-  position: absolute; font: 500 9.5px/1.15 var(--f-map); letter-spacing: 0.08em; color: var(--ink-2); white-space: nowrap;
+  position: absolute; font: 500 var(--compass-fs, 9.5px)/1.15 var(--f-map); letter-spacing: 0.08em; color: var(--ink-2); white-space: nowrap;
   text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper);
 }
 .compass .n { left: 50%; bottom: 100%; transform: translate(-50%, -2px); }
@@ -395,7 +408,7 @@ button, input { font: inherit; color: inherit; }
       <h1>Manu's Media Atlas</h1>
       <svg class="fleuron" viewBox="0 0 200 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 5H88M112 5H200" stroke="currentColor" stroke-width="0.8"/><path d="M100 1.2L104 5L100 8.8L96 5Z" fill="currentColor"/><circle cx="91" cy="5" r="1.1" fill="currentColor"/><circle cx="109" cy="5" r="1.1" fill="currentColor"/></svg>
       <p id="subtitle">A survey of everything read, watched, played and heard, arranged by what it is.</p>
-      <div class="sources">Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026</div>
+      <div class="sources">Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026</div>
     </header>
 
     <section class="key" id="key" aria-label="Map key"></section>
@@ -493,8 +506,9 @@ const PHRASES = new Map(Object.entries({
   'works charted': 'obras en el mapa', 'regions that cross media': 'regiones entre medios', 'works': 'obras', 'regions': 'regiones', 'charted': 'explorado',
   'Planned': 'Pendiente', 'Unexplored landmark': 'Hito sin explorar',
   'Colour and shape show the medium; each chip toggles its medium on the map.': 'El color y la forma indican el medio; cada etiqueta muestra u oculta su medio en el mapa.',
+  'Colour and shape show the medium. A cover grows with its score and with the hours it takes; the land rises where the works around it scored highest.': 'El color y la forma indican el medio. Una portada crece con su nota y con las horas que lleva; la tierra se eleva donde las obras de alrededor tienen mejor nota.',
   'The panel follows the map, showing whatever is in view.': 'El panel sigue al mapa y muestra lo que está a la vista.',
-  'Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026': 'Datos de Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, octubre de 2026',
+  'Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026': 'Datos de Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, octubre de 2026',
   'Each symbol is one work, shaped by its medium and sized by its rating and its length. Continents group things by sensibility, so Berserk, Dark Souls and The First Law share the Grimlands. The land rises where the ratings run high: the higher the ground, the higher the scores there, and the dashed rings offshore are landmarks not yet reached. Up close, the symbols turn into records, game cases, books and posters.':
     'Cada símbolo es una obra: su forma indica el medio y su tamaño, su nota y su duración. Los continentes agrupan por sensibilidad, así que Berserk, Dark Souls y La Primera Ley comparten las Tierras Sombrías. El terreno se eleva donde las notas son altas: cuanto más alto, mejores las notas, y los anillos punteados junto a la costa son hitos aún no alcanzados. De cerca, los símbolos se convierten en discos, cajas de juegos, libros y pósters.',
   'Curated threads that cross regions and media, each traced across the map.': 'Hilos que cruzan regiones y medios, cada uno trazado sobre el mapa.',
@@ -618,6 +632,10 @@ for (const c of W.continents) {
 // Higher-resolution covers (`hs` on a work: [file, cell]) sit in small packs of neighbours, 3 x 2 cells of
 // 384 x 568, fetched only for works drawn wider than the tile cell on screen, and swapped in once decoded.
 const SPR = { cols: 8, cw: 108, ch: 160 };
+// Poster mode (index.html?poster, rendered by tools/poster.py): the whole world at once with every work as its
+// cover, lettered for print, the ledger and controls put away and the title, key and compass set in the margins.
+const POSTER = /[?&]poster\b/.test(location.search);
+if (POSTER) document.documentElement.classList.add('poster');
 const HI = { cols: 3, cw: 384, ch: 568 };
 // A pool of images fetched on demand, a few at a time, in the order last asked for.
 function makePool(n, url, keep, idle) {
@@ -663,7 +681,7 @@ function makePool(n, url, keep, idle) {
   };
 }
 const sheetCount = Math.max(0, 1 + d3.max(W.items, i => (i.sp ? i.sp[0] : -1)));
-const TILES = makePool(sheetCount, s => `tiles/t${s}.webp`, 14, 20e3);
+const TILES = makePool(sheetCount, s => `tiles/t${s}.webp`, POSTER ? sheetCount : 14, POSTER ? 1e9 : 20e3);   // the poster needs every sheet at once
 const TILE = TILES.slots;
 for (const t of TILE) Object.assign(t, { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity });
 for (const i of W.items) if (i.sp) {
@@ -1118,7 +1136,7 @@ const PARALLAX = 0.003;
 const SWAY = { lean: 0.075, shift: 5.5, vScale: 26, springs: [[0.11, 0.42], [0.045, 0.2]] };
 const mkSpring = () => ({ x: 0, v: 0 });
 const motion = {
-  on: !reduceMotion,
+  on: !reduceMotion && !POSTER,   // the poster holds still
   mx: -1e4, my: -1e4, smx: -1e4, smy: -1e4, presence: 0, inside: false,
   vx: 0, vy: 0, evT: 0, evX: null, evY: null, evK: null, lastT: 0,
   sx: [mkSpring(), mkSpring()], sy: [mkSpring(), mkSpring()], // [quick, lazy] per axis, each -1..1
@@ -1221,7 +1239,8 @@ const KEY_MAX_K = 0.9;
 // Covers fade in over this zoom range (one zoom step earlier than they first did).
 // The ledger's scroll is kept when a detail view replaces it, so Atlas (the crumb) comes back where you were.
 let panelLedger = false, ledgerScroll = null;
-const COVER_K0 = 1.65, COVER_K1 = 2.3, COVER_MID = (COVER_K0 + COVER_K1) / 2;
+let COVER_K0 = 1.65, COVER_K1 = 2.3, COVER_MID = (COVER_K0 + COVER_K1) / 2;
+if (POSTER) { COVER_K0 = 0.2; COVER_K1 = 0.25; COVER_MID = 0.225; }   // the poster shows every cover
 const COVER_SIZES = [16, 23, 32, 45, 64, 90, 128, 181, 256, 362, 512];
 let coverBudget = 0, coverPending = false;
 function coverBitmap(i, im, devW) {
@@ -1714,18 +1733,28 @@ function glyphBatches(kq) {
   document.getElementById('compass-s').textContent = pick(c => c.ly);
   document.getElementById('compass-e').textContent = pick(c => c.lx);
   document.getElementById('compass-w').textContent = pick(c => -c.lx);
+  // long names at neighbouring points would run into each other at the corners: set them smaller until they clear
+  const fig = document.getElementById('compass'), caps = ['n', 'e', 's', 'w'].map(d => document.getElementById('compass-' + d));
+  const hit = (a, b) => a.width && b.width && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  document.fonts.ready.then(() => {
+    for (let fs = 9.5; fs >= 7; fs -= 0.5) {
+      fig.style.setProperty('--compass-fs', fs + 'px');
+      const r = caps.map(c => c.getBoundingClientRect());
+      if (![[0, 1], [1, 2], [2, 3], [3, 0]].some(([i, j]) => hit(r[i], r[j]))) return;
+    }
+  });
 })();
 function draw() {
   dirty = false;
   const k = transform.k;
   // The key is for the overview: it steps aside once you zoom in past the continents.
-  const away = k > KEY_MAX_K;
+  const away = !POSTER && k > KEY_MAX_K;
   if (away !== keyAway) { keyAway = away; document.getElementById('key').classList.toggle('away', away); document.getElementById('compass').classList.toggle('away', away); }
   const moving = stepMotion();
-  coverBudget = performance.now() + (zoomingNow() ? 3 : 8); coverPending = false;
+  coverBudget = POSTER ? Infinity : performance.now() + (zoomingNow() ? 3 : 8); coverPending = false;   // the poster makes every cover at once
   const tilesPending = mtDraw(k);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.drawImage(vignetteFor(canvas.width, canvas.height), 0, 0, canvas.width, canvas.height);
+  if (!POSTER) ctx.drawImage(vignetteFor(canvas.width, canvas.height), 0, 0, canvas.width, canvas.height);
   ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * transform.x, dpr * transform.y);
   const px = 1 / k;
 
@@ -1845,6 +1874,7 @@ function draw() {
   drawPortals(k, px);
   drawLabels();
   if (moving || coverPending || tilesPending) requestDraw();
+  if (POSTER) { window.__posterBusy = !!(moving || coverPending || tilesPending); window.__posterWhy = { moving, coverPending, tilesPending }; }
 }
 
 // ---------- portals ----------
@@ -1903,11 +1933,13 @@ function drawLabels() {
   const k = transform.k;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
-  const boxes = [];
-  const free = (x, y, w, h) => {
+  const boxes = []; if (POSTER) window.__hid = new Set();
+  // `over`: a name may be lettered over a continent's (the poster's last resort, as old maps do)
+  const free = (x, y, w, h, dry, tag, over) => {
     if (x + w < 0 || y + h < 0 || x > Wpx || y > Hpx) return false;
-    for (const b of boxes) if (x < b[0] + b[2] && x + w > b[0] && y < b[1] + b[3] && y + h > b[1]) return false;
-    boxes.push([x, y, w, h]); return true;
+    for (const b of boxes) if (!(over && b[4]) && x < b[0] + b[2] && x + w > b[0] && y < b[1] + b[3] && y + h > b[1]) return false;
+    if (!dry) boxes.push([x, y, w, h, tag]);
+    return true;
   };
   const halo = T.dark ? 'rgba(14,24,29,0.85)' : 'rgba(245,247,246,0.9)';
   ctx.textAlign = 'left';
@@ -1930,7 +1962,29 @@ function drawLabels() {
   const focus = focusLinks(), hint = hintLinks();
   if (focus.length) { drawLinkNames(focus, free, halo, true); if (state.follow.length) drawWayOn(focus, free, halo); }
   if (hint.length) drawLinkNames(hint, free, halo, false, true);
-  drawContinentLabels(free, halo);
+  // Province and realm names: where each would sit (drawn further down, after the names they give way to).
+  const provs = [...W.provinces].sort((a, b) => (b.id === state.selProv) - (a.id === state.selProv) || b.works.length - a.works.length);
+  const plabs = [];
+  for (const p of provs) {
+    if (!p.famCount) continue;                         // empty islands aren't on the map yet
+    const [sx, sy] = transform.apply([p.lx, p.ly]);
+    const sr = (p.famCount ? Math.sqrt(p.famCount) * SPACE : 26 * SCL) * k;
+    const show = p.id === state.selProv || (k >= 0.8 && (sr > 30 || (k > 1.1 && sr > 20)));   // zoomed far out, only continent names
+    if (!show) continue;
+    // sizes in half-pixel steps: every new font size costs the browser a fresh set of glyphs
+    const size = Math.round(Math.max(10.5, Math.min(15, 9 + sr / 18)) * 2) / 2;
+    const font = `600 ${size}px "Spectral SC", Spectral, Georgia, serif`;
+    // a series not finished yet says how far along it is
+    const label = !p.works.length ? p.name + (ES ? ' (sin explorar)' : ' (uncharted)') : p.run && p.have < p.run ? `${p.name} · ${p.have}/${p.run}` : p.name;
+    // Under the name: one symbol per medium in the region, the biggest share first.
+    const mix = MEDIA.filter(m => p.media[m]).sort((a, b) => p.media[b] - p.media[a]);
+    const pipR = 3.4, pipGap = 11;
+    const pipsW = mix.length ? mix.length * pipGap - (pipGap - pipR * 2) : 0;
+    const w = Math.max(textW(label, font), pipsW);
+    const y = p.subs.length ? sy : p.works.length ? sy - Math.min(sr * 0.15, 10) - (mix.length ? 5 : 0) : sy;
+    plabs.push({ p, sx, y, size, font, label, mix, pipR, pipGap, pipsW, w, boxH: size + 4 + (mix.length ? 13 : 0) });
+  }
+  drawContinentLabels(free, halo, plabs);
   // portal names: for the selected island (and the one under the cursor), so the map stays readable
   // portal reasons: always for the selected island and the hovered portal; for everything once zoomed in
   // far enough that there's room (labels never overlap; the selected island's go first)
@@ -1954,27 +2008,17 @@ function drawLabels() {
   }
 
   if (state.links) drawLinkNames(LINKS.filter(L => linkShown(L) && L.r.id !== state.selRoute && !focus.includes(L) && !hint.includes(L)), free, halo, false);
-  // Province and realm names.
-  const provs = [...W.provinces].sort((a, b) => (b.id === state.selProv) - (a.id === state.selProv) || b.works.length - a.works.length);
-  for (const p of provs) {
-    if (!p.famCount) continue;                         // empty islands aren't on the map yet
-    const [sx, sy] = transform.apply([p.lx, p.ly]);
-    const sr = (p.famCount ? Math.sqrt(p.famCount) * SPACE : 26 * SCL) * k;
-    const show = p.id === state.selProv || (k >= 0.8 && (sr > 30 || (k > 1.1 && sr > 20)));   // zoomed far out, only continent names
-    if (!show) continue;
-    // sizes in half-pixel steps: every new font size costs the browser a fresh set of glyphs
-    const size = Math.round(Math.max(10.5, Math.min(15, 9 + sr / 18)) * 2) / 2;
-    const font = `600 ${size}px "Spectral SC", Spectral, Georgia, serif`;
-    // a series not finished yet says how far along it is
-    const label = !p.works.length ? p.name + (ES ? ' (sin explorar)' : ' (uncharted)') : p.run && p.have < p.run ? `${p.name} · ${p.have}/${p.run}` : p.name;
-    // Under the name: one symbol per medium in the region, the biggest share first.
-    const mix = MEDIA.filter(m => p.media[m]).sort((a, b) => p.media[b] - p.media[a]);
-    const pipR = 3.4, pipGap = 11;
-    const pipsW = mix.length ? mix.length * pipGap - (pipGap - pipR * 2) : 0;
-    const w = Math.max(textW(label, font), pipsW);
-    const y = p.subs.length ? sy : p.works.length ? sy - Math.min(sr * 0.15, 10) - (mix.length ? 5 : 0) : sy;
-    const boxH = size + 4 + (mix.length ? 13 : 0);
-    if (!free(sx - w / 2 - 4, y - size / 2 - 2, w + 8, boxH)) continue;
+  for (const { p, sx: sx0, y: y0, size, font, label, mix, pipR, pipGap, pipsW, w, boxH } of plabs) {
+    // where names crowd, the poster (which has to show every one) tries a little above, below and aside
+    let sx = sx0, y = y0;
+    if (!POSTER) { if (!free(sx - w / 2 - 4, y - size / 2 - 2, w + 8, boxH)) continue; }
+    else {
+      const spots = POSTER_NUDGE.map(([fx, fy]) => [sx0 + fx * w, y0 + fy * boxH]);
+      const at = spots.find(([x, yy]) => free(x - w / 2 - 4, yy - size / 2 - 2, w + 8, boxH)) ||
+        spots.find(([x, yy]) => free(x - w / 2 - 4, yy - size / 2 - 2, w + 8, boxH, false, 0, true));
+      if (!at) { window.__hid.add(p.name); continue; }
+      [sx, y] = at;
+    }
     ctx.globalAlpha = (inSelProv(p.id) ? 1 : 0.45) * (p.id === state.selProv ? 1 : Math.min(1, (k - 0.8) / 0.25 + 0.2));
     // lettered once per name, size and theme into a small bitmap, then copied each frame
     const bmp = provLabelBitmap(p, label, size, mix, w, pipR, pipGap, pipsW, halo, font), f = size / bmp.size;
@@ -2081,7 +2125,7 @@ function fitTitle(full, font, maxW) {
   return r;
 }
 const LABELS = new Map(), CLAY = new Map();
-const LABEL_REF = 20;   // continent names are lettered once at this size and scaled when drawn
+const LABEL_REF = POSTER ? 44 : 20;   // continent names are lettered once at this size and scaled when drawn (larger for print)
 function labelBitmap(lines, size, spacing, w, lh, hgt, halo) {
   const key = `${lines.join('/')}|${halo}|${T.ink}|${dpr}`;
   let b = LABELS.get(key);
@@ -2100,7 +2144,7 @@ function labelBitmap(lines, size, spacing, w, lh, hgt, halo) {
   g.font = ctx.font; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.textAlign = 'left';
   lines.forEach((ln, j) => {
     const ly = pad + lh * (j + 0.5), Rl = R - lh * j;
-    g.strokeStyle = halo; g.lineWidth = 5.5; archText(ln, bw / 2, ly, spacing, 'stroke', g, Rl);
+    g.strokeStyle = halo; g.lineWidth = 5.5 * LABEL_REF / 20; archText(ln, bw / 2, ly, spacing, 'stroke', g, Rl);
     g.fillStyle = T.ink; archText(ln, bw / 2, ly, spacing, 'fill', g, Rl);
   });
   ctx.font = font;
@@ -2171,13 +2215,28 @@ function drawWayOn(list, free, halo) {
   }
   ctx.globalAlpha = 1;
 }
-function drawContinentLabels(free, halo) {
+// On the poster every island name has to show, so a continent's name takes the place over its land that
+// covers the fewest of them (on screen they simply give way, and show once zoomed in).
+// how much of a screen box lies over a continent's own land (sampled on a grid, from its coast field)
+function ownLand(cid, x, y, w, h) {
+  const G = geo.get(cid)?.grid;
+  if (!G) return 0;
+  let on = 0, n = 0;
+  for (let a = 1; a <= 7; a++) for (let b = 0; b <= 2; b++) {
+    const [X, Y] = transform.invert([x + w * a / 8, y + h * b / 2]);
+    const ix = Math.round((X - G.x0) / CELL), iy = Math.round((Y - G.y0) / CELL);
+    n++; if (ix >= 0 && iy >= 0 && ix < G.nx && iy < G.ny && G.g[iy * G.nx + ix] >= COAST_LEVELS[COAST]) on++;
+  }
+  return on / n;
+}
+const POSTER_NUDGE = [[0, 0], [0, -0.85], [0, 0.85], [0.3, 0], [-0.3, 0], [0.3, -0.85], [-0.3, -0.85], [0.3, 0.85], [-0.3, 0.85], [0, -1.7], [0, 1.7]];
+function drawContinentLabels(free, halo, plabs) {
   const k = transform.k;
-  const ca = Math.max(0, Math.min(1, (2.4 - k) / 1.2));
+  const ca = POSTER ? 1 : Math.max(0, Math.min(1, (2.4 - k) / 1.2));
   if (ca <= 0.02) return;
   for (const c of [...W.continents].sort((a, b) => b.r - a.r)) {
     const span = c.r * k * 1.9;
-    const size = Math.round(Math.max(10, Math.min(19, span / 11)) * 2) / 2;
+    const size = Math.round(Math.max(POSTER ? 20 : 10, Math.min(POSTER ? 40 : 19, span / (POSTER ? 9 : 11))) * 2) / 2;
     // the name's layout (one or two lines): measured once at the reference size, then scaled
     let ref = CLAY.get(c.id);
     if (!ref) {
@@ -2204,14 +2263,30 @@ function drawContinentLabels(free, halo) {
     // Only while the continent itself is in view: a name never slides along the screen edge after its land.
     const [lcx, lcy] = transform.apply([c.lx, c.ly]);
     if (lcx < -w * 0.25 || lcx > Wpx + w * 0.25 || lcy < -hgt || lcy > Hpx + hgt) continue;
-    const sx = lcx;
-    let sy = null;
-    for (const f of [0, -0.35, 0.35, -0.6, 0.6]) {
-      const y = lcy + f * c.r * k;
-      if (y < hgt / 2 || y > Hpx - hgt / 2) continue;
-      if (free(sx - w / 2 - 4, y - hgt / 2 - 2, w + 8, hgt + 4)) { sy = y; break; }
+    let sx = lcx, sy = null;
+    if (POSTER) {
+      let best = null;
+      for (let fy = -6; fy <= 6; fy++) for (let fx = -3; fx <= 3; fx++) {
+        const x = lcx + fx * 0.1 * c.r * k, y = lcy + fy * 0.1 * c.r * k, bx = x - w / 2 - 4, by = y - hgt / 2 - 2;
+        if (bx < 30 || bx + w + 38 > Wpx || !free(bx, by, w + 8, hgt + 4, true)) continue;   // clear of the sheet's edge
+        // off its own land (into the sea or a neighbour) costs more than covering several island names
+        let cost = Math.hypot(fx, fy) * 0.33 + (1 - ownLand(c.id, bx, by + hgt * 0.2, w + 8, hgt * 0.6)) * 12;
+        for (const q of plabs) {
+          const qx = q.sx - q.w / 2 - 4, qy = q.y - q.size / 2 - 2;
+          if (bx < qx + q.w + 8 && bx + w + 8 > qx && by < qy + q.boxH && by + hgt + 4 > qy) cost += 1;
+        }
+        if (!best || cost < best[0]) best = [cost, x, y];
+      }
+      if (best) [, sx, sy] = best; else sy = lcy;
+      free(sx - w / 2 - 4, sy - hgt / 2 - 2, w + 8, hgt + 4, false, 1);
+    } else {
+      for (const f of [0, -0.35, 0.35, -0.6, 0.6]) {
+        const y = lcy + f * c.r * k;
+        if (y < hgt / 2 || y > Hpx - hgt / 2) continue;
+        if (free(sx - w / 2 - 4, y - hgt / 2 - 2, w + 8, hgt + 4)) { sy = y; break; }
+      }
+      if (sy == null) continue;
     }
-    if (sy == null) continue;
     ctx.globalAlpha = ca * (state.selCont && state.selCont !== c.id ? 0.4 : 0.95);
     // Lettered once into a small bitmap per name, size and theme, then copied each frame.
     let bmp = LABELS.get(`${lines.join('/')}|${halo}|${T.ink}|${dpr}`);
@@ -2276,7 +2351,45 @@ function goTo(t, ms = 750) {
   if (!ms || reduceMotion) { sel.interrupt().call(zoom.transform, t); return; }
   sel.transition().duration(ms).ease(d3.easeCubicInOut).call(zoom.transform, t);
 }
-const fitWorld = (ms) => goTo(fitTransform([W.bounds[0] - 40, W.bounds[1] - 40, W.bounds[2] + 40, W.bounds[3] + 40], 0.02), ms);
+const fitWorld = (ms) => goTo(POSTER ? posterFit() : fitTransform([W.bounds[0] - 40, W.bounds[1] - 40, W.bounds[2] + 40, W.bounds[3] + 40], 0.02), ms);
+// The poster's map is set as large as the sheet allows with the title, key and compass lying in open sea:
+// the sea and shallows around every coast (the outer depth ring) may not touch them or the sheet's margin.
+function posterFit() {
+  const sr = stage.getBoundingClientRect(), M = 44, PAD = 26;
+  const boxes = ['.cartouche', '#key', '#compass', '#compass-n', '#compass-e', '#compass-s', '#compass-w'].map(s => document.querySelector(s).getBoundingClientRect())
+    .filter(b => b.width).map(b => [b.left - sr.left - PAD, b.top - sr.top - PAD, b.right - sr.left + PAD, b.bottom - sr.top + PAD]);
+  const pts = [];
+  for (const g of geo.values()) {
+    const G = g.grid;
+    for (let iy = 0; iy < G.ny; iy += 3) for (let ix = 0; ix < G.nx; ix += 3)
+      if (G.g[iy * G.nx + ix] >= COAST_LEVELS[0]) pts.push(G.x0 + ix * CELL, G.y0 + iy * CELL);
+  }
+  let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+  for (let j = 0; j < pts.length; j += 2) { bx0 = Math.min(bx0, pts[j]); bx1 = Math.max(bx1, pts[j]); by0 = Math.min(by0, pts[j + 1]); by1 = Math.max(by1, pts[j + 1]); }
+  const clear = (k, tx, ty) => {
+    for (let j = 0; j < pts.length; j += 2) {
+      const X = tx + k * pts[j], Y = ty + k * pts[j + 1];
+      for (const b of boxes) if (X > b[0] && X < b[2] && Y > b[1] && Y < b[3]) return false;
+    }
+    return true;
+  };
+  // the largest scale with some placement clear of every box (searched on a grid of placements)
+  const place = k => {
+    const txa = M - k * bx0, txb = Wpx - M - k * bx1, tya = M - k * by0, tyb = Hpx - M - k * by1;
+    if (txb < txa || tyb < tya) return null;
+    let best = null;
+    for (let a = 0; a <= 24; a++) for (let b = 0; b <= 24; b++) {
+      const tx = txa + (txb - txa) * a / 24, ty = tya + (tyb - tya) * b / 24;
+      if (!clear(k, tx, ty)) continue;
+      const off = Math.hypot(a - 12, b - 12);          // of the clear placements, the most central
+      if (!best || off < best[2]) best = [tx, ty, off];
+    }
+    return best;
+  };
+  let lo = 0.05, hi = Math.min((Wpx - 2 * M) / (bx1 - bx0), (Hpx - 2 * M) / (by1 - by0)), at = place(lo);
+  for (let n = 0; n < 14; n++) { const mid = (lo + hi) / 2, p = place(mid); if (p) { lo = mid; at = p; } else hi = mid; }
+  return d3.zoomIdentity.translate(at ? at[0] : 0, at ? at[1] : 0).scale(lo);
+}
 // Over to a work at the current zoom (or a little closer if far out), keeping whatever is followed.
 function glideTo(w) {
   const k = Math.max(transform.k, 0.9);
@@ -2666,7 +2779,7 @@ const seenBig = i => {
   const [sx, sy] = transform.apply([i.px, i.py]);
   return sx >= 0 && sy >= 0 && sx <= Wpx && sy <= Hpx && frameOf(i).w * transform.k >= 48;
 };
-const wantHi = i => !!i.img && (state.selItem === i.id || transform.k >= COVER_K0 || (selAway() && seenBig(i)));
+const wantHi = i => !POSTER && !!i.img && (state.selItem === i.id || transform.k >= COVER_K0 || (selAway() && seenBig(i)));   // the poster draws from the cover tiles only
 function linkArt(i) {
   if (!i.img) return null;
   let e = LINK_ART.get(i.img);
@@ -3797,7 +3910,8 @@ function selectItem(id, { fly = true, sheet = true } = {}) {
 const keyEl = document.getElementById('key');
 function renderKey() {
   const counts = countMedia(W.items);
-  const kids = [h('h2', null, 'KEY'), h('p', { class: 'note' }, 'Colour and shape show the medium; each chip toggles its medium on the map.')];
+  const kids = [h('h2', null, 'KEY'), h('p', { class: 'note live' }, 'Colour and shape show the medium; each chip toggles its medium on the map.')];
+  if (POSTER) kids.push(h('p', { class: 'note print' }, 'Colour and shape show the medium. A cover grows with its score and with the hours it takes; the land rises where the works around it scored highest.'));
   kids.push(h('div', { class: 'chips' }, MEDIA.map(m => h('button', {
       type: 'button', class: 'chip', id: `chip-${m}`, 'aria-pressed': state.hidden.has(m) ? 'false' : 'true',
       onclick: () => { state.hidden.has(m) ? state.hidden.delete(m) : state.hidden.add(m); renderKey(); requestDraw(); },
@@ -3877,6 +3991,7 @@ new ResizeObserver(() => resize()).observe(stage);
 document.addEventListener('visibilitychange', () => { if (document.hidden && PHONE) mtFlush(); else if (!document.hidden) requestDraw(); });
 resize();
 fitWorld(0);
+if (POSTER) document.fonts.ready.then(() => requestAnimationFrame(() => fitWorld(0)));   // the margins' text set in its own type
 renderLedger();
 renderKey();
 document.getElementById('subtitle').textContent =

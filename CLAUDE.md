@@ -70,6 +70,16 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   the key only when zoomed out, hidden while the Following tag needs the corner) names the continent lying furthest
   north, east, south and west; the cartouche has a double rule and a fleuron; a faint paper grain (`.grain`) lies over
   the map. Island names stay straight (small labels with media pips read better level).
+- Poster (`index.html?poster`, `POSTER` in the page; rendered by `python3 tools/poster.py . OUT [--paper A1|A0|A2]
+  [--dpi 200] [--theme light|dark]`, which writes OUT.png/.jpg/.pdf): the ledger and controls are put away, every
+  work shows its cover (from the sprite sheets, all kept loaded; no linked covers), nothing moves, the title, key
+  (with a printed note instead of the chip hint) and compass sit in the sea, and `posterFit` sets the map as large as it
+  goes with its shallows clear of them. The sheet is always laid out at 100 CSS px to the inch (dpi only sets the device
+  scale), so a render looks the same at any resolution. Labels for print: continent names lettered at `LABEL_REF` 44
+  and placed over their own land where they cover the fewest island names; island names nudge aside
+  (`POSTER_NUDGE`) and, as a last resort, overprint a continent's name; poster.py reports any left out. Fonts come
+  from `tools/poster_fonts` (Fontsource builds of the site's Google Fonts, OFL), served in place of Google Fonts.
+  The page reports `window.__posterBusy` until every tile and cover is drawn; poster.py waits for it.
 - Spanish UI comes from the browser language (`ES` flag, phrase table; source in `tools/i18n.js`).
 - Covers are final sprite sheets in `tiles/` (108×160 cells).
 - Linked covers: a work with `img` (from `tools/images.json`, looked up on its own site: Rate Your Music, Letterboxd, Backloggd, AniList, Goodreads, never Wikipedia) draws that image only when selected (ledger) or zoomed in past `COVER_K0`; tiles otherwise. Three load at a time; unused ones are let go after a minute.

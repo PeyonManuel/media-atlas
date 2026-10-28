@@ -48,8 +48,9 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
 - `cover_sheet.py` builds `tiles/t32.webp` from `tools/covers_src/<id>.*` (covers taken from the sites themselves) and writes each addition's `sp` cell into additions.json. `boxes_apart.json` is the latest cover-size export (additions.py and apart.py read it; `boxes.json` stays the older one the layout was settled with, so exporting never reshuffles the map).
 - `additions.py` (after the settled layout, so the continents stay put) places the works listed in `tools/additions.json`
   that came after the first survey: Backloggd games and RateYourMusic albums, scored x/10 (RYM stars: 5 = 10, 4.5 = 9,
-  4 = 8, 3.5 = 7; Backloggd's own 1-10). Each lands on its island beside works of its medium. They have no cover sprite
-  (`sp`) yet, so the page draws them as symbols until covers are made. To add more, append to additions.json and rebuild.
+  4 = 8, 3.5 = 7; Backloggd's own 1-10). Each lands on its island beside works of its medium. Covers come from the sites
+  themselves (screenshot of the image on the site, or RYM's thumbnail) into `tools/covers_src/<id>.*`; run `cover_sheet.py`
+  to rebuild the sheet, then rebuild. To add more: append to additions.json, add the cover, run cover_sheet.py and rebuild.
 - `apart.py` (last layout step before canon) nudges works whose footprints still overlap a few units apart.
 - `piles.json` (read by fixes.py): seasons per show (`seasons`, anime too) and volumes per manga (`vols`), looked up Oct 2026. The page stacks a card per season, or per ten volumes, under the work (`pileCount`); footprints include the pile, so re-export boxes after changing it. Film and album lengths were dropped on purpose (Manuel: they're all alike).
 - Map tiles (`MT`, `mtDraw`, `paintStatic` in the page): everything that holds still (sea, land, hills, plateaus,

@@ -87,6 +87,35 @@ button, input { font: inherit; color: inherit; }
   border-top: 1px solid var(--rule); padding-top: 6px;
 }
 
+/* the cartouche's double rule and the ornament under the title */
+.cartouche { box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px var(--rule); padding: 16px 18px 13px; }
+.cartouche .fleuron { width: 100%; height: 8px; color: var(--ink-3); display: block; margin: -1px 0 1px; }
+
+/* Paper: a faint grain over sea and land, under everything lettered on top. */
+.grain {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.55; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.25 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+:root[data-theme="dark"] .grain { mix-blend-mode: screen; opacity: 0.35; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .grain { mix-blend-mode: screen; opacity: 0.35; } }
+
+/* Compass rose: each point names the continent that lies furthest that way on this map. */
+.compass {
+  position: absolute; right: 34px; top: 34px; width: 92px; height: 92px; margin: 0; color: var(--ink-2);
+  pointer-events: none; transition: opacity 0.25s ease;
+}
+.compass.away, .compass.under { opacity: 0; }
+.compass svg { width: 100%; height: 100%; display: block; }
+.compass figcaption {
+  position: absolute; font: 500 9.5px/1.15 var(--f-map); letter-spacing: 0.08em; color: var(--ink-2); white-space: nowrap;
+  text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper);
+}
+.compass .n { left: 50%; bottom: 100%; transform: translate(-50%, -2px); }
+.compass .s { left: 50%; top: 100%; transform: translate(-50%, 2px); }
+.compass .e { left: 100%; top: 50%; transform: translate(1px, -50%); writing-mode: vertical-rl; }
+.compass .w { right: 100%; top: 50%; transform: translate(-1px, -50%) rotate(180deg); writing-mode: vertical-rl; }
+@media (max-width: 760px) { .compass { display: none; } }
+
 /* Search. */
 .cartouche { max-width: min(360px, calc(100% - 32px)); }
 .panel-search {
@@ -360,14 +389,31 @@ button, input { font: inherit; color: inherit; }
 <div class="app" id="app">
   <main class="stage" id="stage">
     <canvas id="map" aria-label="Map of works grouped into regions and continents by sensibility"></canvas>
+    <div class="grain" aria-hidden="true"></div>
 
     <header class="cartouche">
       <h1>Manu's Media Atlas</h1>
+      <svg class="fleuron" viewBox="0 0 200 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 5H88M112 5H200" stroke="currentColor" stroke-width="0.8"/><path d="M100 1.2L104 5L100 8.8L96 5Z" fill="currentColor"/><circle cx="91" cy="5" r="1.1" fill="currentColor"/><circle cx="109" cy="5" r="1.1" fill="currentColor"/></svg>
       <p id="subtitle">A survey of everything read, watched, played and heard, arranged by what it is.</p>
       <div class="sources">Surveyed from Letterboxd · Serializd · AniList · Goodreads · Backloggd · RateYourMusic, October 2026</div>
     </header>
 
     <section class="key" id="key" aria-label="Map key"></section>
+
+    <figure class="compass" id="compass" aria-label="Which continent lies furthest in each direction">
+      <svg viewBox="-50 -50 100 100" aria-hidden="true">
+        <circle r="31" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.55"/>
+        <circle r="27.5" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.4"/>
+        <g opacity="0.55"><path d="M0 -20L4 -4L20 0L4 4L0 20L-4 4L-20 0L-4 -4Z" transform="rotate(45)" fill="currentColor"/></g>
+        <path d="M0 -40L5.5 -5.5L0 0Z" fill="currentColor"/><path d="M0 -40L-5.5 -5.5L0 0Z" fill="none" stroke="currentColor" stroke-width="0.8"/>
+        <path d="M40 0L5.5 5.5L0 0Z" fill="currentColor"/><path d="M40 0L5.5 -5.5L0 0Z" fill="none" stroke="currentColor" stroke-width="0.8"/>
+        <path d="M0 40L-5.5 5.5L0 0Z" fill="currentColor"/><path d="M0 40L5.5 5.5L0 0Z" fill="none" stroke="currentColor" stroke-width="0.8"/>
+        <path d="M-40 0L-5.5 -5.5L0 0Z" fill="currentColor"/><path d="M-40 0L-5.5 5.5L0 0Z" fill="none" stroke="currentColor" stroke-width="0.8"/>
+        <circle r="2.2" fill="var(--paper)" stroke="currentColor" stroke-width="0.8"/>
+      </svg>
+      <figcaption class="n" id="compass-n"></figcaption><figcaption class="e" id="compass-e"></figcaption>
+      <figcaption class="s" id="compass-s"></figcaption><figcaption class="w" id="compass-w"></figcaption>
+    </figure>
 
     <div class="zoom">
       <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
@@ -436,7 +482,7 @@ const PHRASES = new Map(Object.entries({
   'Sub-island': 'Subisla', 'Creator': 'Autor', 'Route': 'Ruta', 'KEY': 'LEYENDA',
   'Media': 'Medios', 'Summits': 'Cumbres', 'Continents': 'Continentes', 'Largest cross-media realms': 'Mayores reinos entre medios',
   'Connections': 'Conexiones', 'Connection': 'Conexión', 'Who drew on whom': 'Quién se inspiró en quién', 'Ideas and themes': 'Ideas y temas',
-  'One hand across the map': 'Una misma mano por todo el mapa', 'Runs and canons': 'Etapas y cánones', 'Myths and old stories': 'Mitos e historias antiguas', 'Composers and musicians': 'Compositores y músicos', 'Faces across the map': 'Caras por todo el mapa', 'Following': 'Siguiendo', 'Stop following': 'Dejar de seguir', 'Followed connections': 'Conexiones seguidas', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa', 'Show on the map': 'Mostrar en el mapa', 'The canon': 'El canon', 'Canon': 'Canon', 'Held closest, whatever the score': 'Lo más cercano, sea cual sea la nota', 'Show only these on the map': 'Mostrar solo estas en el mapa', 'Show everything on the map': 'Mostrar todo en el mapa', 'Not favourites and not the top scores: the works Manu holds closest, the ones he sees himself in, whatever their rating. Each wears a small gold star on the map.': 'Ni favoritas ni las notas más altas: las obras que Manu siente más cerca, aquellas en las que se reconoce, sea cual sea su nota. Cada una lleva una pequeña estrella dorada en el mapa.', 'Follow it on the map': 'Seguirla en el mapa', 'Hide on the map': 'Ocultar del mapa',
+  'One hand across the map': 'Una misma mano por todo el mapa', 'Runs and canons': 'Etapas y cánones', 'Myths and old stories': 'Mitos e historias antiguas', 'Composers and musicians': 'Compositores y músicos', 'Faces across the map': 'Caras por todo el mapa', 'Following': 'Siguiendo', 'Stop following': 'Dejar de seguir', 'Followed connections': 'Conexiones seguidas', 'Show them all on the map': 'Mostrarlas todas en el mapa', 'Hide them on the map': 'Ocultarlas del mapa', 'Show on the map': 'Mostrar en el mapa', 'Which continent lies furthest in each direction': 'Qué continente queda más lejos en cada dirección', 'The canon': 'El canon', 'Canon': 'Canon', 'Held closest, whatever the score': 'Lo más cercano, sea cual sea la nota', 'Show only these on the map': 'Mostrar solo estas en el mapa', 'Show everything on the map': 'Mostrar todo en el mapa', 'Not favourites and not the top scores: the works Manu holds closest, the ones he sees himself in, whatever their rating. Each wears a small gold star on the map.': 'Ni favoritas ni las notas más altas: las obras que Manu siente más cerca, aquellas en las que se reconoce, sea cual sea su nota. Cada una lleva una pequeña estrella dorada en el mapa.', 'Follow it on the map': 'Seguirla en el mapa', 'Hide on the map': 'Ocultar del mapa',
   'Threads between works that sit apart on the map: who drew on whom, the ideas and themes they share, one hand or one composer across genres, one world in several media.': 'Hilos entre obras que están lejos en el mapa: quién se inspiró en quién, las ideas y los temas que comparten, un mismo autor o compositor en varios géneros, un mismo mundo en varios medios.',
   'Blind spots': 'Puntos ciegos', 'At odds with the crowd': 'En desacuerdo con el público',
   'Peaks': 'Cimas', 'Lineage': 'Línea temporal', 'Works': 'Obras', 'Still in the fog': 'Aún en la niebla', 'Sub-islands': 'Subislas',
@@ -1040,6 +1086,25 @@ function spacedText(text, x, y, spacing, mode, g = ctx) {
   return total;
 }
 
+// The same lettering bent over a gentle arch (the ends lower than the middle), the way old atlases letter a
+// country's name across its land. R is the arch's radius; letters stand square to the curve.
+const ARCH = 1.7;   // radius as a multiple of the line's width: the larger, the flatter
+function archText(text, x, y, spacing, mode, g, R) {
+  const widths = [...text].map(ch => charW(ch));
+  const total = widths.reduce((a, b) => a + b, 0) + spacing * (text.length - 1);
+  let s = -total / 2;
+  [...text].forEach((ch, k) => {
+    const mid = s + widths[k] / 2, th = mid / R;
+    g.save(); g.translate(x + R * Math.sin(th), y + R * (1 - Math.cos(th))); g.rotate(th);
+    if (mode === 'stroke') g.strokeText(ch, -widths[k] / 2, 0); else g.fillText(ch, -widths[k] / 2, 0);
+    g.restore();
+    s += widths[k] + spacing;
+  });
+  return total;
+}
+// how far the ends of an arched line drop below its middle
+const archSag = w => { const R = w * ARCH; return R * (1 - Math.cos(w / 2 / R)); };
+
 // ---------- motion: very slight, and only while something is moving ----------
 // Works lean a degree or two against a pan and settle back with a small overshoot; the hovered work lifts
 // and turns toward the cursor; works near the pointer rise a hair; hills shift with a little parallax.
@@ -1413,6 +1478,7 @@ document.getElementById('stage').append(followEl);
 function renderFollow() {
   const ls = LINKS.filter(L => state.follow.includes(L.r.id));
   followEl.hidden = !ls.length || !!state.selRoute;
+  document.getElementById('compass').classList.toggle('under', !followEl.hidden);   // the tag takes the compass's corner
   if (followEl.hidden) return followEl.replaceChildren();
   followEl.replaceChildren(...[h('span', { class: 'lbl' }, 'Following'),
     ...ls.slice(0, 3).map(L => h('button', { type: 'button', class: 'name', onclick: () => selectRoute(L.r.id) }, '⟡ ' + L.r.name)),
@@ -1437,6 +1503,18 @@ function toggleLinks(on = !state.links, kind = null) {
     const shown = on && kind === b.dataset.linkKind;
     b.setAttribute('aria-pressed', String(shown)); b.textContent = trText(shown ? 'Hide on the map' : 'Show on the map');
   }
+}
+// One puff of mist, drawn once per theme and stretched wherever fog lies.
+let FOG = null;
+function fogPuff() {
+  if (FOG && FOG.dark === T.dark) return FOG.c;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  const col = T.dark ? '170,190,198' : '255,255,255';
+  gr.addColorStop(0, `rgba(${col},1)`); gr.addColorStop(0.45, `rgba(${col},0.55)`); gr.addColorStop(1, `rgba(${col},0)`);
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  FOG = { c, dark: T.dark };
+  return c;
 }
 // The still part of the map, in world units at scale kq, into g (any 2D context already set to world space).
 function paintStatic(g, kq, glyphs, view) {
@@ -1519,6 +1597,21 @@ function paintStatic(g, kq, glyphs, view) {
   g.setLineDash([px * 3, px * 2.5]);
   for (const [cid, bp] of borderPath) if (hit(geo.get(cid).bb)) g.stroke(bp);
   g.setLineDash([]);
+  g.globalAlpha = 1;
+
+  // Fog over the unexplored: soft banks of mist where landmarks wait to be reached, so the edges of an island with
+  // more to discover look unmapped. Each landmark adds a few puffs (placed the same way every time).
+  const fogR = SPACE * 2.8;
+  for (const gh of GHOSTS) {
+    if (gh.px < view[0] - fogR * 2 || gh.px > view[2] + fogR * 2 || gh.py < view[1] - fogR * 2 || gh.py > view[3] + fogR * 2) continue;
+    const dim = !inSelProv(gh.p) || (state.selCont && provById.get(gh.p).c !== state.selCont);
+    g.globalAlpha = (T.dark ? 0.22 : 0.5) * (dim ? 0.6 : 1);
+    const h = gh.fh ?? (gh.fh = [...(gh.t || '')].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7));
+    for (let q = 0; q < 3; q++) {
+      const a = ((h >> (q * 5)) & 31) / 31 * Math.PI * 2, d = q ? fogR * 0.45 : 0, r = fogR * (q ? 0.75 : 1);
+      g.drawImage(fogPuff(), gh.px + Math.cos(a) * d - r, gh.py + Math.sin(a) * d - r, r * 2, r * 2);
+    }
+  }
   g.globalAlpha = 1;
 
   // Unexplored landmarks: one dashed path per shade.
@@ -1613,12 +1706,21 @@ function glyphBatches(kq) {
   return list;
 }
 
+// The compass names the continent lying furthest north, east, south and west of the map's middle.
+(function compassNames() {
+  const cs = W.continents.filter(c => c.works.length);
+  const pick = (f) => cs.reduce((a, b) => f(b) > f(a) ? b : a).name;
+  document.getElementById('compass-n').textContent = pick(c => -c.ly);
+  document.getElementById('compass-s').textContent = pick(c => c.ly);
+  document.getElementById('compass-e').textContent = pick(c => c.lx);
+  document.getElementById('compass-w').textContent = pick(c => -c.lx);
+})();
 function draw() {
   dirty = false;
   const k = transform.k;
   // The key is for the overview: it steps aside once you zoom in past the continents.
   const away = k > KEY_MAX_K;
-  if (away !== keyAway) { keyAway = away; document.getElementById('key').classList.toggle('away', away); }
+  if (away !== keyAway) { keyAway = away; document.getElementById('key').classList.toggle('away', away); document.getElementById('compass').classList.toggle('away', away); }
   const moving = stepMotion();
   coverBudget = performance.now() + (zoomingNow() ? 3 : 8); coverPending = false;
   const tilesPending = mtDraw(k);
@@ -1988,16 +2090,18 @@ function labelBitmap(lines, size, spacing, w, lh, hgt, halo) {
   ctx.font = font.replace(/[\d.]+px/, LABEL_REF + 'px');
   spacing *= f; lh *= f; hgt *= f;
   w = Math.max(...lines.map(ln => [...ln].reduce((a, ch) => a + charW(ch), 0) + spacing * (ln.length - 1)));
+  // every line on one arch, sharing its centre, so a two-line name reads as one band
+  const R = w * ARCH, sag = archSag(w);
   const pad = 4 * f, c = document.createElement('canvas');
-  const bw = Math.ceil(w + pad * 2), bh = Math.ceil(hgt + pad * 2);
+  const bw = Math.ceil(w + pad * 2), bh = Math.ceil(hgt + sag + pad * 2);
   c.width = Math.ceil(bw * dpr); c.height = Math.ceil(bh * dpr);
   const g = c.getContext('2d');
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.font = ctx.font; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.textAlign = 'left';
   lines.forEach((ln, j) => {
-    const ly = pad + lh * (j + 0.5);
-    g.strokeStyle = halo; g.lineWidth = 5.5; spacedText(ln, bw / 2, ly, spacing, 'stroke', g);
-    g.fillStyle = T.ink; spacedText(ln, bw / 2, ly, spacing, 'fill', g);
+    const ly = pad + lh * (j + 0.5), Rl = R - lh * j;
+    g.strokeStyle = halo; g.lineWidth = 5.5; archText(ln, bw / 2, ly, spacing, 'stroke', g, Rl);
+    g.fillStyle = T.ink; archText(ln, bw / 2, ly, spacing, 'fill', g, Rl);
   });
   ctx.font = font;
   b = { c, w: bw, h: bh, ref: LABEL_REF };
@@ -2094,7 +2198,7 @@ function drawContinentLabels(free, halo) {
     }
     const fs = size / LABEL_REF;
     const [lines, refW] = ref.two && ref.one[1] * fs > span ? ref.two : ref.one;
-    const spacing = size * 0.16, w = refW * fs, lh = size * 1.15, hgt = lh * lines.length + 2;
+    const spacing = size * 0.16, w = refW * fs, lh = size * 1.15, hgt = lh * lines.length + 2 + archSag(w);
     // Continents touch, so the name sits over the middle of its own land.
     // If a neighbour's name already sits there, try a little above or below the middle.
     // Only while the continent itself is in view: a name never slides along the screen edge after its land.

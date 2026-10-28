@@ -65,6 +65,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   them, and ground newly in view shows the world backdrop (coarse tiles painted while idle, `mtBackLayer`);
   sharp tiles at the exact scale follow once the zoom rests. Works up close, labels and portals are drawn
   live. Profile with real input (wheel zooms, drags) before and after changing the draw loop.
+- Cartographer's finish: continent names are lettered over a gentle arch (`archText`, `ARCH`); unexplored landmarks lie
+  under soft fog banks painted in the tiles (`fogPuff`, a few puffs per landmark); the compass rose (top right, with
+  the key only when zoomed out, hidden while the Following tag needs the corner) names the continent lying furthest
+  north, east, south and west; the cartouche has a double rule and a fleuron; a faint paper grain (`.grain`) lies over
+  the map. Island names stay straight (small labels with media pips read better level).
 - Spanish UI comes from the browser language (`ES` flag, phrase table; source in `tools/i18n.js`).
 - Covers are final sprite sheets in `tiles/` (108×160 cells).
 - Linked covers: a work with `img` (from `tools/images.json`, looked up on its own site: Rate Your Music, Letterboxd, Backloggd, AniList, Goodreads, never Wikipedia) draws that image only when selected (ledger) or zoomed in past `COVER_K0`; tiles otherwise. Three load at a time; unused ones are let go after a minute.

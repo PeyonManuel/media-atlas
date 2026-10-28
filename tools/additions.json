@@ -39,10 +39,10 @@
   "t": "Tetris",
   "c": "Nintendo",
   "y": 1989,
-  "r": 0,
+  "r": 6,
   "p": "retro",
   "src": "backloggd",
-  "sid": "tetris",
+  "sid": "tetris--1",
   "st": "done",
   "sp": [
    32,
@@ -494,5 +494,89 @@
    28,
    0
   ]
+ },
+ {
+  "id": "n30",
+  "m": "game",
+  "t": "Arena Breakout",
+  "c": "Morefun Studio",
+  "y": 2023,
+  "r": 5,
+  "p": "arenas",
+  "src": "backloggd",
+  "sid": "arena-breakout",
+  "st": "done"
+ },
+ {
+  "id": "n31",
+  "m": "game",
+  "t": "P.T.",
+  "c": "Kojima Productions",
+  "y": 2014,
+  "r": 9,
+  "p": "silenthill",
+  "src": "backloggd",
+  "sid": "pt",
+  "st": "done"
+ },
+ {
+  "id": "n32",
+  "m": "game",
+  "t": "Brutal Doom",
+  "c": "Sergeant Mark IV",
+  "y": 2012,
+  "r": 9,
+  "p": "boomer",
+  "src": "backloggd",
+  "sid": "brutal-doom",
+  "st": "done"
+ },
+ {
+  "id": "n33",
+  "m": "game",
+  "t": "Death Wish",
+  "c": "",
+  "y": 2011,
+  "r": 10,
+  "p": "precision",
+  "src": "backloggd",
+  "sid": "death-wish--2",
+  "st": "done"
+ },
+ {
+  "id": "n34",
+  "m": "game",
+  "t": "Cut the Rope",
+  "c": "ZeptoLab",
+  "y": 2010,
+  "r": 6,
+  "p": "mobile",
+  "src": "backloggd",
+  "sid": "cut-the-rope",
+  "st": "done"
+ },
+ {
+  "id": "n35",
+  "m": "game",
+  "t": "Max Payne 2: The Fall of Max Payne",
+  "c": "Remedy Entertainment",
+  "y": 2003,
+  "r": 7,
+  "p": "campaign",
+  "src": "backloggd",
+  "sid": "max-payne-2-the-fall-of-max-payne",
+  "st": "done"
+ },
+ {
+  "id": "n36",
+  "m": "game",
+  "t": "Pac-Man",
+  "c": "Namco",
+  "y": 1980,
+  "r": 6,
+  "p": "retro",
+  "src": "backloggd",
+  "sid": "pac-man",
+  "st": "done"
  }
 ]

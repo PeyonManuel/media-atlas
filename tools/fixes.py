@@ -173,6 +173,9 @@ if 'g1ak' in items: items['g1ak']['r'] = 7; items['g1ak']['st'] = 'done'
 # Seven Samurai is a 10, Ikiru an 8 (Manuel)
 if 'fl3' in items: items['fl3']['r'] = 10
 if 'fl9' in items: items['fl9']['r'] = 8
+# Backloggd changes: Space Marine II 7, Cultic 8, Fortnite 6; Max Payne (7) and Blood (9) played now
+for _i, _r, _s in (('g11d', 7, 'done'), ('g11p', 8, 'done'), ('g12g', 6, 'done'), ('g1bj', 7, 'done'), ('g1bm', 9, 'done')):
+    if _i in items: items[_i]['r'] = _r; items[_i]['st'] = _s
 # AniList scores now: Samurai Champloo 8, Cowboy Bebop 8, Steel Ball Run (anime) 9
 for _i, _r in (('a1h', 8), ('a1g', 8), ('a4e', 9)):
     if _i in items: items[_i]['r'] = _r

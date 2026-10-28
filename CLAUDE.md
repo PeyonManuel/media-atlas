@@ -8,7 +8,7 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   Page code is edited directly. World data is **never** hand-edited: change the scripts in `tools/` and run
   `python3 tools/rebuild.py`, which restores `tools/base-world.html`'s data and runs, in order:
   fixes → subisles → series → media → spread → continents → portals → cohesion → continents (whole) → pairs →
-  spread → cohesion (settle only) → blurbs → routes → canon.
+  spread → cohesion (settle only) → blurbs → routes → apart → palette → canon.
 - `fixes.py` data corrections and moves (anime folded into film/TV, merged seasons, misfiled works) and typical
   episode lengths for non-anime shows (`EP_MIN`).
 - `subisles.py` franchise realms as sub-islands (`PARENT`), curated book/game series (`CURATED`, with
@@ -36,6 +36,11 @@ pushing is publishing. A copy is also published as a claude.ai artifact.
   (glyph top-left; on covers a gold badge in the corner opposite the pause mark), a Canon section in the ledger
   grouped by medium, a line in the work's panel, and the key's Canon switch (`state.canon`) dims everything else.
   He adds to it as works come to mind: append ids to canon.json and rerun canon.py (or the rebuild).
+- `palette.py` (before canon) gives every island and sub-island a `tint` [hue, strength] from its covers in the sprite
+  sheets: the hue its art has more of than covers in general (all covers share a warm cast, so plain averages turn
+  everything orange), the strength how vivid and agreed its covers are (grey covers stay grey). The page keeps each
+  continent's sensibility hue (`HUE`) from afar and blends each island (clipped to its works' Voronoi cells,
+  `islandCells`) and plateau toward its covers' tint as you zoom in (`coverMix`, from k 0.7 to 1.6).
 - `media.py` groups each mixed island by medium (one wedge per medium, series kept together inside it).
 - `spread.py` pushes works apart until no two covers overlap, using `tools/boxes.json` (each work's drawn
   footprint, measured in the page by `tools/tests/export_boxes.py`). Re-export the boxes whenever cover

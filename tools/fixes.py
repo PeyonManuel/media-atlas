@@ -198,8 +198,8 @@ if 'g135' in items: items['g135']['r'] = 8
 if 'g199' in items: items['g199']['r'] = 8
 # Stalker (Tarkovsky, 1979) is an 8 (Manuel's score; the base data had 5)
 if 'fz5' in items: items['fz5']['r'] = 8
-# The Count of Monte Cristo is a 9 (Manuel's score; it had no score)
-if 'bbq' in items: items['bbq']['r'] = 9
+# The Count of Monte Cristo is an 8 (Manuel's score; it had no score)
+if 'bbq' in items: items['bbq']['r'] = 8
 # Barry Lyndon is a 9 (Manuel's score; the base data had 8)
 if 'fzn' in items: items['fzn']['r'] = 9
 # both Trails in the Sky (the remake and the original) are a 6 (Manuel's score)

@@ -200,6 +200,8 @@ if 'g199' in items: items['g199']['r'] = 8
 if 'fz5' in items: items['fz5']['r'] = 8
 # The Count of Monte Cristo is an 8 (Manuel's score; it had no score)
 if 'bbq' in items: items['bbq']['r'] = 8
+# The Last of Us Part II is an 8 (Manuel's score; the base data had 9)
+if 'g12h' in items: items['g12h']['r'] = 8
 # Barry Lyndon is a 9 (Manuel's score; the base data had 8)
 if 'fzn' in items: items['fzn']['r'] = 9
 # both Trails in the Sky (the remake and the original) are a 6 (Manuel's score)

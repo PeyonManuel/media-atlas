@@ -170,6 +170,8 @@ for i in W['items']:
 
 # Assassin's Creed Black Flag Resynced is played now and a 7 (Backloggd)
 if 'g1ak' in items: items['g1ak']['r'] = 7; items['g1ak']['st'] = 'done'
+# The Count of Monte Cristo is read now, an 8 (Manuel, Nov 2026)
+if 'bbq' in items: items['bbq']['st'] = 'done'
 # Seven Samurai is a 10, Ikiru an 8 (Manuel)
 if 'fl3' in items: items['fl3']['r'] = 10
 if 'fl9' in items: items['fl9']['r'] = 8
